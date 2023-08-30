@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot name="multipleshapes">
+
+ <material name="blue">
+    <color rgba="0 0 0.8 0.6"/>
+  </material>
+  
+  <material name="red">
+    <color rgba="1.0 0 0 0.9"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 0.6"/>
+  </material>
+  
+  
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.3 0.08 0.01"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.1 0 0"/>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="steer_link">
+    <visual>
+      <geometry>
+        <box size="0.2 0.05 0.02"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.01"/>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="ster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="steer_link"/>
+  </joint>
+
+</robot>
