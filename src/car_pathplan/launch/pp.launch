@@ -1,0 +1,12 @@
+<launch>
+
+  <node pkg="car_pathplan" type="path_plan_node" name="path_plan_node" output="screen" respawn="false">
+  </node>
+
+
+  <!-- <include if="$(arg smoother)" 
+    file="$(find turn_on_wheeltec_robot)/launch/include/velocity_smoother.launch" >
+  </include> -->
+
+</launch>
+

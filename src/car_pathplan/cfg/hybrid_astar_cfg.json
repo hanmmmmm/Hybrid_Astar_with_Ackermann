@@ -1,0 +1,25 @@
+{
+    "searching_step_length_meter": {
+        "forward": 0.15,
+        "backward": 0.1
+    },
+    "searching_turning_radius_meter": 0.5,
+    "searching_time_limt_ms": 3000,
+    "gridmap_obstacle_threshold": {
+        "planning": 70,
+        "validate": 50
+    },
+    "yaw_angle_grid_bin_size_rad": 0.1745329,
+    "reedshepp_every_n_nodes": 10,
+    "action_cost_multipler": {
+        "forward_action": 1.0,
+        "backward_action": 1.3,
+        "steer_action": 1.1,
+        "aggresive_steer": 2.0
+    },
+    "h_cost_options": {
+        "use_astar_as_hcost": 0,
+        "use_astar_every_node": 0,
+        "astar_step_size_int": 3
+    }
+}

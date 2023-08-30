@@ -1,0 +1,21 @@
+{
+    "_comment": "0=Dijkstra; 1=A*; 2=D*-Lite; 3=LPA*; 4=RRT; 5=RRT*",
+
+    "path_plan_algo" : 1,
+
+    "topic_names": {
+      "map_subscribed_topic_name_": "map",
+      "goal_subscribed_topic_name_": "move_base_simple/goal",
+      "odom_subscribed_topic_name_": "odom/filtered",
+      "map_published_topic_name_": "global_map_inflated",
+      "path_published_topic_name_": "global_path"
+    },
+  
+    "path_plan_time_interval_sec": 1.0,
+    
+    "path_finding_timeout_ms_" : 500,
+    
+    "inflation": {
+      "inflate_radius": 4
+    }
+}

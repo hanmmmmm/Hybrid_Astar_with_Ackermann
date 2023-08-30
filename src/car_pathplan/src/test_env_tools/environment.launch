@@ -1,0 +1,7 @@
+<launch>
+
+    <node name="gridmap_puber" pkg="car_pathplan" type="gridmap_publish.py" />
+
+    <node name="robot_tf_puber" pkg="car_pathplan" type="tf_puber.py" />
+
+</launch>
