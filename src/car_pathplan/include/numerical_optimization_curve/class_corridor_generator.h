@@ -21,6 +21,7 @@
 // convert grid limits to metric limits.
 
 #include <iostream>
+#include <vector>
 
 #include "../car_pathplan/class_custom_path.h"
 #include "../car_pathplan/class_gridmap_2d_handler.h"
@@ -32,7 +33,8 @@ class ClassCorridorGenerator
 private:
     ClassCustomPathContainer m_waypoints_;
     ClassGridMap2DHandler m_gridmap_handler_;
-    ClassCorridor m_result_;
+    ClassCorridor m_result_as_corridor;
+    std::vector<double> m_result_as_vector_;
 
     double m_max_bbox_half_size_meter_;
 
@@ -53,6 +55,8 @@ public:
     bool generate_bboxs();
 
     void get_result(ClassCorridor& cont);
+
+    void get_result_as_vector(std::vector<double> cont);
 };
 
 ClassCorridorGenerator::ClassCorridorGenerator()
@@ -93,7 +97,8 @@ bool ClassCorridorGenerator::generate_bboxs()
         return false;
     }
 
-    m_result_.clear_content();
+    m_result_as_corridor.clear_content();
+    m_result_as_vector_.clear();
 
     unsigned int _number_grid_width_half = m_max_bbox_half_size_meter_ / m_gridmap_handler_.get_resolution();
     // cout << "_number_grid_width_half  " << _number_grid_width_half << endl;
@@ -208,7 +213,12 @@ bool ClassCorridorGenerator::generate_bboxs()
 
         // cout << "corridor " << _x_min_metric << " " << _x_max_metric << " " << _y_min_metric << " " << _y_max_metric << endl;
 
-        m_result_.add_one_box(_x_min_metric, _x_max_metric, _y_min_metric, _y_max_metric);
+        m_result_as_corridor.add_one_box(_x_min_metric, _x_max_metric, _y_min_metric, _y_max_metric);
+        
+        m_result_as_vector_.push_back(_x_min_metric);
+        m_result_as_vector_.push_back(_x_max_metric);
+        m_result_as_vector_.push_back(_y_min_metric);
+        m_result_as_vector_.push_back(_y_max_metric);
         
     }
 }
@@ -216,7 +226,12 @@ bool ClassCorridorGenerator::generate_bboxs()
 
 void ClassCorridorGenerator::get_result(ClassCorridor& cont)
 {
-    cont = m_result_;
+    cont = m_result_as_corridor;
+}
+
+void ClassCorridorGenerator::get_result_as_vector(std::vector<double> cont)
+{
+    cont = m_result_as_vector_;
 }
 
 
