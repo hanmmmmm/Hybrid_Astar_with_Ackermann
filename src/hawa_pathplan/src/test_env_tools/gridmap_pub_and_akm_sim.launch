@@ -1,10 +1,10 @@
 <launch>
 
-    <node name="gridmap_puber" pkg="car_pathplan" type="gridmap_publish.py" />
+    <node name="gridmap_puber" pkg="hawa_pathplan" type="gridmap_publish.py" />
     
-    <node name="gridmap_fusion_puber" pkg="car_pathplan" type="map_fusion_node" />
+    <node name="gridmap_fusion_puber" pkg="hawa_pathplan" type="map_fusion_node" />
     
-    <include file="$(find ackermann_sim)/launch/akm_sim_and_joystick.launch" >
+    <include file="$(find hawa_ackermann_sim)/launch/akm_sim_and_joystick.launch" >
     </include>
 
 </launch>

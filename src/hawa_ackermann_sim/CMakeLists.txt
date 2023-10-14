@@ -123,13 +123,13 @@ include_directories(
 )
 
 
-# add_executable(akm_sim_node 
-#   src/simulation.cpp
-# )
+add_executable(akm_sim_node 
+  src/simulation.cpp
+)
 
-# target_link_libraries( akm_sim_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries( akm_sim_node
+  ${catkin_LIBRARIES}
+)
 
 
 ## Declare a C++ library
