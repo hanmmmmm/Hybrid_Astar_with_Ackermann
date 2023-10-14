@@ -43,14 +43,26 @@ inline double mod_angle_2pi(const double angle)
 
 
 
-double ceil_number_to_multiply_of_base(const double val_in, const double base)
+double ceil_number_to_multiply_of_base(const double val_in, const double base, int& num_multi)
 {
     int _multi = 0;
     while(val_in > (base*double(_multi)) )
     {
         _multi += 1;
     }
+    num_multi = _multi;
     return base*double(_multi);
+}
+
+void ceil_number_to_multiply_of_base(const double val_in, const double base, int& num_multi, double& val_out)
+{
+    int _multi = 0;
+    while(val_in > (base*double(_multi)) )
+    {
+        _multi += 1;
+    }
+    num_multi = _multi;
+    val_out = base * double(_multi);
 }
 
 
@@ -73,6 +85,49 @@ double linear_interpolate_angles(double angle_1, double angle_2, const double t)
             return angle_1 - t * _delta;
         else
             return angle_1 + t * (M_PI*2 - _delta);
+    }
+}
+
+
+void solve_quadratic(const double A, const double B, const double C, double& r1, double& r2)
+{
+    if (std::pow(B, 2) < 4 * A * C )
+        std::cout << "Seems the quadratic solution need be complex." << std::endl;
+
+    double sq = std::sqrt( std::pow(B, 2) - 4 * A * C );
+    r1 = (-B + sq) / (A*2);
+    r2 = (-B - sq) / (A*2);
+}
+
+
+void solve_quadratic_for_unique_postive_root(const double A, const double B, const double C, double& root)
+{
+    if (std::pow(B, 2) < 4 * A * C )
+        std::cout << "Seems the quadratic solution need be complex." << std::endl;
+    
+    double sq = std::sqrt( std::pow(B, 2) - 4 * A * C );
+    double r1 = (-B + sq) / (A*2);
+    double r2 = (-B - sq) / (A*2);
+
+    if (r1 > 0 && r2 <= 0)
+    {
+        root = r1;
+    }
+    else if (r1 <= 0 && r2 > 0)
+    {
+        root = r2;
+    }
+    else if (r1 < 0 && r2 < 0)
+    {
+        std::cout << "Didn't find postive roots." << std::endl;
+    }
+    else if (r1 > 0 && r2 > 0)
+    {
+        std::cout << "Found two postive roots." << std::endl;
+    }
+    else
+    {
+        std::cout << "Error in solve_quadratic_for_unique_postive_root." << std::endl;
     }
 }
 

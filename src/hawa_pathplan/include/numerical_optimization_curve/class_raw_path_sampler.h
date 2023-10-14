@@ -37,145 +37,258 @@
 // make container for acceleration and steer. 
 
 
-using std::cout;
-using std::endl;
-using std::vector;
+// using std::cout;
+// using std::endl;
+// using std::vector;
 
 
 struct StructMotionSequence
 {
-    double t_up = 0;
-    double t_hold = 0;
-    double t_down = 0;
-    double d_up = 0;
-    double d_hold = 0;
-    double d_down = 0;
-    double m_acc = 0;
-    double m_max_v = 0;
+    bool is_forward = true;
 
-    double calc_distance_by_time(const double dt, const double velocity_reached);
+    double dist_accel = 0;
+    double dist_const = 0;
+    double dist_decel = 0;
+    double dist_total = 0;
 
-    vector<double> calc_key_distances_by_timestep(const double step);
+    double time_accel = 0;
+    double time_const = 0;
+    double time_decel = 0;
+    double time_total = 0;
+
+    double limit_velocity = 0;
+
+    double limit_accel = 0;
+    double limit_decel = 0;
+
+    double actual_accel = 0;
+    double actual_decel = 0;
+
+    double actual_top_velocity = 0;
+
+    double time_step_sec = 0;
+
+    int steps_in_accel = 0;  // the amount of steps needed during the stage of increasing speed
+    int steps_in_const = 0;  // the amount of steps needed during the stage of constant speed
+    int steps_in_decel = 0;  // the amount of steps needed during the stage of decreasing speed
+
+    void set_total_distance(double val);
+    void set_time_step_sec(double val);
+    void set_forwarding();
+    void set_reversing();
+    void set_limit_accel(double val);
+    void set_limit_decel(double val);
+    void set_limit_velocity(double val);
+
+    bool verify_signs();
+    void print_parameters();
+    
+    double calc_distance_by_time(const double dt);
+    double calc_speed_by_time(const double dt);
+    void calc_speed_from_distances(const std::vector<double>& dists, std::vector<double>& spds);
+
+    void calc_key_distances_by_timestep(vector<double>& distances, vector<double>& speeds);
 };
+
+void StructMotionSequence::set_total_distance(double val)
+{
+    if (val <= 0)
+        std::cerr << "set_total_distance() got negative value: " << val << std::endl;
+
+    this->dist_total = val;
+}
+
+void StructMotionSequence::set_time_step_sec(double val)
+{
+    if (val <= 0)
+        std::cerr << "set_time_step_sec() got negative value: " << val << std::endl;
+
+    this->time_step_sec = val;
+}
+
+
+void StructMotionSequence::set_limit_accel(double val)
+{
+    if (val <= 0)
+        std::cerr << "set_limit_accel() got negative value: " << val << std::endl;
+
+    this->limit_accel = val;
+}
+
+void StructMotionSequence::set_limit_decel(double val)
+{
+    if (val >= 0)
+        std::cerr << "set_limit_decel() got positive value: " << val << std::endl;
+
+    this->limit_decel = val;
+}
+
+
+void StructMotionSequence::set_limit_velocity(double val)
+{
+    if (val <= 0)
+        std::cerr << "set_limit_velocity() got negative value: " << val << std::endl;
+
+    this->limit_velocity = val;
+}
+
+
+void StructMotionSequence::set_forwarding()
+{
+    this->is_forward = true;
+}
+
+
+void StructMotionSequence::set_reversing()
+{
+    this->is_forward = false;
+}
+
+
+bool StructMotionSequence::verify_signs()
+{
+    if (this->is_forward)
+    {
+        if (! (this->limit_accel > 0))
+        {
+            return false;
+        }
+        if (! (this->limit_decel < 0))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (! (this->limit_accel > 0))
+        {
+            return false;
+        }
+        if (! (this->limit_decel < 0))
+        {
+            return false;
+        }
+    }
+}
+
 
 /// @brief 
 /// @param dt: time in seconds since the moment when velocity changes from 0.
 /// @return the distance from where the velocity changes from 0. 
-double StructMotionSequence::calc_distance_by_time(const double dt, const double velocity_reached)
+double StructMotionSequence::calc_distance_by_time(const double dt)
 {
-    if (dt < t_up)
-        return 0.5 * m_acc * dt * dt;
-    else if (dt == t_up)
-        return d_up;
-    else if (t_up < dt && dt < (t_up+t_hold))
-        return d_up + (dt-t_up)*d_hold/t_hold;
-    else if (dt == t_up + t_hold)
-        return d_up + d_hold;
-    else if ( (dt > t_up + t_hold) && (dt < t_up + t_hold + t_down))
+    if (dt < time_accel)
+        return 0.5 * actual_accel * dt * dt;
+    else if (dt == time_accel)
+        return dist_accel;
+    else if (time_accel < dt && dt < (time_accel+time_const))
+        return dist_accel + (dt-time_accel)*dist_const/time_const;
+    else if (dt == time_accel + time_const)
+        return dist_accel + dist_const;
+    else if ( (dt > time_accel + time_const) && (dt < time_accel + time_const + time_decel))
     {
-        double _t_in_down = dt - t_up - t_hold;
-        double _d_in_down = velocity_reached * _t_in_down - 0.5 * m_acc * _t_in_down * _t_in_down;
-        return d_up + d_hold + _d_in_down;
+        double _t_in_down = dt - time_accel - time_const;
+        double _d_in_down = actual_top_velocity * _t_in_down + 0.5 * actual_decel * _t_in_down * _t_in_down;
+        return dist_accel + dist_const + _d_in_down;
     }
-    else if (dt >= t_up + t_hold + t_down)
-        return d_up + d_hold + d_down;
+    else if (dt >= time_accel + time_const + time_decel)
+        return dist_total;
 }
 
 
-vector<double> StructMotionSequence::calc_key_distances_by_timestep(const double step)
+double StructMotionSequence::calc_speed_by_time(const double dt)
 {
-    vector<double> _result;
-    // _result.push_back(0.0);
-    double _total_dt = 0.0;
-
-    while (_total_dt <= (t_up + t_hold + t_down))
+    if (dt <= time_accel)
     {
-        double _key_distance = calc_distance_by_time( _total_dt, m_acc * t_up);
-        _result.push_back(_key_distance);
+        return actual_accel * (dt+0);
+    }
+    else if (time_accel < dt && dt < (time_accel+time_const)*0.99)
+    {
+        return actual_top_velocity;
+    }
+    else
+    {
+        double _dt_in_decel = dt - time_accel - time_const ;
+        return actual_top_velocity + actual_decel * _dt_in_decel;
+    }   
+}
+
+void StructMotionSequence::calc_speed_from_distances(const std::vector<double>& dists, std::vector<double>& spds)
+{
+    spds.clear();
+
+    for (int ct=1; ct<dists.size()-1; ct++)
+    {
+        double _displacement = dists.at(ct) - dists.at(ct-1);
+        spds.push_back(_displacement / time_step_sec);
+        // std::cout << "#" << ct << " " << distances.at(ct) << "  " << distances[ct]-distances[ct-1] << "  " << speeds[ct] << std::endl;
+    }
+    // the last point needs a bit special calc
+    double _displacement = dist_total - dists.at(dists.size()-1);
+    spds.push_back(_displacement / time_step_sec);
+    std::cout << "the last displacement  " << _displacement << "  the last speed  " << (_displacement / time_step_sec) << std::endl;
+    
+}
+
+void StructMotionSequence::calc_key_distances_by_timestep(vector<double>& distances, vector<double>& speeds)
+{
+    distances.clear();
+    speeds.clear();
+
+    double _total_dt = 0.0;
+    double _key_distance = 0.0;
+    double _speed = 0.0;
+
+    while (_total_dt <= this->time_total)
+    {
+        _key_distance = calc_distance_by_time( _total_dt);
+        distances.push_back(_key_distance);
+        
+        // _speed = calc_speed_by_time( _total_dt);
+        // speeds.push_back(_speed);
 
         // cout << "calc_key_distances_by_timestep _total_dt  " << _total_dt  << "  dist  " << _key_distance << endl;
-        cout << _total_dt  << "," << _key_distance << endl;
+        // cout << _total_dt  << "," << _key_distance << endl;
 
-        double _step_size = step;
-        if (_total_dt < t_up  &&  (_total_dt + step) > t_up )
-        {
-            _step_size = t_up - _total_dt;
-        }
-        else if (_total_dt < (t_up+t_hold)  &&  (_total_dt + step)> (t_up+t_hold) )
-        {
-            _step_size = t_up + t_hold - _total_dt;
-        }
-        _total_dt += _step_size;
+        _total_dt += this->time_step_sec;
+    }
+    if (distances.size())
+    {
+        // slightly shorten the last section, otherwise some float precision issue happens occasionally
+        distances[distances.size()-1] *= 0.999;  
+        calc_speed_from_distances(distances, speeds);
     }
 
-    return _result;
+
+    std::cout << "   D     V" << std::endl; 
+    std::cout << "#" << 0 << " " << distances[0] << "  " << speeds[0] << std::endl;
+    for (int ct=1; ct<distances.size(); ct++)
+    {
+        std::cout << "#" << ct << " " << distances.at(ct) << "  " << distances[ct]-distances[ct-1] << "  " << speeds[ct] << std::endl;
+    }
 }
 
 
-
-// /// @brief This fuction is to find the time duration for each of these 2 conditions.
-// ///  
-// ///   ^     _______                     ^     
-// /// v |    /       \                  v |    
-// ///   |   /         \                   |   /\
-// ///   |  /           \                  |  /  \
-// ///   +-.--.-------.--.--> t            +---------> t
-// ///     t1  t2    t3  t4                  t1 t2 t3
-// ///
-// /// @param v_max 
-// /// @param acc 
-// /// @param total_distance 
-// /// @return 
-// StructMotionSequence get_motion_sequence_durations(double v_max, double acc, double total_distance)
-// {
-//     /*
-//     This method generates valid solution, but it has a proble,:
-//     the durations are not integer times of the sampling time-step,
-//     so the sampled points do not have constant timestep.
-//     A way to imrpve this is increasing the durations calculated here
-//     to integer times of the sampling time-step. Then recalculate the v_max 
-//     and acc.
-//     */
-//     StructMotionSequence _result;
-//     _result.m_acc = acc;
-//     _result.m_max_v = v_max;
-
-//     double _complete_ramp_time = v_max / acc;
-//     double _complete_ramp_length = 0.5 * acc * std::pow(_complete_ramp_time, 2);
-
-//     if (total_distance > _complete_ramp_length * 2)
-//     {
-//         _result.t_up = _complete_ramp_time;
-//         _result.t_down = _complete_ramp_time;
-//         _result.t_hold = (total_distance - _complete_ramp_length * 2) / v_max;
-//         _result.d_up = _complete_ramp_length;
-//         _result.d_down = _complete_ramp_length;
-//         _result.d_hold = total_distance - _complete_ramp_length * 2;
-//     }
-//     else if (total_distance < _complete_ramp_length * 2)
-//     {
-//         double _dt = std::pow(total_distance / acc , 0.5);  // from formula:  d=a*t*t/2
-//         _result.t_up = _dt;
-//         _result.t_down = _dt;
-//         _result.t_hold = 0;
-//         _result.d_up = total_distance/2.0;
-//         _result.d_down = total_distance/2.0;
-//         _result.d_hold = 0;
-//     }
-//     else if (total_distance == _complete_ramp_length * 2)
-//     {
-//         _result.t_up = _complete_ramp_time;
-//         _result.t_down = _complete_ramp_time;
-//         _result.t_hold = 0;
-//         _result.d_up = total_distance/2.0;
-//         _result.d_down = total_distance/2.0;
-//         _result.d_hold = 0;
-//     }
+void StructMotionSequence::print_parameters()
+{
+    cout << "_motion_seq time_accel   " << time_accel << endl;
+    cout << "_motion_seq time_const " << time_const << endl;
+    cout << "_motion_seq time_decel " << time_decel << endl;
     
-//     return _result;
-// }
+    cout << "_motion_seq dist_accel   " << dist_accel << endl;
+    cout << "_motion_seq dist_const " << dist_const << endl;
+    cout << "_motion_seq dist_decel " << dist_decel << endl;
 
+    cout << "_motion_seq limit_accel " << limit_accel << endl;
+    cout << "_motion_seq actual_accel " << actual_accel << endl;
+    cout << "_motion_seq limit_decel " << limit_decel << endl;
+    cout << "_motion_seq actual_decel " << actual_decel << endl;
+    cout << "_motion_seq limit_velocity " << limit_velocity << endl;
+    cout << "_motion_seq actual_top_velocity " << actual_top_velocity << endl;
 
+    cout << "_motion_seq time_total " << time_total << endl;
+    cout << "_motion_seq dist_total " << dist_total << endl;
+}
 
 
 /// @brief This fuction is to find the time duration for each of these 2 conditions.
@@ -185,88 +298,151 @@ vector<double> StructMotionSequence::calc_key_distances_by_timestep(const double
 ///   |   /         \                   |   /\
 ///   |  /           \                  |  /  \
 ///   +-.--.-------.--.--> t            +---------> t
-///     t1  t2    t3  t4                  t1 t2 t3
+///       t1   t2  t3                     t1 t2 t3
 ///
-/// @param v_max 
-/// @param acc 
-/// @param total_distance 
-/// @return 
-StructMotionSequence get_motion_sequence_durations(double v_max, double acc, double total_distance)
+/// @param motion_seq 
+void calc_motion_sequence_parameters(StructMotionSequence& motion_seq)
 {
-    /*
-    V1:
-    This method generates valid solution, but it has a problem:
-    the durations are not integer multiply of the sampling time-step,
-    so the sampled points do not have constant timestep.
-    A way to imrpve this is increasing the durations calculated here
-    to integer multiply of the sampling time-step. Then recalculate the v_max 
-    and acc.
-    */
-
-    /*
-    V2:
-    This method kind of solves the problem mentioned above. 
-    But it has a flaw that I cannot come up with solution right now. 
-    The constant speed region might have differeent speed than the top 
-    speed reached at the end of the acceleration stage. 
-    The reason is that the duration for each stage is extended to integer values,
-    so the change in each of them are not same.
-    */
-
-    StructMotionSequence _result;
-
-    double _complete_ramp_time = v_max / acc;
-    double _complete_ramp_length = 0.5 * acc * std::pow(_complete_ramp_time, 2);
-
-    if (total_distance > _complete_ramp_length * 2)
-    {
-        _result.t_up = _complete_ramp_time;
-        _result.t_up = ceil_number_to_multiply_of_base(_result.t_up, 0.9);
-        _result.t_down = _complete_ramp_time;
-        _result.t_down = ceil_number_to_multiply_of_base(_result.t_down, 0.9);
-        _result.t_hold = (total_distance - _complete_ramp_length * 2) / v_max;
-        _result.t_hold = ceil_number_to_multiply_of_base(_result.t_hold, 0.9);
-
-        _result.d_up = _complete_ramp_length;
-        _result.d_down = _complete_ramp_length;
-        _result.d_hold = total_distance - _complete_ramp_length * 2;
-
-        _result.m_max_v = _result.d_hold / _result.t_hold;
-        _result.m_acc = (_result.d_up * 2)/(_result.t_up * _result.t_up);
-    }
-    else if (total_distance < _complete_ramp_length * 2)
-    {
-        double _dt = std::pow(total_distance / acc , 0.5);  // from formula:  d=a*t*t/2
-        _result.t_up = _dt;
-        _result.t_up = ceil_number_to_multiply_of_base(_result.t_up, 0.9);
-        _result.t_down = _dt;
-        _result.t_down = ceil_number_to_multiply_of_base(_result.t_down, 0.9);
-        _result.t_hold = 0;
-        _result.d_up = total_distance/2.0;
-        _result.d_down = total_distance/2.0;
-        _result.d_hold = 0;
-
-        _result.m_acc = (_result.d_up * 2)/(_result.t_up * _result.t_up);
-        _result.m_max_v = _result.m_acc * _result.t_up;
-    }
-    else if (total_distance == _complete_ramp_length * 2)
-    {
-        _result.t_up = _complete_ramp_time;
-        _result.t_up = ceil_number_to_multiply_of_base(_result.t_up, 0.9);
-        _result.t_down = _complete_ramp_time;
-        _result.t_down = ceil_number_to_multiply_of_base(_result.t_down, 0.9);
-        _result.t_hold = 0;
-        _result.d_up = total_distance/2.0;
-        _result.d_down = total_distance/2.0;
-        _result.d_hold = 0;
-
-        _result.m_acc = (_result.d_up * 2)/(_result.t_up * _result.t_up);
-        _result.m_max_v = _result.m_acc * _result.t_up;
-    }
+    // first using the extreme values to estimate the times and distances in 3 stages. 
+    double _guess_acc_time = std::abs(motion_seq.limit_velocity / motion_seq.limit_accel);
+    double _guess_dec_time = std::abs(motion_seq.limit_velocity / motion_seq.limit_decel);
     
-    return _result;
+    double _guess_acc_distance = 0.5 * motion_seq.limit_accel * std::pow(_guess_acc_time, 2);
+    double _guess_dec_distance = 0.5 * motion_seq.limit_decel * std::pow(_guess_dec_time, 2) + motion_seq.limit_velocity * _guess_dec_time;
+
+    double _guess_const_distance = motion_seq.dist_total - (_guess_acc_distance + _guess_dec_distance);
+    double _guess_cnst_time = _guess_const_distance / motion_seq.limit_velocity;
+
+    double _step_size = motion_seq.time_step_sec;
+
+    if (_guess_const_distance > 0)
+    {
+        // this is the first case mentioned above. The total distance is long enough so the robot can 
+        // accelerates to the max speed then slow dowm.
+
+        // calc the actual time length for each of the 3 stages. The values should be
+        // 1. larger than the guessed value, so the actual acc/dec will not exceed their limits
+        // 2. exact interger multiply of the time_step length, so the sampled points are evenly along the path. 
+
+        double _actual_cnst_time, _actual_acc_time, _actual_dec_time;
+
+        ceil_number_to_multiply_of_base(_guess_cnst_time, _step_size, motion_seq.steps_in_const, _actual_cnst_time);
+
+        ceil_number_to_multiply_of_base(_guess_acc_time, _step_size, motion_seq.steps_in_accel, _actual_acc_time);
+
+        ceil_number_to_multiply_of_base(_guess_dec_time, _step_size, motion_seq.steps_in_decel, _actual_dec_time);
+
+        // calc the actual acceleration and deceleration. 
+        // d = (1/2) * (a * t^2)
+
+        double t1 = _actual_acc_time;
+        double t2 = _actual_cnst_time;
+        double t3 = _actual_dec_time;
+
+        double _temp = 0.5 * t1 * t1 + t1 * t2 + 0.5 * t1 * t3; 
+        motion_seq.actual_accel = motion_seq.dist_total / _temp;
+        motion_seq.actual_decel = -(motion_seq.actual_accel * t1) / t3;
+        
+        motion_seq.time_accel = _actual_acc_time;
+        motion_seq.time_const = _actual_cnst_time;
+        motion_seq.time_decel = _actual_dec_time;
+        
+        motion_seq.dist_accel = 0.5 * motion_seq.actual_accel * motion_seq.time_accel * motion_seq.time_accel;
+        motion_seq.actual_top_velocity = motion_seq.actual_accel * motion_seq.time_accel;
+
+        motion_seq.dist_const = motion_seq.actual_top_velocity * motion_seq.time_const;
+
+        motion_seq.dist_decel = motion_seq.actual_top_velocity * motion_seq.time_decel + 0.5 * motion_seq.actual_decel * motion_seq.time_decel * motion_seq.time_decel;
+
+        motion_seq.time_total = 0;
+        motion_seq.time_total += motion_seq.time_accel;
+        motion_seq.time_total += motion_seq.time_const;
+        motion_seq.time_total += motion_seq.time_decel;
+    }
+    else
+    {
+        double _actual_acc_time, _actual_dec_time;
+
+        ceil_number_to_multiply_of_base(_guess_acc_time, _step_size, motion_seq.steps_in_accel, _actual_acc_time);
+
+        ceil_number_to_multiply_of_base(_guess_dec_time, _step_size, motion_seq.steps_in_decel, _actual_dec_time);
+
+        double t1 = _actual_acc_time;
+        double t3 = _actual_dec_time;
+
+        double _temp = 0.5 * t1 * t1 + 0.5 * t1 * t3; 
+        motion_seq.actual_accel = motion_seq.dist_total / _temp;
+        motion_seq.actual_decel = -(motion_seq.actual_accel * t1) / t3;
+
+
+        motion_seq.time_accel = _actual_acc_time;
+        motion_seq.time_const = 0.0;
+        motion_seq.time_decel = _actual_dec_time;
+        
+        motion_seq.dist_accel = 0.5 * motion_seq.actual_accel * motion_seq.time_accel * motion_seq.time_accel;
+        motion_seq.actual_top_velocity = motion_seq.actual_accel * motion_seq.time_accel;
+
+        motion_seq.dist_const = 0;
+
+        motion_seq.dist_decel = motion_seq.actual_top_velocity * motion_seq.time_decel + 0.5 * motion_seq.actual_decel * motion_seq.time_decel * motion_seq.time_decel;
+
+        motion_seq.time_total = 0;
+        motion_seq.time_total += motion_seq.time_accel;
+        motion_seq.time_total += motion_seq.time_decel;
+    }
+
 }
 
+
+void verify_motion_sequence_parameters(const StructMotionSequence& motion_seq)
+{
+    using std::cout;
+    using std::endl;
+
+    cout << "verify_motion_sequence_parameters" << endl;
+
+    // time
+    cout << "Time  ";
+    cout << motion_seq.time_accel << " + " << motion_seq.time_const << " + " << motion_seq.time_decel << " = " ;
+    cout << motion_seq.time_accel + motion_seq.time_const + motion_seq.time_decel << " : " << motion_seq.time_total << endl;
+
+    // dist
+    cout << "dist  ";
+    cout << motion_seq.dist_accel << " + " << motion_seq.dist_const << " + " << motion_seq.dist_decel << " = " ;
+    cout << motion_seq.dist_accel + motion_seq.dist_const + motion_seq.dist_decel << " : " << motion_seq.dist_total << endl;
+
+    // speed
+    cout << "speed acc  ";
+    cout << motion_seq.actual_accel << " * " << motion_seq.time_accel << " = " << motion_seq.actual_accel * motion_seq.time_accel;
+    cout << " : " << motion_seq.actual_top_velocity << endl;
+    cout << "speed dec  ";
+    cout << motion_seq.actual_decel << " * " << motion_seq.time_decel << " = " << motion_seq.actual_decel * motion_seq.time_decel;
+    cout << " : " << motion_seq.actual_top_velocity << endl;
+
+    // dist by v t
+    cout << "dist acc from topv and time  ";
+    double _dist_by_v = 0.5 * motion_seq.actual_top_velocity * motion_seq.time_accel;
+    cout << _dist_by_v << " : " << motion_seq.dist_accel << endl;
+    cout << "dist dec from topv and time  ";
+    _dist_by_v = 0.5 * motion_seq.actual_top_velocity * motion_seq.time_decel;
+    cout << _dist_by_v << " : " << motion_seq.dist_decel << endl;
+    
+
+    // dist by acc time
+    cout << "dist from acc and time  ";
+    double _dist_by_acc = 0.5 * motion_seq.actual_accel * motion_seq.time_accel * motion_seq.time_accel;
+    cout << _dist_by_acc << " : " << motion_seq.dist_accel << endl;
+    cout << "dist from const and time  ";
+    double _dist_by_const = motion_seq.actual_top_velocity * motion_seq.time_const;
+    cout << _dist_by_const << " : " << motion_seq.dist_const << endl;
+    cout << "dist from dec and time  ";
+    double _dist_by_dec = motion_seq.actual_top_velocity * motion_seq.time_decel + 0.5 * motion_seq.actual_decel * motion_seq.time_decel * motion_seq.time_decel;
+    cout << _dist_by_dec << " : " << motion_seq.dist_decel << endl;
+    
+
+
+
+}
 
 
 vector<StructPoseReal> sample_from_one_segment_by_distance(const vector<double> distances, const vector<StructPoseReal>& original_path )
@@ -300,7 +476,7 @@ vector<StructPoseReal> sample_from_one_segment_by_distance(const vector<double> 
             }
             _distance_sum = _new_distance;
         }
-        cout << _temp_ct << "  _find_interval  " << _find_interval  << "  dist  " << dist  << "  _count  " << _count << "   tail  " << _tail_distance << endl;
+        // cout << "#" << _temp_ct << " find_interval " << bool(_find_interval)  << "  dist  " << dist  << "  _count  " << _count << "   tail  " << _tail_distance << endl;
         StructPoseReal p1 = original_path[_count];
         StructPoseReal p2 = original_path[_count+1];
         StructPoseReal pnew;
@@ -339,6 +515,14 @@ private:
     ClassCustomPathContainer m_result_;
 
     StructWaypointWithTwist m_robot_init_state_, m_goal_state_;
+
+    struct StructAccSteerSeries
+    {
+        vector<double> accel_series;
+        vector<double> steer_series;
+    }m_accel_steer_series;
+    
+    
 
     // int m_expected_num_of_points_in_result_;
 
@@ -442,7 +626,7 @@ void ClassRawPathSampler::split_whole_path(vector<int> singular_points, vector<v
     }
     cout << endl;
 
-    vector<array<int, 2>> _range_of_all_segments;
+    vector<array<int,2>> _range_of_all_segments;
 
     if (singular_points.size() == 0)
     {
@@ -480,40 +664,51 @@ void ClassRawPathSampler::split_whole_path(vector<int> singular_points, vector<v
 
 bool ClassRawPathSampler::process_raw_data()
 {
-    size_t _total_num_of_points = m_path_.number_of_points();
 
-    if (_total_num_of_points <= 2)
+    if (m_path_.number_of_points() <= 2)
     {
         cout << "too less points in the path. Exit." << endl;
         return false;
     }
 
+    // the input path seems good, so start the processing. 
     int _counter = -1;
     m_result_.clear_points();
 
-    vector<vector<StructPoseReal>> _result;
-
     vector<int> _indices_of_singular_points = find_singular_points();
+
+    vector<vector<StructPoseReal>> _result;
     split_whole_path(_indices_of_singular_points, _result);
 
+    // After the whole path is splitted into shorter segments (each segment is a simple
+    // one-direction motion), some points are to be sampled from each segment. 
+    // Then estimate the required steering and speed for each points. These steer and 
+    // speed values will be the initial guess for the curve optimizer.  
     for(vector<StructPoseReal> segment : _result)
     {
         vector<double> distances;
         double _segment_length = calc_total_distance_of_one_segment(segment);
-        StructMotionSequence _motion_seq = get_motion_sequence_durations(0.25, 0.08, _segment_length);
-        vector<double> _distance_seq = _motion_seq.calc_key_distances_by_timestep(0.9);
+        // StructMotionSequence _motion_seq = get_motion_sequence_durations(0.25, 0.08, _segment_length);
+
+        StructMotionSequence _motion_seq;
+        _motion_seq.set_time_step_sec(0.9);
+        _motion_seq.set_total_distance(_segment_length);
+        _motion_seq.set_limit_accel(0.07);
+        _motion_seq.set_limit_decel(-0.1);
+        _motion_seq.set_limit_velocity(0.2);
+        
+        calc_motion_sequence_parameters(_motion_seq);
+
+        _motion_seq.print_parameters();
+
+        // verify_motion_sequence_parameters(_motion_seq);
+        
+        
+        vector<double> _distance_seq, _speed_seq;
+        _motion_seq.calc_key_distances_by_timestep(_distance_seq, _speed_seq);
         vector<StructPoseReal> _sampled_poses_one_segment = sample_from_one_segment_by_distance(_distance_seq, segment);
-        cout << "_motion_seq t_up   " << _motion_seq.t_up << endl;
-        cout << "_motion_seq t_hold " << _motion_seq.t_hold << endl;
-        cout << "_motion_seq t_down " << _motion_seq.t_down << endl;
-        cout << "_motion_seq d_up   " << _motion_seq.d_up << endl;
-        cout << "_motion_seq d_hold " << _motion_seq.d_hold << endl;
-        cout << "_motion_seq d_down " << _motion_seq.d_down << endl;
-        cout << "_motion_seq m_acc " << _motion_seq.m_acc << endl;
-        cout << "_motion_seq m_max_v " << _motion_seq.m_max_v << endl;
-        cout << "_motion_seq t total " << _motion_seq.t_up + _motion_seq.t_hold + _motion_seq.t_down << endl;
-        cout << "_motion_seq d total " << _motion_seq.d_up + _motion_seq.d_hold + _motion_seq.d_down << endl;
-        cout << "one segment total dist  " << _segment_length << endl;
+
+
         // for(auto dist : _distance_seq)
         // {
         //     cout << "dist  " << dist << endl;
@@ -604,6 +799,11 @@ void ClassRawPathSampler::get_path(ClassCustomPathContainer &r_path)
     r_path = m_result_;
 }
 
+
+// void ClassRawPathSampler::estimate_steers()
+// {
+
+// }
 
 
 
