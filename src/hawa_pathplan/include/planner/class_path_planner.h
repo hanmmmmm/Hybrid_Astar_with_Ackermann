@@ -258,7 +258,8 @@ void ClassPathPlanner::path_plan( const ros::TimerEvent &event )
                 raw_sampler_.get_path(_sampled_path);
                 sampled_path_msg_.poses.clear();
                 sampled_path_msg_.header.frame_id = map_frame_;
-                for( auto point : _sampled_path.get_path() ){
+                for( auto point : _sampled_path.get_path() )
+                {
                     one_pose.pose.position.x = point[0] + map_msg_.info.origin.position.x;
                     one_pose.pose.position.y = point[1] + map_msg_.info.origin.position.y;
                     one_pose.pose.position.z = 0.0;
