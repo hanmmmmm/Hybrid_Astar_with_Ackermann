@@ -37,8 +37,8 @@ ClassCarBox2D::~ClassCarBox2D()
 void ClassCarBox2D::set_frame_id(std::string id_str)
 {
     box_2d_marker_.header.frame_id = "base_link";  //id_str;
-    box_2d_marker_.color.r = 1.0;
-    box_2d_marker_.color.g = 1.0;
+    box_2d_marker_.color.r = 0.0;
+    box_2d_marker_.color.g = 0.0;
     box_2d_marker_.color.b = 1.0;
     box_2d_marker_.color.a = 1.0;
     box_2d_marker_.type = box_2d_marker_.LINE_STRIP;
