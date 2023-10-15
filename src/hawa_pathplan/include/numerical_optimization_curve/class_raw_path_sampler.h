@@ -28,6 +28,7 @@
 #include "../car_pathplan/struct_simple_pose.h"
 #include "../car_pathplan/class_custom_path.h"
 #include "../planner/conversion_tools.h"
+#include "class_steer_solver.h"
 #include "helper_functions.h"
 
 
@@ -217,16 +218,20 @@ void StructMotionSequence::calc_speed_from_distances(const std::vector<double>& 
 {
     spds.clear();
 
-    for (int ct=1; ct<dists.size()-1; ct++)
+    // std::cout << "speeds : ";
+
+    for (int ct=1; ct<dists.size(); ct++)
     {
         double _displacement = dists.at(ct) - dists.at(ct-1);
         spds.push_back(_displacement / time_step_sec);
-        // std::cout << "#" << ct << " " << distances.at(ct) << "  " << distances[ct]-distances[ct-1] << "  " << speeds[ct] << std::endl;
+        // std::cout << " " << (_displacement / time_step_sec);
     }
+    // std::cout << std::endl;
+    
     // the last point needs a bit special calc
     double _displacement = dist_total - dists.at(dists.size()-1);
     spds.push_back(_displacement / time_step_sec);
-    std::cout << "the last displacement  " << _displacement << "  the last speed  " << (_displacement / time_step_sec) << std::endl;
+    // std::cout << "the last displacement  " << _displacement << "  the last speed  " << (_displacement / time_step_sec) << std::endl;
     
 }
 
@@ -260,12 +265,12 @@ void StructMotionSequence::calc_key_distances_by_timestep(vector<double>& distan
     }
 
 
-    std::cout << "   D     V" << std::endl; 
-    std::cout << "#" << 0 << " " << distances[0] << "  " << speeds[0] << std::endl;
-    for (int ct=1; ct<distances.size(); ct++)
-    {
-        std::cout << "#" << ct << " " << distances.at(ct) << "  " << distances[ct]-distances[ct-1] << "  " << speeds[ct] << std::endl;
-    }
+    // std::cout << "   D     V" << std::endl; 
+    // std::cout << "#" << 0 << " " << distances[0] << "  " << speeds[0] << std::endl;
+    // for (int ct=1; ct<distances.size(); ct++)
+    // {
+    //     std::cout << "#" << ct << " " << distances.at(ct) << "  " << distances[ct]-distances[ct-1] << "  " << speeds[ct] << std::endl;
+    // }
 }
 
 
@@ -438,9 +443,6 @@ void verify_motion_sequence_parameters(const StructMotionSequence& motion_seq)
     cout << "dist from dec and time  ";
     double _dist_by_dec = motion_seq.actual_top_velocity * motion_seq.time_decel + 0.5 * motion_seq.actual_decel * motion_seq.time_decel * motion_seq.time_decel;
     cout << _dist_by_dec << " : " << motion_seq.dist_decel << endl;
-    
-
-
 
 }
 
@@ -529,6 +531,8 @@ private:
     double m_linear_speed_, m_linear_acc_, m_steer_angle, m_steer_rate_;
 
     double m_step_duration_sec_;
+
+    double m_axle_distance_, m_steer_angle_limit_;
     
 private:
 
@@ -549,6 +553,10 @@ public:
     bool process_raw_data();
     bool convert_custom_path_to_ros_path(nav_msgs::Path& r_sampled_path);
 
+    vector<double> calc_steer_for_a_segment(vector<StructPoseReal>& points, const vector<double>& speeds);
+
+    bool estimate_direction_is_forward(const vector<StructPoseReal>& points);
+
     vector<int> find_singular_points();
 
     void split_whole_path(vector<int> singular_points, vector<vector<StructPoseReal>>& result);
@@ -559,6 +567,9 @@ public:
 ClassRawPathSampler::ClassRawPathSampler()
 {
     // m_expected_num_of_points_in_result_ = 20;
+    m_axle_distance_ = 0.14; 
+    m_steer_angle_limit_ = 0.9;
+    m_step_duration_sec_ = 0.9;
 }
 
 ClassRawPathSampler::~ClassRawPathSampler()
@@ -686,12 +697,10 @@ bool ClassRawPathSampler::process_raw_data()
     // speed values will be the initial guess for the curve optimizer.  
     for(vector<StructPoseReal> segment : _result)
     {
-        vector<double> distances;
         double _segment_length = calc_total_distance_of_one_segment(segment);
-        // StructMotionSequence _motion_seq = get_motion_sequence_durations(0.25, 0.08, _segment_length);
 
         StructMotionSequence _motion_seq;
-        _motion_seq.set_time_step_sec(0.9);
+        _motion_seq.set_time_step_sec(m_step_duration_sec_);
         _motion_seq.set_total_distance(_segment_length);
         _motion_seq.set_limit_accel(0.07);
         _motion_seq.set_limit_decel(-0.1);
@@ -699,24 +708,38 @@ bool ClassRawPathSampler::process_raw_data()
         
         calc_motion_sequence_parameters(_motion_seq);
 
-        _motion_seq.print_parameters();
+        // _motion_seq.print_parameters();
 
         // verify_motion_sequence_parameters(_motion_seq);
         
         
-        vector<double> _distance_seq, _speed_seq;
+        vector<double> _distance_seq, _speed_seq, _steer_seq;
         _motion_seq.calc_key_distances_by_timestep(_distance_seq, _speed_seq);
         vector<StructPoseReal> _sampled_poses_one_segment = sample_from_one_segment_by_distance(_distance_seq, segment);
 
+        if (estimate_direction_is_forward(_sampled_poses_one_segment))
+        {
+            _motion_seq.set_forwarding();
+        }
+        else
+        {
+            _motion_seq.set_reversing();
+            for (int i=0; i<_speed_seq.size(); i++)
+            {
+                _speed_seq[i] *= -1;
+            }
+        }
 
-        // for(auto dist : _distance_seq)
-        // {
-        //     cout << "dist  " << dist << endl;
-        // }
+        // cout << "_sampled_poses_one_segment size " << _sampled_poses_one_segment.size();
+        // cout << "   _distance_seq size " << _distance_seq.size();
+        // cout << "   _speed_seq size " << _speed_seq.size() << endl; // print: 19 18 18
+
+        _steer_seq = calc_steer_for_a_segment(_sampled_poses_one_segment, _speed_seq);
+
         for(auto ps : _sampled_poses_one_segment)
         {
             m_result_.pushback(ps.to_array3());
-            cout << ps.x << "  " << ps.y << "  " << ps.yaw << endl;
+            // cout << ps.x << "  " << ps.y << "  " << ps.yaw << endl;
         }
     }
 
@@ -726,6 +749,71 @@ bool ClassRawPathSampler::process_raw_data()
 }
 
 
+bool ClassRawPathSampler::estimate_direction_is_forward(const vector<StructPoseReal>& points)
+{
+    if (points.size() < 2)
+    {
+        std::cerr << "estimate_direction_is_forward. Not enough points. " << std::endl;
+    }
+
+    StructPoseReal p1 = points[0];
+    StructPoseReal p2 = points[1];
+
+    double _dx = p2.x - p1.x;
+    double _dy = p2.y - p1.y;
+    double _yaw_p2_to_p1 = atan2(_dy, _dx);
+    _yaw_p2_to_p1 = mod_angle_2pi(_yaw_p2_to_p1);
+    double _yaw_p1 = mod_angle_2pi(p1.yaw);
+    double _large = std::max(_yaw_p2_to_p1, _yaw_p1);
+    double _small = std::min(_yaw_p2_to_p1, _yaw_p1);
+    double _diff = _large - _small;
+    if (_diff > M_PI)
+    {
+        _diff = 2*M_PI - _diff;
+    }
+    if (_diff < (M_PI/2.0))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+
+}
+
+vector<double> ClassRawPathSampler::calc_steer_for_a_segment(vector<StructPoseReal>& points, const vector<double>& speeds)
+{
+    // assert(!(points.size() == (speeds.size() + 1)));
+
+    // assert(points.size() == 0);
+
+    vector<double> _result;
+    _result.resize(speeds.size());
+
+    for (int i=0; i<points.size()-1; i++)
+    {
+        ClassSteerSolver _ss(m_axle_distance_, m_steer_angle_limit_, speeds.at(i), m_step_duration_sec_);
+        // ClassSteerSolver _ss(m_axle_distance_, m_steer_angle_limit_, 0.2, m_step_duration_sec_);
+        _ss.set_point_1(points.at(i).x, points.at(i).y, points.at(i).yaw);
+        _ss.set_point_2(points.at(i+1).x, points.at(i+1).y);
+        if ( ! _ss.solve())
+        {
+            std::cerr << "Could not solve the steer for " << i << "-th point." << std::endl;
+        }
+        _result.assign(i, _ss.get_steer_angle());
+        points.at(i+1).yaw = _ss.get_point2_theta();
+    }
+    return _result;
+}
+
+
+
+/// @brief In order to visulize the path in RVIZ, the custom type path needs to be converted to
+/// ROS nav_msgs::path type.
+/// @param r_sampled_path contains the result
+/// @return 
 bool ClassRawPathSampler::convert_custom_path_to_ros_path(nav_msgs::Path& r_sampled_path)
 {
     if (r_sampled_path.poses.size() > 0)
@@ -799,11 +887,6 @@ void ClassRawPathSampler::get_path(ClassCustomPathContainer &r_path)
     r_path = m_result_;
 }
 
-
-// void ClassRawPathSampler::estimate_steers()
-// {
-
-// }
 
 
 
