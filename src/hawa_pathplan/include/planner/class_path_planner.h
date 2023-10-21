@@ -75,6 +75,7 @@ private:
     // std::string odom_topic_name_; 
     std::string path_published_topic_name_; 
     std::string path_sampled_published_topic_name_; 
+    std::string path_reconstruct_sampled_published_topic_name_; 
     std::string corridor_vis_published_topic_name_; 
     std::string opt_path_vis_published_topic_name_; 
     std::string opt_init_path_vis_published_topic_name_; 
@@ -84,6 +85,7 @@ private:
 
     ros::Publisher path_puber_ ;
     ros::Publisher sampled_path_puber_ ;
+    ros::Publisher reconstruct_sampled_path_puber_ ;
     ros::Publisher corridor_vis_puber_ ;
     ros::Publisher opt_path_vis_puber_ ;
     ros::Publisher opt_init_path_vis_puber_ ;
@@ -94,7 +96,7 @@ private:
 
     bool map_received_, goal_received_; 
 
-    nav_msgs::Path path_msg_, sampled_path_msg_, opt_path_msg_, opt_init_path_msg;
+    nav_msgs::Path path_msg_, sampled_path_msg_, opt_path_msg_, opt_init_path_msg, reconstruct_sampled_path_msg;
 
     ros::Timer  periodic_path_planer_;
     double planer_interval_;
@@ -144,6 +146,8 @@ ClassPathPlanner::ClassPathPlanner(const ros::NodeHandle nh_in_): nh_{nh_in_}
 
     sampled_path_puber_  = nh_.advertise<nav_msgs::Path>( path_sampled_published_topic_name_, 10);
 
+    reconstruct_sampled_path_puber_  = nh_.advertise<nav_msgs::Path>( path_reconstruct_sampled_published_topic_name_, 10);
+
     corridor_vis_puber_  = nh_.advertise<visualization_msgs::MarkerArray>( corridor_vis_published_topic_name_, 10);
 
     opt_path_vis_puber_ = nh_.advertise<nav_msgs::Path>( opt_path_vis_published_topic_name_, 10);
@@ -177,6 +181,7 @@ void ClassPathPlanner::load_parameters()
     goal_subscribed_topic_name_ = "/move_base_simple/goal";
     path_published_topic_name_ = "/path";
     path_sampled_published_topic_name_ = "/path_sampled";
+    path_reconstruct_sampled_published_topic_name_ = "/path_rec";
     corridor_vis_published_topic_name_ = "/corridors";
     opt_path_vis_published_topic_name_ = "/opt_path";
     opt_init_path_vis_published_topic_name_ = "/opt_init_path";
@@ -269,6 +274,15 @@ void ClassPathPlanner::path_plan( const ros::TimerEvent &event )
                 sampled_path_puber_.publish(sampled_path_msg_);
                 // cout << "path_msg_  size  " << path_msg_.poses.size() << endl;
                 // cout << "sampled_path_msg_  size  " << sampled_path_msg_.poses.size() << endl;
+
+                raw_sampler_.m_reconstructed_path_.header = sampled_path_msg_.header;
+                for (auto& ppppt : raw_sampler_.m_reconstructed_path_.poses)
+                {
+                    ppppt.pose.position.x += map_msg_.info.origin.position.x;
+                    ppppt.pose.position.y += map_msg_.info.origin.position.y;
+                }
+
+                reconstruct_sampled_path_puber_.publish(raw_sampler_.m_reconstructed_path_);
 
                 m_corridor_generator_.set_map_data(map_msg_.info.width, map_msg_.info.height, map_msg_.data, map_msg_.info.resolution, 88);
                 m_corridor_generator_.set_points_data(_sampled_path);

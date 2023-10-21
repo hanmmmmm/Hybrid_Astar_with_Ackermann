@@ -30,6 +30,9 @@
 #include "../planner/conversion_tools.h"
 #include "class_steer_solver.h"
 #include "helper_functions.h"
+#include "helper_generate_ros_path.h"
+
+
 
 
 // TODO:
@@ -216,7 +219,7 @@ double StructMotionSequence::calc_speed_by_time(const double dt)
 
 void StructMotionSequence::calc_speed_from_distances(const std::vector<double>& dists, std::vector<double>& spds)
 {
-    spds.clear();
+    // spds.clear();
 
     // std::cout << "speeds : ";
 
@@ -238,7 +241,7 @@ void StructMotionSequence::calc_speed_from_distances(const std::vector<double>& 
 void StructMotionSequence::calc_key_distances_by_timestep(vector<double>& distances, vector<double>& speeds)
 {
     distances.clear();
-    speeds.clear();
+    // speeds.clear();
 
     double _total_dt = 0.0;
     double _key_distance = 0.0;
@@ -545,6 +548,8 @@ public:
     ClassRawPathSampler();
     ~ClassRawPathSampler();
 
+    nav_msgs::Path m_reconstructed_path_;
+
     void set_raw_path_ptr(ClassCustomPathContainer &r_path);
 
     void set_robot_initial_state(StructWaypointWithTwist robot_init_state);
@@ -691,6 +696,8 @@ bool ClassRawPathSampler::process_raw_data()
     vector<vector<StructPoseReal>> _result;
     split_whole_path(_indices_of_singular_points, _result);
 
+    vector<double> _speed_seq, _steer_seq;
+
     // After the whole path is splitted into shorter segments (each segment is a simple
     // one-direction motion), some points are to be sampled from each segment. 
     // Then estimate the required steering and speed for each points. These steer and 
@@ -713,7 +720,7 @@ bool ClassRawPathSampler::process_raw_data()
         // verify_motion_sequence_parameters(_motion_seq);
         
         
-        vector<double> _distance_seq, _speed_seq, _steer_seq;
+        vector<double> _distance_seq;
         _motion_seq.calc_key_distances_by_timestep(_distance_seq, _speed_seq);
         vector<StructPoseReal> _sampled_poses_one_segment = sample_from_one_segment_by_distance(_distance_seq, segment);
 
@@ -734,13 +741,32 @@ bool ClassRawPathSampler::process_raw_data()
         // cout << "   _distance_seq size " << _distance_seq.size();
         // cout << "   _speed_seq size " << _speed_seq.size() << endl; // print: 19 18 18
 
-        _steer_seq = calc_steer_for_a_segment(_sampled_poses_one_segment, _speed_seq);
+        vector<double> _temp_steer_seq = calc_steer_for_a_segment(_sampled_poses_one_segment, _speed_seq);
+
+        _steer_seq.insert(_steer_seq.end(), _temp_steer_seq.begin(), _temp_steer_seq.end());
+
+        // std::cout << "steers" << std::endl;
+        // for (auto st : _steer_seq)
+        // {
+        //     std::cout << st << std::endl;
+        // }
 
         for(auto ps : _sampled_poses_one_segment)
         {
             m_result_.pushback(ps.to_array3());
             // cout << ps.x << "  " << ps.y << "  " << ps.yaw << endl;
         }
+
+        generate_rospath(m_robot_init_state_.x, 
+                        m_robot_init_state_.y, 
+                        m_robot_init_state_.yaw, 
+                        m_axle_distance_, 
+                        m_step_duration_sec_, 
+                        _speed_seq,
+                        _steer_seq,
+                        m_reconstructed_path_);
+    
+    
     }
 
 
@@ -790,7 +816,7 @@ vector<double> ClassRawPathSampler::calc_steer_for_a_segment(vector<StructPoseRe
     // assert(points.size() == 0);
 
     vector<double> _result;
-    _result.resize(speeds.size());
+    // _result.resize(speeds.size());
 
     for (int i=0; i<points.size()-1; i++)
     {
@@ -802,9 +828,14 @@ vector<double> ClassRawPathSampler::calc_steer_for_a_segment(vector<StructPoseRe
         {
             std::cerr << "Could not solve the steer for " << i << "-th point." << std::endl;
         }
-        _result.assign(i, _ss.get_steer_angle());
+        _result.push_back(_ss.get_steer_angle());
         points.at(i+1).yaw = _ss.get_point2_theta();
     }
+    // std::cout << "_result" << std::endl;
+    // for (auto st : _result)
+    // {
+    //     std::cout << st << std::endl;
+    // }
     return _result;
 }
 
