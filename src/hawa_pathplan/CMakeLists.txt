@@ -38,9 +38,9 @@ include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
 
 
-SET(cppad_lib /usr/local/lib/libcppad_lib.so)
+# SET(cppad_lib /usr/local/lib/libcppad_lib.so)
 
-SET(ipopt /usr/include )
+# SET(ipopt /usr/include )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -60,7 +60,7 @@ add_executable(path_plan_node
 
 target_link_libraries( path_plan_node
   ${catkin_LIBRARIES}
-  ${cppad_lib} ${colpack_libs} ipopt
+  # ${cppad_lib} ${colpack_libs} ipopt
 )
 
 add_executable(path_plan_astar_test_node 

@@ -23,7 +23,7 @@
 #include "conversion_tools.h"
 #include "../numerical_optimization_curve/class_raw_path_sampler.h"
 #include "../numerical_optimization_curve/class_corridor_generator.h"
-#include "../numerical_optimization_curve/class_path_solver.h"
+// #include "../numerical_optimization_curve/class_path_solver.h"
 
 
 using std::chrono::high_resolution_clock;
@@ -65,7 +65,7 @@ private:
 
     ClassCorridorGenerator m_corridor_generator_;
 
-    ClassPathSolver m_opt_path_solver_;
+    // ClassPathSolver m_opt_path_solver_;
 
     int path_plan_timeout_ms_;
 

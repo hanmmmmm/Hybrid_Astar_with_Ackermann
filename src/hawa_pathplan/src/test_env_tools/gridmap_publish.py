@@ -10,13 +10,16 @@ from time import time
 from random import randint 
 
 # file_dir = os.path.dirname(os.path.realpath('__file__'))
-file_dir = "/home/jf/.ros"
+# file_dir = "/home/jf/.ros"
+file_dir = "/home/jf/gitrepo/Hybrid_Astar_with_Ackermann/src/hawa_pathplan/src/test_env_tools/maps"
 print (file_dir)
 
 
-# map_image_file = file_dir + "/map_files/mymap.pgm"
+map_image_file = file_dir + "/mymap.pgm"
 # map_image_file = file_dir + "/map_files/parking_1.pgm"
-map_image_file = file_dir + "/map_files/office_1.pgm"
+# map_image_file = file_dir + "/map_files/office_1.pgm"
+
+print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
 print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
@@ -37,8 +40,9 @@ img = cv2.imread(map_image_file)
 
 print(img.shape)
 
-with open(file_dir + "/map_files/mymap.yaml", 'r') as file:
-    map_yaml = yaml.safe_load(file)
+# with open(file_dir + "/map_files/mymap.yaml", 'r') as file:
+with open(file_dir + "/mymap.yaml", 'r') as file:
+     map_yaml = yaml.safe_load(file)
 
 print(map_yaml)
 
