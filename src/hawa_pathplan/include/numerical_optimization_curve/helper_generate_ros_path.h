@@ -58,11 +58,23 @@ void generate_rospath(const double init_x,
         double _dx_body = _radius * std::sin(_angle_change);
         double _dy_body = _radius - _radius * std::cos(_angle_change);
         double _dyaw = _angle_change;
+
         if (std::abs(_steer) < 0.1)
         {
             _dx_body = _arc_length;
             _dy_body = 0;
         }
+        
+        if (speeds.at(i) >= 0)
+            {_dx_body = std::abs(_dx_body);}
+        else
+            {_dx_body = - std::abs(_dx_body);}
+        
+        if (_steer >= 0)
+            {_dy_body = std::abs(_dy_body);}
+        else
+            {_dy_body = - std::abs(_dy_body);}
+
     
         double _dx_world = std::cos(_temp_yaw) * _dx_body - std::sin(_temp_yaw) * _dy_body;
         double _dy_world = std::sin(_temp_yaw) * _dx_body + std::cos(_temp_yaw) * _dy_body;

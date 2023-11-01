@@ -33,11 +33,12 @@ public:
 
 ClassSteerSolver::ClassSteerSolver(const double axle_length, const double steer_limit, const double speed, const double time)
 {
-    m_axle_length_ = axle_length;
+    m_axle_length_ = std::abs(axle_length);
     m_steer_limit_ = steer_limit;
     m_speed_ = speed;
     m_time_sec_ = time;
-    m_verify_ = false;
+    // m_verify_ = false;
+    m_verify_ = true;
 }
 
 ClassSteerSolver::~ClassSteerSolver()
@@ -48,8 +49,11 @@ ClassSteerSolver::~ClassSteerSolver()
 bool ClassSteerSolver::solve()
 {
     // let p1 be the origin of the new coordinate 
-    double _p2x = m_p2x_ - m_p1x_;
-    double _p2y = m_p2y_ - m_p1y_;
+    double _p2x_original = m_p2x_ - m_p1x_;
+    double _p2y_original = m_p2y_ - m_p1y_;
+
+    double _p2x = std::abs(_p2x_original);
+    double _p2y = std::abs(_p2y_original);
 
     if (m_verify_)
     {
