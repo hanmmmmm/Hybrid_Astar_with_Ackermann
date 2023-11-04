@@ -7,7 +7,7 @@
 class ClassSteerSolver
 {
 private:
-    double m_p1x_, m_p1y_, m_p1t_;
+    double m_p1x_, m_p1y_, m_p1yaw_;
     double m_p2x_, m_p2y_, m_p2t_;
 
     double m_axle_length_, m_steer_limit_;
@@ -52,19 +52,23 @@ bool ClassSteerSolver::solve()
     double _p2x_original = m_p2x_ - m_p1x_;
     double _p2y_original = m_p2y_ - m_p1y_;
 
-    double _p2x = std::abs(_p2x_original);
-    double _p2y = std::abs(_p2y_original);
+    // double _p2x = std::abs(_p2x_original);
+    // double _p2y = std::abs(_p2y_original);
 
+    
     if (m_verify_)
     {
-        std::cout << "p1: " << m_p1x_ << " " << m_p1y_ << " " << m_p1t_ << std::endl;
+        std::cout << "p1: " << m_p1x_ << " " << m_p1y_ << " " << m_p1yaw_ << std::endl;
         std::cout << "p2: " << m_p2x_ << " " << m_p2y_ << std::endl;
-        std::cout << "offsetted: " << _p2x << " " << _p2y << std::endl;
+        std::cout << "offsetted: " << _p2x_original << " " << _p2y_original << std::endl;
     }
 
+    double _p2x;
+    double _p2y;
+    
     // rotate them by the value of the theta of point 1
-    double _tempx = std::cos(m_p1t_) * _p2x + std::sin(m_p1t_) * _p2y;
-    double _tempy = -std::sin(m_p1t_) * _p2x + std::cos(m_p1t_) * _p2y;
+    double _tempx = std::cos(m_p1yaw_) * _p2x_original + std::sin(m_p1yaw_) * _p2y_original;
+    double _tempy = -std::sin(m_p1yaw_) * _p2x_original + std::cos(m_p1yaw_) * _p2y_original;
 
     _p2x = _tempx;
     _p2y = _tempy;
@@ -95,15 +99,23 @@ bool ClassSteerSolver::solve()
 
     double _steer = std::atan2(m_axle_length_ , _radius);
 
-    // check the limit
-    if (_steer > m_steer_limit_)
-    {
-        if (m_verify_)
-        {
-            std::cout << "steer larger than limit: " << _steer << " " << m_steer_limit_ << std::endl;
-            _steer = m_steer_limit_;
-        }
-    }
+    
+    // if (std::sqrt(std::pow(_p2x_original, 2) + std::pow(_p2y_original , 2)) < 0.01)
+    // {
+    //     std::cout << "tight condition" << std::endl;
+    //     _steer *= 0.3;
+    // }
+
+    // // check the limit
+    // if (_steer > m_steer_limit_)
+    // {
+    //     if (m_verify_)
+    //     {
+    //         std::cout << "steer larger than limit: " << _steer << " " << m_steer_limit_ << std::endl;
+    //     }
+    //     _steer = m_steer_limit_;
+    // }
+
 
     // check left or right 
     if (_p2y >= 0)
@@ -120,12 +132,14 @@ bool ClassSteerSolver::solve()
         std::cout << "_steer : " << _steer << std::endl;
     }
 
+    std::cout << "_speed : " << m_speed_ << std::endl;
+
 
     m_steer_angle_ = _steer;
 
     double _heading_change = m_time_sec_ * m_speed_ * std::tan(_steer) / m_axle_length_;
 
-    m_p2t_ = m_p1t_ + _heading_change;
+    m_p2t_ = m_p1yaw_ + _heading_change;
 
     if (m_verify_)
     {
@@ -141,7 +155,7 @@ void ClassSteerSolver::set_point_1(const double x, const double y, const double 
 {
     m_p1x_ = x;
     m_p1y_ = y;
-    m_p1t_ = t;
+    m_p1yaw_ = t;
 }
 
 

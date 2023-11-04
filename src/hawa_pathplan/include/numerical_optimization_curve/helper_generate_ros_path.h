@@ -25,6 +25,7 @@ void generate_rospath(const double init_x,
                         const double init_yaw,
                         const double axle_dist,
                         const double timestep_sec,
+                        const bool verbose,
                         const std::vector<double> speeds,
                         const std::vector<double> steers,
                         nav_msgs::Path& r_path)
@@ -79,10 +80,13 @@ void generate_rospath(const double init_x,
         double _dx_world = std::cos(_temp_yaw) * _dx_body - std::sin(_temp_yaw) * _dy_body;
         double _dy_world = std::sin(_temp_yaw) * _dx_body + std::cos(_temp_yaw) * _dy_body;
 
-        std::cout << "speed: " << speeds.at(i) << "  steer " << _steer << "  radius " << _radius << std::endl;
-        std::cout << "body: " << _dx_body << " " << _dy_body << " " << _dyaw << std::endl;
-        std::cout << "world: " << _dx_world << " " << _dy_world << std::endl;
-        std::cout  << std::endl;
+        if (verbose)
+        {
+            std::cout << "speed: " << speeds.at(i) << "  steer " << _steer << "  radius " << _radius << std::endl;
+            std::cout << "body: " << _dx_body << " " << _dy_body << " " << _dyaw << std::endl;
+            std::cout << "world: " << _dx_world << " " << _dy_world << std::endl;
+            std::cout  << std::endl;
+        }
 
 
         _temp_x += _dx_world;

@@ -190,7 +190,7 @@ void ClassPathPlanner::load_parameters()
     map_frame_ = "/map";
     robot_frame_ = "/base_link";
 
-    planer_interval_ = 0.1;
+    planer_interval_ = 0.5;
 }
 
 

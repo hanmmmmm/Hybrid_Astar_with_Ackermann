@@ -91,7 +91,7 @@ struct StructMotionSequence
     double calc_speed_by_time(const double dt);
     void calc_speed_from_distances(const std::vector<double>& dists, std::vector<double>& spds);
 
-    void calc_key_distances_by_timestep(vector<double>& distances, vector<double>& speeds);
+    void calc_key_distances_by_timestep(std::vector<double>& distances, vector<double>& speeds);
 };
 
 void StructMotionSequence::set_total_distance(double val)
@@ -223,18 +223,47 @@ void StructMotionSequence::calc_speed_from_distances(const std::vector<double>& 
 
     // std::cout << "speeds : ";
 
+    std::vector<double> _temp_speeds;
+
     for (int ct=1; ct<dists.size(); ct++)
     {
         double _displacement = dists.at(ct) - dists.at(ct-1);
-        spds.push_back(_displacement / time_step_sec);
+        _temp_speeds.push_back(_displacement / time_step_sec);
         // std::cout << " " << (_displacement / time_step_sec);
     }
     // std::cout << std::endl;
     
     // the last point needs a bit special calc
     double _displacement = dist_total - dists.at(dists.size()-1);
-    spds.push_back(_displacement / time_step_sec);
+    _temp_speeds.push_back(_displacement / time_step_sec);
     // std::cout << "the last displacement  " << _displacement << "  the last speed  " << (_displacement / time_step_sec) << std::endl;
+    
+    // make sure the speed values are negative when the motion is reverse
+    if (! this->is_forward)
+    {
+        for (int i=0; i<_temp_speeds.size(); i++)
+        {
+            double _temp = _temp_speeds.at(i);
+            _temp_speeds.at(i) = - std::abs(_temp);
+        }
+    }
+    else
+    {
+        for (int i=0; i<_temp_speeds.size(); i++)
+        {
+            double _temp = _temp_speeds.at(i);
+            _temp_speeds.at(i) = std::abs(_temp);
+        }
+    }
+
+    std::cout << "speeds:  ";
+    for (int i=0; i<_temp_speeds.size(); i++)
+    {
+        std::cout << _temp_speeds.at(i) << " ";
+        spds.push_back(_temp_speeds.at(i));
+    }
+    std::cout << std::endl;
+
     
 }
 
@@ -482,14 +511,14 @@ vector<StructPoseReal> sample_from_one_segment_by_distance(const vector<double> 
             _distance_sum = _new_distance;
         }
         // cout << "#" << _temp_ct << " find_interval " << bool(_find_interval)  << "  dist  " << dist  << "  _count  " << _count << "   tail  " << _tail_distance << endl;
-        StructPoseReal p1 = original_path[_count];
-        StructPoseReal p2 = original_path[_count+1];
+        const StructPoseReal& p1 = original_path.at(_count);
+        const StructPoseReal& p2 = original_path.at(_count+1);
         StructPoseReal pnew;
-        pnew.x = p1.x + (_tail_distance / _original_path_step_lengths[_count])*(p2.x-p1.x);
-        pnew.y = p1.y + (_tail_distance / _original_path_step_lengths[_count])*(p2.y-p1.y);
-        p1.yaw = mod_angle_2pi(p1.yaw);
-        p2.yaw = mod_angle_2pi(p2.yaw);
-        pnew.yaw = p1.yaw + (_tail_distance / _original_path_step_lengths[_count])*(p2.yaw-p1.yaw);
+        pnew.x = p1.x + (_tail_distance / _original_path_step_lengths.at(_count))*(p2.x-p1.x);
+        pnew.y = p1.y + (_tail_distance / _original_path_step_lengths.at(_count))*(p2.y-p1.y);
+        const double p1_yaw = mod_angle_2pi(p1.yaw);
+        const double p2_yaw = mod_angle_2pi(p2.yaw);
+        pnew.yaw = p1_yaw + (_tail_distance / _original_path_step_lengths.at(_count))*(p2_yaw-p1_yaw);
         _result.push_back(pnew);
     }
     _result.push_back(original_path.back());
@@ -506,7 +535,7 @@ double calc_total_distance_of_one_segment(const vector<StructPoseReal>& original
         double _dy = original_path[i-1].y - original_path[i].y;
         _result += std::sqrt(_dx * _dx + _dy * _dy);
     }
-    return _result;
+    return std::abs(_result);
 }
 
 
@@ -686,7 +715,7 @@ bool ClassRawPathSampler::process_raw_data()
         cout << "too less points in the path. Exit." << endl;
         return false;
     }
-
+ 
     // the input path seems good, so start the processing. 
     int _counter = -1;
     m_result_.clear_points();
@@ -697,6 +726,7 @@ bool ClassRawPathSampler::process_raw_data()
     split_whole_path(_indices_of_singular_points, _result);
 
     vector<double> _speed_seq, _steer_seq;
+    int _seg_count = 0;
 
     // After the whole path is splitted into shorter segments (each segment is a simple
     // one-direction motion), some points are to be sampled from each segment. 
@@ -712,6 +742,17 @@ bool ClassRawPathSampler::process_raw_data()
         _motion_seq.set_limit_accel(0.07);
         _motion_seq.set_limit_decel(-0.1);
         _motion_seq.set_limit_velocity(0.2);
+
+        if (estimate_direction_is_forward(segment))
+        {
+            _motion_seq.set_forwarding();
+        }
+        else
+        {
+            _motion_seq.set_reversing();
+        }
+
+        std::cout << "Direction: segment # " << _seg_count << "/" << _result.size() << "  forward=" << _motion_seq.is_forward << std::endl;
         
         calc_motion_sequence_parameters(_motion_seq);
 
@@ -720,36 +761,26 @@ bool ClassRawPathSampler::process_raw_data()
         // verify_motion_sequence_parameters(_motion_seq);
         
         
-        vector<double> _distance_seq;
-        _motion_seq.calc_key_distances_by_timestep(_distance_seq, _speed_seq);
+        // sampling some poses from the path segment, and store the sampled poses into a vector. 
+        vector<double> _distance_seq, _temp_speed_seq;
+        _motion_seq.calc_key_distances_by_timestep(_distance_seq, _temp_speed_seq);
         vector<StructPoseReal> _sampled_poses_one_segment = sample_from_one_segment_by_distance(_distance_seq, segment);
 
-        if (estimate_direction_is_forward(_sampled_poses_one_segment))
-        {
-            _motion_seq.set_forwarding();
-        }
-        else
-        {
-            _motion_seq.set_reversing();
-            for (int i=0; i<_speed_seq.size(); i++)
-            {
-                _speed_seq[i] *= -1;
-            }
-        }
 
-        // cout << "_sampled_poses_one_segment size " << _sampled_poses_one_segment.size();
-        // cout << "   _distance_seq size " << _distance_seq.size();
-        // cout << "   _speed_seq size " << _speed_seq.size() << endl; // print: 19 18 18
+        cout << "_sampled_poses_one_segment size " << _sampled_poses_one_segment.size();
+        cout << "   _distance_seq size " << _distance_seq.size();
+        cout << "   _temp_speed_seq size " << _temp_speed_seq.size() << endl; // print: 19 18 18
 
-        vector<double> _temp_steer_seq = calc_steer_for_a_segment(_sampled_poses_one_segment, _speed_seq);
+        vector<double> _temp_steer_seq = calc_steer_for_a_segment(_sampled_poses_one_segment, _temp_speed_seq);
 
         _steer_seq.insert(_steer_seq.end(), _temp_steer_seq.begin(), _temp_steer_seq.end());
 
-        // std::cout << "steers" << std::endl;
-        // for (auto st : _steer_seq)
-        // {
-        //     std::cout << st << std::endl;
-        // }
+        std::cout << "steers  " ;
+        for (auto st : _steer_seq)
+        {
+            std::cout << st << " ";
+        }
+        std::cout << std::endl;
 
         for(auto ps : _sampled_poses_one_segment)
         {
@@ -757,17 +788,29 @@ bool ClassRawPathSampler::process_raw_data()
             // cout << ps.x << "  " << ps.y << "  " << ps.yaw << endl;
         }
 
-        generate_rospath(m_robot_init_state_.x, 
+        // generate_rospath(m_robot_init_state_.x, 
+        //                 m_robot_init_state_.y, 
+        //                 m_robot_init_state_.yaw, 
+        //                 m_axle_distance_, 
+        //                 m_step_duration_sec_, 
+        //                 false,
+        //                 _temp_speed_seq,
+        //                 _temp_steer_seq,
+        //                 m_reconstructed_path_);
+    
+        _speed_seq.insert(_speed_seq.end(), _temp_speed_seq.begin(), _temp_speed_seq.end());
+    
+    }
+
+    generate_rospath(m_robot_init_state_.x, 
                         m_robot_init_state_.y, 
                         m_robot_init_state_.yaw, 
                         m_axle_distance_, 
                         m_step_duration_sec_, 
+                        false,
                         _speed_seq,
                         _steer_seq,
                         m_reconstructed_path_);
-    
-    
-    }
 
 
     return true;
