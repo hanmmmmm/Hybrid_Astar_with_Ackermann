@@ -1,20 +1,20 @@
-
 #ifndef HYBRID_ASTAR_H
 #define HYBRID_ASTAR_H
 
 #include <iostream>
 #include <queue>
-#include <unordered_map>
-#include <map>
+// #include <unordered_map>
+// #include <map>
 #include <math.h>
 
 #include <algorithm>
 #include <set>
-#include <chrono>
-
 #include <ros/package.h>
 
-#include "../car_pathplan/struct_simple_pose.h"
+#include "nav_msgs/OccupancyGrid.h"
+#include "nav_msgs/MapMetaData.h"
+
+// #include "../car_pathplan/struct_simple_pose.h"
 
 #include "array_hasher.h"
 
@@ -25,6 +25,13 @@
 #include "../car_pathplan/class_gridmap_handler.h"
 #include "../car_pathplan/class_custom_path.h"
 
+#include "../utils/hawa_data_containers.h"
+#include "../utils/hawa_conversion_tools.h"
+#include "../utils/hawa_tools.h"
+
+#include "hybrid_astar_tools.h"
+#include "struct_motion_primitives.h"
+
 #include "class_astar_light_version.h"
 
 #include <boost/property_tree/ptree.hpp>
@@ -32,104 +39,21 @@
 
 using std::cout;
 using std::endl;
-
 using std::string;
-
 using std::vector;
 using std::array;
 using std::deque;
 using std::queue;
 using std::priority_queue;
 
-using std::chrono::high_resolution_clock;
-
-namespace pt = boost::property_tree;
-
 class ClassHybridAStar
 {
-public:
-
-    enum AStarGridType
-    {
-        NewGrid,
-        Open,
-        Closed
-    };
-
-    struct GridInfo
-    {
-        double gcost = 0;
-        double fcost = 0;
-        int steer_type = 0; // 0-5, total 6 types
-        StructPoseReal real_pose;
-        StructPoseGrid parent_grid;
-        StructPoseGrid self_grid;
-        AStarGridType grid_type = AStarGridType::NewGrid;
-
-        GridInfo()
-        {
-        };
-    };
-
-    struct NodeinfoForPQ
-    {
-        double cost;
-        StructPoseGrid self_grid;
-        NodeinfoForPQ(double cost, StructPoseGrid self_grid)
-        :cost(cost), self_grid(self_grid)
-        {
-        }
-    };
-
-    struct CostCompareMethod
-    {
-        bool operator()(NodeinfoForPQ const& p1, NodeinfoForPQ const& p2)
-        {
-            return p1.cost > p2.cost;  // smallest will be at the top
-        }
-    };
-    
-    enum EnumForwardBackward
-    {
-        forward,
-        backward
-    };
-
-    struct MotionPrimitive
-    {
-        double dx;
-        double dy;
-        double dyaw;
-        double edge_cost;
-        EnumForwardBackward direction;
-    };
-
-    enum EnumResultState
-    {
-        searching,
-        success__find_path_by_increment,
-        success__find_path_by_ReedsShepp,
-        failed__trapped__use_closest,
-        failed__timeout__use_closest
-    };
-
-    struct CostMultipler
-    {
-        double forward = 1.0;
-        double backward = 1.0;
-        double mild_steer = 1.0;
-        double fast_steer = 1.0;
-    };
-    
-
 private:
     ClassGridMapHandler m_gridmap_handler_;
 
     ReedsSheppClass m_RS_curve_finder_;
 
-    ClassAStar m_astar_finder_;
-
-    vector<MotionPrimitive> m_motion_model_;
+    MotionModel m_motion_model_;
 
     vector<GridInfo> m_gridinfo_vector_;
 
@@ -148,48 +72,31 @@ private:
     deque<StructPoseReal> m_result_path_;  // container for storing the final complete path.
     vector<StructPoseReal> m_path_RS_section_;  // container for storing the path segments found by ReedsShepp. 
 
-    CostMultipler m_costmultipler_;
-
-private:
-    int m_counter_for_trigger_rs_search_;
-    int m_interval_for_rs_search_;
+    StructCounterForRSSearch m_rs_search_trigger_;
 
     int m_time_out_ms_;
 
     double m_dummy_min_cost_value_;
 
-    double m_step_length_forward_;
-    double m_step_length_backward_;
-    double m_turning_raius_;
-    double m_turning_angle_;
+    // bool FLAG_reach_goal_;
+    // bool FLAG_trapped_;
+    // bool FLAG_inside_obstacle_;
+    // bool FLAG_found_rs_solution_;
+    // bool FLAG_timeout_;
 
-    bool m_use_astar_as_hcost_;
+    StructFlags m_flags_;
 
-    bool FLAG_reach_goal_;
-    bool FLAG_trapped_;
-    bool FLAG_inside_obstacle_;
-    bool FLAG_found_rs_solution_;
-    bool FLAG_timeout_;
-
-    double m_debug_rs_search_time_;
-    double m_debug_grid_search_time_;
-    double m_debug_rs_collision_check_time_;
-    double m_debug_astar_search_time_;
-
-    int m_debug_times_find_min_cost_;
-    int m_debug_times_rs_search_;
+    TimingAndCounter m_timer_and_counter_;
     
-
-    int8_t m_plan_threshold_;
-    int8_t m_vali_threshold_;
+    MapOccThreshold m_map_occ_threshold_;
 
     double m_yaw_angle_bin_size_;
 
 private:
 
-    void build_motion_model();
+    bool checkStartAndGoalAccessible();
 
-    double mod_2pi(double angle);
+    void setupTheFirstGrid();
 
     void explore_one_node(); 
 
@@ -199,12 +106,6 @@ private:
 
     // void get_closest_path_to_goal(vector<StructPoseReal> &r_path); // when path-finding fails, then find an alternate path that is close to goal.
 
-    double compute_h_cost_Euclidean(const StructPoseReal n, const StructPoseReal g);
-    double compute_h_cost_Manhattan(const StructPoseReal n, const StructPoseReal g);
-    double compute_h_cost_Chebyshev(const StructPoseReal n, const StructPoseReal g);
-    double compute_h_cost_AStar(const StructPoseReal &n, const StructPoseReal &g);
-
-    double helper_get_time();
 
 public:
     ClassHybridAStar();
@@ -212,13 +113,11 @@ public:
 
     bool load_parameters();
 
-    bool setup(const int timeout_ms,
-               const array<double, 3> startpose,
-               const array<double, 3> goalpose,
-               const int grid_map_width,
-               const int grid_map_height,
-               vector<int8_t> &r_gridmap,
-               const double grid_resolution);
+    bool setMap(nav_msgs::OccupancyGrid* map_data);
+
+    bool setStartGoalPoses(StructPoseReal startpose, StructPoseReal goalpose);
+
+    bool setup(const int timeout_ms);
 
     bool search();
 
@@ -226,22 +125,17 @@ public:
     void get_path(ClassCustomPathContainer &r_path);
 };
 
+/// @brief Constructor function. 
 ClassHybridAStar::ClassHybridAStar()
 {
     m_dummy_min_cost_value_ = std::numeric_limits<double>::max();
 
-    m_use_astar_as_hcost_ = false;
-
     load_parameters();
 
-    build_motion_model();
+    m_timer_and_counter_.resetVals();
 
-    m_debug_rs_search_time_ = 0.0;
-    m_debug_grid_search_time_ = 0.0;
-    m_debug_rs_collision_check_time_ = 0.0;
-    m_debug_times_find_min_cost_ = 0;
-    m_debug_times_rs_search_ = 0;
-    m_debug_astar_search_time_ = 0;
+    m_motion_model_.prepare_model();
+
 }
 
 ClassHybridAStar::~ClassHybridAStar()
@@ -250,167 +144,101 @@ ClassHybridAStar::~ClassHybridAStar()
 
 bool ClassHybridAStar::load_parameters()
 {
-
     string _path = ros::package::getPath("car_pathplan");
 
     cout << "pkg path: >" << _path << "< " << endl;
 
-    pt::ptree root;
-    pt::read_json(_path + "/cfg/hybrid_astar_cfg.json", root);
+    boost::property_tree::ptree root;
+    boost::property_tree::read_json(_path + "/cfg/hybrid_astar_cfg.json", root);
 
     m_time_out_ms_ = root.get<int>("searching_time_limt_ms");
 
-    m_turning_raius_ = root.get<double>("searching_turning_radius_meter");
+    m_motion_model_.parameters.turning_radius = root.get<double>("searching_turning_radius_meter");
 
-    pt::ptree step_length = root.get_child("searching_step_length_meter");
-    m_step_length_forward_ = step_length.get<double>("forward");
-    m_step_length_backward_ = step_length.get<double>("backward");
+    boost::property_tree::ptree step_length = root.get_child("searching_step_length_meter");
+    m_motion_model_.parameters.step_length_forward = step_length.get<double>("forward");
+    m_motion_model_.parameters.step_length_backward = step_length.get<double>("backward");
 
-    pt::ptree obstacle_threshold = root.get_child("gridmap_obstacle_threshold");
-    m_plan_threshold_ = obstacle_threshold.get<int8_t>("planning");
-    m_vali_threshold_ = obstacle_threshold.get<int8_t>("validate");
+    boost::property_tree::ptree obstacle_threshold = root.get_child("gridmap_obstacle_threshold");
+    m_map_occ_threshold_.plan = obstacle_threshold.get<int8_t>("planning");
+    m_map_occ_threshold_.vali = obstacle_threshold.get<int8_t>("validate");
 
-    m_interval_for_rs_search_ = root.get<int>("reedshepp_every_n_nodes");
+    m_rs_search_trigger_.interval = root.get<int>("reedshepp_every_n_nodes");
 
     m_yaw_angle_bin_size_ = root.get<double>("yaw_angle_grid_bin_size_rad");
 
-    pt::ptree action_cost_multipler = root.get_child("action_cost_multipler");
-    m_costmultipler_.forward = action_cost_multipler.get<double>("forward_action");
-    m_costmultipler_.backward = action_cost_multipler.get<double>("backward_action");
-    m_costmultipler_.mild_steer = action_cost_multipler.get<double>("steer_action");
-    m_costmultipler_.fast_steer = action_cost_multipler.get<double>("aggresive_steer");
-
-    pt::ptree h_cost_options = root.get_child("h_cost_options");
-
-    m_use_astar_as_hcost_ = h_cost_options.get<bool>("use_astar_as_hcost");
-
-    int _astar_step_size = h_cost_options.get<int>("astar_step_size_int");
-
-    m_astar_finder_.set_step_size(_astar_step_size);
+    boost::property_tree::ptree action_cost_multipler = root.get_child("action_cost_multipler");
+    m_motion_model_.cost_multipler.forward = action_cost_multipler.get<double>("forward_action");
+    m_motion_model_.cost_multipler.backward = action_cost_multipler.get<double>("backward_action");
+    m_motion_model_.cost_multipler.mild_steer = action_cost_multipler.get<double>("steer_action");
+    m_motion_model_.cost_multipler.fast_steer = action_cost_multipler.get<double>("aggresive_steer");
 
     return true;
 }
 
 
-bool ClassHybridAStar::setup(
-    const int timeout_ms,
-    const array<double, 3> startpose,
-    const array<double, 3> goalpose,
-    const int map_width_grid,
-    const int map_height_grid,
-    vector<int8_t> &map,
-    const double grid_resolution)
+bool ClassHybridAStar::setMap(nav_msgs::OccupancyGrid* map_data)
 {
-
-    // cout << "ClassHybridAStar::setup() START" << endl;
-
-    // m_time_out_ms_ = timeout_ms;
-
-    // update the gridmap using the latest message.
-
-    if (!m_gridmap_handler_.set_grid_map_ptr(&map))
+    if (!m_gridmap_handler_.set_grid_map_ptr(&(map_data->data)))
         return false;
-    if (!m_gridmap_handler_.set_grid_width_height(map_width_grid, map_height_grid))
+    if (!m_gridmap_handler_.set_grid_width_height(map_data->info.width, map_data->info.height))
         return false;
-    if (!m_gridmap_handler_.set_planning_obstacle_threshold(m_plan_threshold_))
+    if (!m_gridmap_handler_.set_planning_obstacle_threshold(m_map_occ_threshold_.plan))
         return false;
-    if (!m_gridmap_handler_.set_validate_obstacle_threshold(m_vali_threshold_))
+    if (!m_gridmap_handler_.set_validate_obstacle_threshold(m_map_occ_threshold_.vali))
         return false;
-    if (!m_gridmap_handler_.set_grid_meter_ratio(grid_resolution, m_yaw_angle_bin_size_))
+    if (!m_gridmap_handler_.set_grid_meter_ratio(map_data->info.resolution, m_yaw_angle_bin_size_))
         return false;
+    return true;
+}
 
-    m_astar_finder_.setup_map(map_width_grid, map_height_grid, map, grid_resolution, m_plan_threshold_);
-
-
-    // Clean the containers
-
-    m_gridinfo_vector_.clear();
-    m_gridinfo_vector_.resize(map.size()*m_gridmap_handler_.m_number_of_angle_layers_);
-
-    while (m_opennodes_pq_.size()>0)
-    {
-        m_opennodes_pq_.pop();
-    }
-
-    m_result_path_.clear();
-    m_path_RS_section_.clear();
-    
-
-    // update values of the start node and goal node
-
-    m_start_pose_.x = startpose[0];
-    m_start_pose_.y = startpose[1];
-    m_start_pose_.yaw = startpose[2];
-
-    m_goal_pose_.x = goalpose[0];
-    m_goal_pose_.y = goalpose[1];
-    m_goal_pose_.yaw = goalpose[2];
+bool ClassHybridAStar::setStartGoalPoses(StructPoseReal startpose, StructPoseReal goalpose)
+{
+    m_start_pose_ = startpose;
+    m_goal_pose_ = goalpose;
 
     m_gridmap_handler_.convert_fine_pose_to_grid(m_start_pose_, m_start_grid_);
     m_gridmap_handler_.convert_fine_pose_to_grid(m_goal_pose_, m_goal_grid_);
 
-    // cout << "start_grid_ " << endl;
-    // cout << start_grid_[0] << " " << start_grid_[1] << " " << start_grid_[2] << endl;
-    // cout << start_pose_[0] << " " << start_pose_[1] << " " << start_pose_[2] << endl;
+    ROS_DEBUG_STREAM(std::setprecision(2) << std::fixed << "hybrid astar start state:\n" 
+        << m_start_pose_.x << " "<< m_start_pose_.y << " "<< m_start_pose_.yaw << "\n"
+        << m_start_grid_.x << " "<< m_start_grid_.y << " "<< m_start_grid_.yaw);
 
-    // cout << "goal_grid_ " << endl;
-    // cout << goal_grid_[0] << " " << goal_grid_[1] << " " << goal_grid_[2] << endl;
-    // cout << goal_pose_[0] << " " << goal_pose_[1] << " " << goal_pose_[2] << endl;
-
-
-    // check if the start node or goal node are reachable. If not, then do not proceed.
-
-    if( ! m_gridmap_handler_.check_grid_clear(m_start_grid_.x, m_start_grid_.y, ClassGridMapHandler::EnumMode::plan))
-    {
-        cout << "!!! Start grid is on obstacle." << endl;
-        return false;
-    }
-
-    if( ! m_gridmap_handler_.check_grid_clear(m_goal_grid_.x, m_goal_grid_.y, ClassGridMapHandler::EnumMode::plan))
-    {
-        cout << "!!! Goal grid is on obstacle." << endl;
-        return false;
-    }
-
-    // if the checking passed, then update the start node data, and insert it into open_node_priority_queue.
-
-    int _start_grid_index_1d = m_gridmap_handler_.convert_3D_to_oneD(m_start_grid_.x, m_start_grid_.y, m_start_grid_.yaw);
-    m_gridinfo_vector_[_start_grid_index_1d].fcost = 0;
-    m_gridinfo_vector_[_start_grid_index_1d].gcost = 0;
-    m_gridinfo_vector_[_start_grid_index_1d].grid_type = AStarGridType::Open;
-    m_gridinfo_vector_[_start_grid_index_1d].parent_grid = m_start_grid_;
-    m_gridinfo_vector_[_start_grid_index_1d].real_pose = m_start_pose_;
-    m_gridinfo_vector_[_start_grid_index_1d].self_grid = m_start_grid_;
-
-    NodeinfoForPQ _start_grid_nodeinfo(
-        m_gridinfo_vector_[_start_grid_index_1d].fcost,
-        m_gridinfo_vector_[_start_grid_index_1d].self_grid
-    );
-
-    m_opennodes_pq_.push(_start_grid_nodeinfo);
-
-    // cout << "PQ size: " << m_opennodes_pq_.size() << endl;
-
-    // reset the flags, counters, timers.
-
-    FLAG_reach_goal_ = false;
-    FLAG_trapped_ = false;
-    FLAG_found_rs_solution_ = false;
-    FLAG_timeout_ = false;
-
-    m_counter_for_trigger_rs_search_ = 0;
+    ROS_DEBUG_STREAM(std::setprecision(2) << std::fixed << "hybrid astar goal state:\n" 
+        << m_goal_pose_.x << " "<< m_goal_pose_.y << " "<< m_goal_pose_.yaw << "\n"
+        << m_goal_grid_.x << " "<< m_goal_grid_.y << " "<< m_goal_grid_.yaw);
     
+    return true;
+}
 
-    m_debug_rs_search_time_ = 0.0;
-    m_debug_grid_search_time_ = 0.0;
-    m_debug_rs_collision_check_time_ = 0.0;
-    m_debug_times_find_min_cost_ = 0;
-    m_debug_times_rs_search_ = 0;
-    m_debug_astar_search_time_ = 0;
 
-    // cout << "m_start_grid_ " << m_start_grid_.x << " " << m_start_grid_.y << endl;
+bool ClassHybridAStar::setup(
+    const int timeout_ms)
+{
 
-    // cout << "ClassHybridAStar::setup() DONE" << endl;
+    // Reset the containers
+
+    m_gridinfo_vector_.clear();
+    m_gridinfo_vector_.resize( m_gridmap_handler_.getMapLength() * m_gridmap_handler_.m_number_of_angle_layers_);
+
+    while (m_opennodes_pq_.size()>0)
+        m_opennodes_pq_.pop();
+
+    m_result_path_.clear();
+    m_path_RS_section_.clear();
+    
+    m_flags_.resetVals();
+    m_rs_search_trigger_.resetVals();
+    m_timer_and_counter_.resetVals();
+
+    if (! checkStartAndGoalAccessible())
+    {
+        return false;
+    }
+
+    setupTheFirstGrid();
+
+    ROS_INFO_STREAM("ClassHybridAStar::setup() Done.");
 
     return true;
 }
@@ -418,6 +246,8 @@ bool ClassHybridAStar::setup(
 bool ClassHybridAStar::search()
 {
     // cout << "ClassHybridAStar::search()  Looking for path " << endl;
+
+    ROS_INFO_STREAM("ClassHybridAStar::search() start.");
 
     double time1 = helper_get_time();
 
@@ -437,7 +267,7 @@ bool ClassHybridAStar::search()
         if (m_opennodes_pq_.size() == 0)
         {
             FLAG_trapped_ = true;
-            std::cerr << "ClassHybridAStar search trapped, failed, tried " << search_iteration_count << " times" << endl;
+            ROS_WARN_STREAM("ClassHybridAStar search trapped, failed, tried " << search_iteration_count << " times" << endl);
             return false; // there is no OPEN node to search
         }
 
@@ -447,7 +277,7 @@ bool ClassHybridAStar::search()
 
         if (FLAG_found_rs_solution_)
         {
-            cout << "search success, found_rs_solution, tried " << search_iteration_count << " times" << endl;
+            ROS_INFO_STREAM("search success, found_rs_solution, tried " << search_iteration_count << " times" << endl);
             break;
         }
 
@@ -456,7 +286,7 @@ bool ClassHybridAStar::search()
 
         if( int((time2-time1)*1000.0) >= m_time_out_ms_ )
         {
-            std::cerr << "ClassHybridAStar search timeout, failed, tried " << search_iteration_count << " times" << endl;
+            ROS_WARN_STREAM("ClassHybridAStar search timeout, failed, tried " << search_iteration_count << " times");
             FLAG_timeout_ = true;
             // find a path closest to the goal.
             return true;
@@ -466,21 +296,11 @@ bool ClassHybridAStar::search()
 
     t2 = helper_get_time();
 
-    cout << "                                  " ;
-    cout << "Time in ms: " << int(m_debug_grid_search_time_*1000.0) << ", " ;
-    cout << int(m_debug_rs_search_time_*1000.0) << ", " << int(m_debug_rs_collision_check_time_*1000.0) << ", " << int(m_debug_astar_search_time_*1000.0) << endl;
+    ROS_INFO_STREAM("ClassHybridAStar::search() Found the goal." << int((t2 - t1)*1000.0) <<  
+        "ms. Tried " << search_iteration_count << " iterations. RS_search " << m_timer_and_counter_.times__rs_search_
+         << " times.");
 
-    // cout << "                                  " ;
-    // cout << "Time in ms: " << int(m_debug_grid_search_time_*1000.0) + 
-    //                                 int(m_debug_rs_search_time_*1000.0) + int(m_debug_rs_collision_check_time_*1000.0) << endl;
-    
-    cout << "                                  " ;
-    cout << "Time ClassHybridAStar::search() in ms: " << int((t2 - t1)*1000.0) << endl;
-
-
-    cout << "rs_search " << m_debug_times_rs_search_ << " times" << endl;
-
-    cout << "Found the goal. Tried " << search_iteration_count << " iterations " << endl;
+    ROS_DEBUG_STREAM("ClassHybridAStar::search() finish.");
 
     return true;
 }
@@ -489,7 +309,7 @@ bool ClassHybridAStar::search()
 
 bool ClassHybridAStar::try_RS_curve(const StructPoseGrid &curr_grid)
 {
-    m_debug_times_rs_search_ ++;
+    m_timer_and_counter_.times__rs_search_ ++;
 
     double t1 = helper_get_time();
     try
@@ -520,7 +340,7 @@ bool ClassHybridAStar::try_RS_curve(const StructPoseGrid &curr_grid)
     }
 
     double t2 = helper_get_time();
-    m_debug_rs_search_time_ += (t2 - t1);
+    m_timer_and_counter_.sec__rs_search += (t2 - t1);
 
     t1 = helper_get_time();
 
@@ -610,7 +430,7 @@ bool ClassHybridAStar::try_RS_curve(const StructPoseGrid &curr_grid)
     }
 
     t2 = helper_get_time();
-    m_debug_rs_collision_check_time_ += (t2 - t1);
+    m_timer_and_counter_.sec__rs_collision_check += (t2 - t1);
 
     // cout << "ClassHybridAStar::try_RS_curve() DONE " << endl;
     // cout << "found_clear_RS_path " << found_clear_RS_path << endl;
@@ -621,7 +441,7 @@ bool ClassHybridAStar::try_RS_curve(const StructPoseGrid &curr_grid)
 
 void ClassHybridAStar::explore_one_node()
 {
-    // cout << "explore_one_node()" << endl;
+    cout << "explore_one_node()" << endl;
 
     double _t1_preparation = helper_get_time();
     double _t2_preparation;
@@ -637,7 +457,7 @@ void ClassHybridAStar::explore_one_node()
         }
         // cout << "Top node in pq has unsafe type:" << m_gridinfo_vector_[_curr_node_grid_1d].grid_type << endl;
         _t2_preparation = helper_get_time();
-        m_debug_grid_search_time_ += (_t2_preparation - _t1_preparation);
+        m_timer_and_counter_.sec__grid_search += (_t2_preparation - _t1_preparation);
         return;
     }
 
@@ -648,7 +468,7 @@ void ClassHybridAStar::explore_one_node()
     GridInfo _current_grid = m_gridinfo_vector_[_curr_node_grid_1d];
 
     _t2_preparation = helper_get_time();
-    m_debug_grid_search_time_ += (_t2_preparation - _t1_preparation);
+    m_timer_and_counter_.sec__grid_search += (_t2_preparation - _t1_preparation);
     
     if (m_counter_for_trigger_rs_search_ % m_interval_for_rs_search_ == 0)
     {
@@ -682,7 +502,7 @@ void ClassHybridAStar::explore_one_node()
     GridInfo _local_target_for_astar;
     bool _local_target_is_set = false;
 
-    for (auto mm : m_motion_model_)
+    for (auto mm : m_motion_model_.motions)
     {
         step_dx = cos_theta * mm.dx + sin_theta * mm.dy;
         step_dy = sin_theta * mm.dx + cos_theta * mm.dy;
@@ -724,28 +544,8 @@ void ClassHybridAStar::explore_one_node()
             m_gridinfo_vector_[_neighbor_grid_index_1d].steer_type = count;
             double _new_g_cost = _current_grid.gcost + mm.edge_cost * estimate_steering_cost(_current_grid.steer_type, count);
             m_gridinfo_vector_[_neighbor_grid_index_1d].gcost = _new_g_cost;
-            if (! m_use_astar_as_hcost_)
-            {
-                m_gridinfo_vector_[_neighbor_grid_index_1d].fcost = _new_g_cost + compute_h_cost_Euclidean(m_gridinfo_vector_[_neighbor_grid_index_1d].real_pose, m_goal_pose_);
-            }
-            else
-            {
-                if ( ! _local_target_is_set)
-                {
-                    m_gridinfo_vector_[_neighbor_grid_index_1d].fcost = _new_g_cost + compute_h_cost_AStar(m_gridinfo_vector_[_neighbor_grid_index_1d].real_pose, m_goal_pose_);
-                    _local_target_is_set = true;
-                    _local_target_for_astar = m_gridinfo_vector_[_neighbor_grid_index_1d];
-                }
-                else
-                {
-                    double _local_target_hcost = _local_target_for_astar.fcost - _local_target_for_astar.gcost;
-                    double _hcost_from_beibor_to_local_target = compute_h_cost_AStar(m_gridinfo_vector_[_neighbor_grid_index_1d].real_pose, _local_target_for_astar.real_pose);
-                    double _h_cost = _hcost_from_beibor_to_local_target + _local_target_hcost;
-                    m_gridinfo_vector_[_neighbor_grid_index_1d].fcost = _new_g_cost + _h_cost;
-                }
-            }
             
-
+            m_gridinfo_vector_[_neighbor_grid_index_1d].fcost = _new_g_cost + computeHCostEuclidean(m_gridinfo_vector_[_neighbor_grid_index_1d].real_pose, m_goal_pose_);
 
             m_opennodes_pq_.push(NodeinfoForPQ(
                 m_gridinfo_vector_[_neighbor_grid_index_1d].fcost,
@@ -756,31 +556,9 @@ void ClassHybridAStar::explore_one_node()
         {
             double _new_g_cost = _current_grid.gcost + mm.edge_cost * estimate_steering_cost(_current_grid.steer_type, count);
             double _new_f_cost;
-            if (! m_use_astar_as_hcost_)
-            {
-                _new_f_cost = _new_g_cost + compute_h_cost_Euclidean(neigbr_grid.real_pose, m_goal_pose_);
-            }
-            else
-            {
-                // _new_f_cost = _new_g_cost + compute_h_cost_AStar(neigbr_grid.real_pose, m_goal_pose_);
-
-                if ( ! _local_target_is_set)
-                {
-                   _new_f_cost = _new_g_cost + compute_h_cost_AStar(neigbr_grid.real_pose, m_goal_pose_);
-                    _local_target_is_set = true;
-                    _local_target_for_astar = m_gridinfo_vector_[_neighbor_grid_index_1d];
-                }
-                else
-                {
-                    double _local_target_hcost = _local_target_for_astar.fcost - _local_target_for_astar.gcost;
-                    double _hcost_from_beibor_to_local_target = compute_h_cost_AStar(m_gridinfo_vector_[_neighbor_grid_index_1d].real_pose, _local_target_for_astar.real_pose);
-                    double _h_cost = _hcost_from_beibor_to_local_target + _local_target_hcost;
-                    _new_f_cost = _new_g_cost + _h_cost;
-                }
-
-            }
             
-
+            _new_f_cost = _new_g_cost + computeHCostEuclidean(neigbr_grid.real_pose, m_goal_pose_);
+            
             if (_new_f_cost < m_gridinfo_vector_[_neighbor_grid_index_1d].fcost)
             {
                 m_gridinfo_vector_[_neighbor_grid_index_1d].grid_type = AStarGridType::Open;
@@ -806,12 +584,14 @@ void ClassHybridAStar::explore_one_node()
         // cout << "" << endl;
     }
     double _t2 = helper_get_time();
-    m_debug_grid_search_time_ += (_t2 - _t1);
+    m_timer_and_counter_.sec__grid_search += (_t2 - _t1);
 }
 
+/// @brief call this from external to obtain the data of the result path.
+/// @param r_path the reference variable to store the data. 
 void ClassHybridAStar::get_path(ClassCustomPathContainer &r_path)
 {
-    cout << "ClassHybridAStar::get_path()" << endl;
+    ROS_DEBUG_STREAM("ClassHybridAStar::get_path() start.");
     r_path.clear_points();
 
     StructPoseGrid temp_step = m_grid_last_incremental_step_;
@@ -850,163 +630,48 @@ void ClassHybridAStar::get_path(ClassCustomPathContainer &r_path)
         }
     }
 
-    cout << "ClassHybridAStar::get_path() Done." << endl;
-}
-
-void ClassHybridAStar::build_motion_model()
-{
-    MotionPrimitive mp;
-    double raius, angle, curve_dx, curve_dy;
-
-    m_turning_angle_ = m_step_length_forward_ / m_turning_raius_;
-
-    raius = m_turning_raius_;
-    angle = std::abs(m_turning_angle_);
-
-    curve_dx = raius * sin(angle);
-    curve_dy = raius * (1.0 - cos(angle));
-
-
-    // first 3 options are moving forward
-    mp.edge_cost = m_step_length_forward_ * m_costmultipler_.forward;
-    mp.direction = EnumForwardBackward::forward;
-
-    // to front left
-    mp.dx = curve_dx;
-    mp.dy = curve_dy;
-    mp.dyaw = angle;
-    m_motion_model_.push_back(mp);
-
-    // to front center
-    mp.dx = m_step_length_forward_;
-    mp.dy = 0;
-    mp.dyaw = 0;
-    m_motion_model_.push_back(mp);
-
-    // to front right
-    mp.dx = curve_dx;
-    mp.dy = -curve_dy;
-    mp.dyaw = -angle;
-    m_motion_model_.push_back(mp);
-
-
-    m_turning_angle_ = m_step_length_backward_ / m_turning_raius_;
-
-    raius = m_turning_raius_;
-    angle = std::abs(m_turning_angle_);
-
-    curve_dx = raius * sin(angle);
-    curve_dy = raius * (1.0 - cos(angle));
-
-    // next 3 options are moving backward
-    mp.edge_cost = m_step_length_backward_ * m_costmultipler_.backward;
-    mp.direction = EnumForwardBackward::backward;
-
-    // to back right
-    mp.dx = -curve_dx;
-    mp.dy = -curve_dy;
-    mp.dyaw = angle;
-    m_motion_model_.push_back(mp);
-
-    // to back center
-    mp.dx = -m_step_length_backward_;
-    mp.dy = 0;
-    mp.dyaw = 0;
-    m_motion_model_.push_back(mp);
-
-    // to back left
-    mp.dx = -curve_dx;
-    mp.dy = curve_dy;
-    mp.dyaw = -angle;
-    m_motion_model_.push_back(mp);
+    ROS_DEBUG_STREAM("ClassHybridAStar::get_path() Done.");
 }
 
 
-double ClassHybridAStar::estimate_steering_cost(const int last_steer, const int new_steer)
-{
-    int _diff = std::abs(last_steer - new_steer);
-    if (_diff == 0)
+bool ClassHybridAStar::checkStartAndGoalAccessible()
+{   
+    bool _temp = true;
+
+    if( ! m_gridmap_handler_.check_grid_clear(m_start_grid_.x, m_start_grid_.y, ClassGridMapHandler::EnumMode::plan))
     {
-        return 1.0;
+        ROS_WARN_STREAM("!! Start grid is in obstacle.");
+        _temp = false;
     }
-    else if (_diff == 1)
+
+    if( ! m_gridmap_handler_.check_grid_clear(m_goal_grid_.x, m_goal_grid_.y, ClassGridMapHandler::EnumMode::plan))
     {
-        return 1.3;
+        ROS_WARN_STREAM("!! Goal grid is in obstacle.");
+        _temp = false;
     }
-    else if (_diff > 0)
-    {
-        return 2.0;
-    }
+
+    return _temp;
 }
 
 
-inline double ClassHybridAStar::mod_2pi(double a)
+void ClassHybridAStar::setupTheFirstGrid()
 {
-    double angle = a;
-    while (angle > 2 * M_PI)
-    {
-        angle -= 2 * M_PI;
-    }
-    while (angle < 0)
-    {
-        angle += 2 * M_PI;
-    }
-    return angle;
+    int _start_grid_index_1d = m_gridmap_handler_.convert_3D_to_oneD(m_start_grid_.x, 
+                                                                     m_start_grid_.y, 
+                                                                     m_start_grid_.yaw);
+    m_gridinfo_vector_.at(_start_grid_index_1d).fcost = 0;
+    m_gridinfo_vector_.at(_start_grid_index_1d).gcost = 0;
+    m_gridinfo_vector_.at(_start_grid_index_1d).grid_type = AStarGridType::Open;
+    m_gridinfo_vector_.at(_start_grid_index_1d).parent_grid = m_start_grid_;
+    m_gridinfo_vector_.at(_start_grid_index_1d).real_pose = m_start_pose_;
+    m_gridinfo_vector_.at(_start_grid_index_1d).self_grid = m_start_grid_;
+
+    NodeinfoForPQ _start_grid_nodeinfo(
+        m_gridinfo_vector_.at(_start_grid_index_1d).fcost,
+        m_gridinfo_vector_.at(_start_grid_index_1d).self_grid
+    );
+
+    m_opennodes_pq_.push(_start_grid_nodeinfo);
 }
-
-inline double ClassHybridAStar::compute_h_cost_Euclidean(const StructPoseReal n, const StructPoseReal g)
-{
-    double dx = n.x - g.x;
-    double dy = n.y - g.y;
-    return sqrt(dx * dx + dy * dy);
-}
-
-inline double ClassHybridAStar::compute_h_cost_Manhattan(const StructPoseReal n, const StructPoseReal g)
-{
-    double dx = abs(n.x - g.x);
-    double dy = abs(n.y - g.y);
-    return dx + dy;
-}
-
-inline double ClassHybridAStar::compute_h_cost_Chebyshev(const StructPoseReal n, const StructPoseReal g)
-{
-    double dx = abs(n.x - g.x);
-    double dy = abs(n.y - g.y);
-    return std::max(dx, dy);
-}
-
-inline double ClassHybridAStar::compute_h_cost_AStar(const StructPoseReal &n, const StructPoseReal &g)
-{
-    double _t1 = helper_get_time();
-    m_astar_finder_.setup_points(array<double, 2>{n.x, n.y}, array<double, 2>{g.x, g.y});
-    if (m_astar_finder_.search())
-    {
-        double _t2 = helper_get_time();
-        // cout << "- " << (_t2 - _t1) << "    " << m_debug_astar_search_time_ << endl;
-        m_debug_astar_search_time_ += (_t2 - _t1);
-        return m_astar_finder_.get_path_length_meter();
-    }
-    else
-    {
-        double _t2 = helper_get_time();
-        // cout << "- " << (_t2 - _t1) << "    " << m_debug_astar_search_time_ << endl;
-        m_debug_astar_search_time_ += (_t2 - _t1);
-        return 999.0;
-    }
-}
-
-
-
-/**
- * @brief 
- * return time in seconds, epoch time. 
- */
-double ClassHybridAStar::helper_get_time()
-{
-    return high_resolution_clock::now().time_since_epoch().count()/1000000000.0; 
-}
-
-
-
 
 #endif

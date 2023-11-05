@@ -26,6 +26,8 @@
 
 #include "struct_simple_pose.h"
 
+#include "../utils/hawa_data_containers.h"
+
 using std::array;
 using std::cerr;
 using std::cout;
@@ -90,6 +92,8 @@ public:
     bool set_validate_obstacle_threshold(int8_t thd);
     bool set_grid_map_ptr(vector<int8_t> * ptr_);
     bool set_grid_meter_ratio(double xy, double angle);
+
+    int getMapLength();
 };
 
 /**
@@ -132,6 +136,12 @@ bool ClassGridMapHandler::set_grid_map_ptr(vector<int8_t> * ptr_)
     }
     
 }
+
+int ClassGridMapHandler::getMapLength()
+{
+    return grid_map_1D_ptr_->size();
+}
+
 
 /**
  * @brief Because the map is saved in 1D vector, its width and height need to saved.

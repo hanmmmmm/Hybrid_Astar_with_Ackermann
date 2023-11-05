@@ -5,7 +5,8 @@
 #include <deque>
 #include <array>
 
-using std::deque, std::array;
+using std::deque;
+using std::array;
 
 class ClassCustomPathContainer
 {

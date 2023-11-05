@@ -6,29 +6,29 @@
 
 
 
-struct StructPoseReal
-{
-    double x;  // meter
-    double y;  // meter
-    double yaw;  // radian
+// struct StructPoseReal
+// {
+//     double x;  // meter
+//     double y;  // meter
+//     double yaw;  // radian
 
-    StructPoseReal()
-    {
-    }
+//     StructPoseReal()
+//     {
+//     }
 
-    StructPoseReal(double x_in, double y_in, double yaw_in)
-    {
-        x = x_in;
-        y = y_in;
-        yaw = yaw_in;
-    }
+//     StructPoseReal(double x_in, double y_in, double yaw_in)
+//     {
+//         x = x_in;
+//         y = y_in;
+//         yaw = yaw_in;
+//     }
 
-    inline std::array<double, 3> to_array3()
-    {
-        return std::array<double, 3> {x, y, yaw};
-    }
+//     inline std::array<double, 3> to_array3()
+//     {
+//         return std::array<double, 3> {x, y, yaw};
+//     }
     
-};
+// };
 
 // struct StructPoseGrid
 // {
@@ -49,35 +49,35 @@ struct StructPoseReal
 
 
 
-struct StructPoseGrid
-{
-    int x;
-    int y;
-    int yaw;
+// struct StructPoseGrid
+// {
+//     int x;
+//     int y;
+//     int yaw;
 
-    StructPoseGrid()
-    {
-    }
+//     StructPoseGrid()
+//     {
+//     }
 
-    StructPoseGrid(int x, int y, int yaw):x(x), y(y), yaw(yaw)
-    {
-    }
+//     StructPoseGrid(int x, int y, int yaw):x(x), y(y), yaw(yaw)
+//     {
+//     }
 
-    bool operator!=(const StructPoseGrid &p) const {
-        return ! (x == p.x && y == p.y && yaw == p.yaw) ;
-    }
+//     bool operator!=(const StructPoseGrid &p) const {
+//         return ! (x == p.x && y == p.y && yaw == p.yaw) ;
+//     }
 
-    inline std::array<int, 3> to_array3()
-    {
-        return std::array<int, 3> {x, y, yaw};
-    }
+//     inline std::array<int, 3> to_array3()
+//     {
+//         return std::array<int, 3> {x, y, yaw};
+//     }
 
-    inline std::array<int, 2> to_array2()
-    {
-        return std::array<int, 2> {x, y};
-    }
+//     inline std::array<int, 2> to_array2()
+//     {
+//         return std::array<int, 2> {x, y};
+//     }
 
-};
+// };
 
 
 struct StructPoseGrid2D
@@ -209,26 +209,26 @@ struct StructWaypointWithTwist
 // h ^= std::hash<int>{}(e) + 0x9e3779b9 + (h << 6) + (h >> 2);
 
 
-struct hash_function_for_StructPoseGrid
-{
-    std::size_t operator() (const StructPoseGrid &node) const
-    {
-        std::size_t h = 0;
-        h ^= std::hash<int>{}(node.x) + 0x9e3779b9 + (h << 6) + (h >> 2);
-        h ^= std::hash<int>{}(node.y) + 0x9e3779b9 + (h << 6) + (h >> 2);
-        h ^= std::hash<int>{}(node.yaw) + 0x9e3779b9 + (h << 6) + (h >> 2);
-        return h;
-    }
+// struct hash_function_for_StructPoseGrid
+// {
+//     std::size_t operator() (const StructPoseGrid &node) const
+//     {
+//         std::size_t h = 0;
+//         h ^= std::hash<int>{}(node.x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+//         h ^= std::hash<int>{}(node.y) + 0x9e3779b9 + (h << 6) + (h >> 2);
+//         h ^= std::hash<int>{}(node.yaw) + 0x9e3779b9 + (h << 6) + (h >> 2);
+//         return h;
+//     }
 
-    // template <class T1, class T2>
-    // std::size_t operator() (const Node<T1, T2> &node) const
-    // {
-    //     std::size_t h1 = std::hash<T1>()(node.x);
-    //     std::size_t h2 = std::hash<T2>()(node.y);
+//     // template <class T1, class T2>
+//     // std::size_t operator() (const Node<T1, T2> &node) const
+//     // {
+//     //     std::size_t h1 = std::hash<T1>()(node.x);
+//     //     std::size_t h2 = std::hash<T2>()(node.y);
  
-    //     return h1 ^ h2;
-    // }
-};
+//     //     return h1 ^ h2;
+//     // }
+// };
 
 
 struct StructRectangle
