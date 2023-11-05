@@ -5,14 +5,52 @@
 
 #include "../utils/hawa_data_containers.h"
 
+
+class ClassHawaCounter
+{
+private:
+    int m_count_;
+public:
+    ClassHawaCounter(/* args */);
+    ~ClassHawaCounter();
+    void increment();
+    void resetCount();
+    int getVal();
+};
+
+ClassHawaCounter::ClassHawaCounter(/* args */)
+{
+    m_count_ = 0;
+}
+
+ClassHawaCounter::~ClassHawaCounter()
+{
+}
+
+void ClassHawaCounter::increment()
+{
+    m_count_ ++;
+}
+
+void ClassHawaCounter::resetCount()
+{
+    m_count_ = 0;
+}
+
+int ClassHawaCounter::getVal()
+{
+    return m_count_;
+}
+
+
 struct TimingAndCounter
 {
     double sec__rs_search;
     double sec__grid_search;
     double sec__rs_collision_check;
     double sec__astar_search;
-    int times__find_min_cost_;
-    int times__rs_search_;
+    ClassHawaCounter count__find_min_cost_;
+    ClassHawaCounter count__rs_search_;
 
     inline void resetVals()
     {
@@ -20,10 +58,11 @@ struct TimingAndCounter
         sec__grid_search = 0;
         sec__rs_search = 0;
         sec__rs_collision_check = 0;
-        times__find_min_cost_ = 0;
-        times__rs_search_ = 0;        
+        count__find_min_cost_.resetCount();
+        count__rs_search_.resetCount();
     }
 };
+
 
 struct MapOccThreshold
 {
@@ -32,6 +71,11 @@ struct MapOccThreshold
 };
 
 
+/// @brief This struct handles the logic for triggering the RS curve searching, during the 
+/// the hybrid astar exploration.  The value of interval would be modified to the 
+/// actual desired value. Briefly, everytime when counter is an interger multiplication of 
+/// the interval, then the hybrid astar should try to see if any RS curve connecting to the 
+/// goal pose. 
 struct StructCounterForRSSearch
 {
     int counter = 0;
@@ -42,9 +86,24 @@ struct StructCounterForRSSearch
         counter = 0;
     }
 
+    inline void setInterval(const int expected_interval)
+    {
+        if (expected_interval <= 0)
+        {
+            ROS_FATAL_STREAM_NAMED("StructCounterForRSSearch::setInterval", 
+                                   "input value too small:" << expected_interval);
+        }
+        interval = expected_interval;
+    }
+
     inline bool check_match()
     {
         return (counter % interval == 0);
+    }
+
+    inline void increment_counter()
+    {
+        counter ++;
     }
 };
 
@@ -67,10 +126,37 @@ struct StructFlags
 };
 
 
-
-struct ParametersForSearching
+struct StructImportantPoses
 {
-    
+    StructPoseGrid start_grid;
+    StructPoseReal start_pose;
+
+    StructPoseGrid goal_grid;
+    StructPoseReal goal_pose;
+
+    StructPoseGrid grid_last_incremental_step;
+
+    StructPoseGrid min_cost_node;
+};
+
+
+struct StructParametersForSearching
+{
+    int time_out_ms = 200;
+
+    const double dummy_min_cost_value = std::numeric_limits<double>::max();
+
+    double yaw_angle_bin_size;
+
+    inline void setTimeOutMs(const int val)
+    {
+        time_out_ms = val;
+    }
+
+    inline void setYawBinSize(const double val)
+    {
+        yaw_angle_bin_size = val;
+    }
 };
 
 
@@ -81,11 +167,24 @@ enum AStarGridType
     Closed
 };
 
+/// @brief The 6 types of motions used in HybridAstar searching.  F is forward, R is reverse. 
+/// S is straight motion, L is steer to left side. R is steer to right side.
+enum EnumHAMotionType
+{
+    F_S, 
+    F_L,
+    F_R,
+    R_S,
+    R_L,
+    R_R
+};
+
 struct GridInfo
 {
     double gcost = 0;
     double fcost = 0;
     int steer_type = 0; // 0-5, total 6 types
+    EnumHAMotionType motion_type;
     StructPoseReal real_pose;
     StructPoseGrid parent_grid;
     StructPoseGrid self_grid;
@@ -142,8 +241,97 @@ double estimate_steering_cost(const int last_steer, const int new_steer)
     {
         return 2.0;
     }
+    else
+    {
+        return 1.0;
+    }
 }
 
+double estimate_changing_motion_type_cost(const EnumHAMotionType last_motion, const EnumHAMotionType this_motion)
+{
+    const double _no_change = 1.0;
+    const double _small_steer = 1.1;
+    const double _large_steer = 1.25;
+    const double _change_direction = 1.5;
+
+    if (last_motion == this_motion)
+        return _no_change;
+
+    else if ((last_motion == EnumHAMotionType::F_L) && (this_motion == EnumHAMotionType::F_S))
+        return _small_steer;
+    else if ((last_motion == EnumHAMotionType::F_R) && (this_motion == EnumHAMotionType::F_S))
+        return _small_steer;
+    else if ((last_motion == EnumHAMotionType::F_S) && (this_motion == EnumHAMotionType::F_L))
+        return _small_steer;
+    else if ((last_motion == EnumHAMotionType::F_S) && (this_motion == EnumHAMotionType::F_R))
+        return _small_steer;
+    
+    else if ((last_motion == EnumHAMotionType::R_L) && (this_motion == EnumHAMotionType::R_S))
+        return _small_steer;
+    else if ((last_motion == EnumHAMotionType::R_R) && (this_motion == EnumHAMotionType::R_S))
+        return _small_steer;
+    else if ((last_motion == EnumHAMotionType::R_S) && (this_motion == EnumHAMotionType::R_L))
+        return _small_steer;
+    else if ((last_motion == EnumHAMotionType::R_S) && (this_motion == EnumHAMotionType::R_R))
+        return _small_steer;
+
+    else if ((last_motion == EnumHAMotionType::F_L) && (this_motion == EnumHAMotionType::F_R))
+        return _large_steer;
+    else if ((last_motion == EnumHAMotionType::F_R) && (this_motion == EnumHAMotionType::F_L))
+        return _large_steer;
+    
+    else if ((last_motion == EnumHAMotionType::R_L) && (this_motion == EnumHAMotionType::R_R))
+        return _large_steer;
+    else if ((last_motion == EnumHAMotionType::R_R) && (this_motion == EnumHAMotionType::R_L))
+        return _large_steer;
+        
+
+    else if ((last_motion == EnumHAMotionType::F_L) && (this_motion == EnumHAMotionType::R_S))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::F_L) && (this_motion == EnumHAMotionType::R_L))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::F_L) && (this_motion == EnumHAMotionType::R_R))
+        return _change_direction;
+    
+    else if ((last_motion == EnumHAMotionType::F_S) && (this_motion == EnumHAMotionType::R_S))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::F_S) && (this_motion == EnumHAMotionType::R_L))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::F_S) && (this_motion == EnumHAMotionType::R_R))
+        return _change_direction;
+
+    else if ((last_motion == EnumHAMotionType::F_R) && (this_motion == EnumHAMotionType::R_S))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::F_R) && (this_motion == EnumHAMotionType::R_L))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::F_R) && (this_motion == EnumHAMotionType::R_R))
+        return _change_direction;
+
+    else if ((last_motion == EnumHAMotionType::R_L) && (this_motion == EnumHAMotionType::F_S))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::R_L) && (this_motion == EnumHAMotionType::F_L))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::R_L) && (this_motion == EnumHAMotionType::F_R))
+        return _change_direction;
+    
+    else if ((last_motion == EnumHAMotionType::R_S) && (this_motion == EnumHAMotionType::F_S))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::R_S) && (this_motion == EnumHAMotionType::F_L))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::R_S) && (this_motion == EnumHAMotionType::F_R))
+        return _change_direction;
+
+    else if ((last_motion == EnumHAMotionType::R_R) && (this_motion == EnumHAMotionType::F_S))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::R_R) && (this_motion == EnumHAMotionType::F_L))
+        return _change_direction;
+    else if ((last_motion == EnumHAMotionType::R_R) && (this_motion == EnumHAMotionType::F_R))
+        return _change_direction;
+
+    ROS_WARN_STREAM("estimate_changing_motion_type_cost(): Unknown condition:"<< last_motion << " " << this_motion);
+
+    return 1.0;
+}
 
 inline double computeHCostEuclidean(const StructPoseReal n, const StructPoseReal g)
 {

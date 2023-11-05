@@ -83,7 +83,7 @@ private:
     tf::StampedTransform m_tf_robot_to_map_;
     void getRobotPoseInMapFrame();
     
-    void load_parameters();
+    void loadParameters();
 
     void exit_pathplan_function(const double time_start);
 
@@ -95,7 +95,7 @@ public:
 
 ClassPathPlanner::ClassPathPlanner(const ros::NodeHandle nh_in_): m_ros_nh_{nh_in_}
 {
-    load_parameters(); 
+    loadParameters(); 
 
     m_map_received_ = false;
     m_goal_received_ = false; 
@@ -115,7 +115,7 @@ ClassPathPlanner::~ClassPathPlanner()
 {
 }
 
-void ClassPathPlanner::load_parameters()
+void ClassPathPlanner::loadParameters()
 {
     m_topic_name_map_subscribed_ = "/map_fusion";
     m_topic_name_goal_subscribed_ = "/move_base_simple/goal";
@@ -128,7 +128,7 @@ void ClassPathPlanner::load_parameters()
 
     m_planer_interval_ = 0.2;
 
-    ROS_INFO_STREAM("ClassPathPlanner load_parameters Done.");
+    ROS_INFO_STREAM("ClassPathPlanner loadParameters Done.");
 }
 
 void ClassPathPlanner::exit_pathplan_function(const double time_start)
@@ -138,7 +138,7 @@ void ClassPathPlanner::exit_pathplan_function(const double time_start)
 
     double t2 = helper_get_time(); 
 
-    ROS_INFO_STREAM("Function pathPlan() used " << int((t2-time_start)*1000.0) << " ms.");
+    ROS_INFO_STREAM("Function pathPlan() used " << int((t2-time_start)*1000.0) << " ms." << std::endl);
 }
 
 void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
@@ -155,9 +155,11 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
 
     getRobotPoseInMapFrame();
 
-    bool planner_setup_succes = m_ha_planner_.setup(m_path_plan_timeout_ms_, m_start_pose_, m_goal_pose_, &m_map_msg_);
+    bool _planner_set_map_success = m_ha_planner_.setMap(&m_map_msg_);
+    bool _planner_set_pose_sucess = m_ha_planner_.setStartGoalPoses(m_start_pose_, m_goal_pose_);
+    bool _planner_setup_succes = m_ha_planner_.setup(m_path_plan_timeout_ms_);
 
-    if (! planner_setup_succes)
+    if (! (_planner_setup_succes || _planner_set_map_success || _planner_set_pose_sucess))
     {
         exit_pathplan_function(t1);
         return;
@@ -197,18 +199,8 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     // std::cout << "Hybrid-A* last point " << path_msg_.poses.back().pose.position.x << " " << path_msg_.poses.back().pose.position.y << " " << std::endl;
     // std::cout << "Goal           point " << goal_pose_[0]+map_msg_.info.origin.position.x << " " << goal_pose_[1]+map_msg_.info.origin.position.y << " " << std::endl;
 
-            
-        
-    
-
-    // m_map_mutex_.unlock();
-    // m_goal_mutex_.unlock(); 
-
-    // double t2 = helper_get_time(); 
-
-    // ROS_INFO("Function pathPlan() used %d ms.", int((t2-t1)*1000.0));
-
-
+    exit_pathplan_function(t1);
+    return;
 }
 
 void ClassPathPlanner::getRobotPoseInMapFrame(){

@@ -1657,6 +1657,8 @@ double ReedsSheppClass::calc_weighted_length(std::vector<double> list_in)
             _result += std::abs(element);
         }
     }
+
+    return _result;
 }
 
 

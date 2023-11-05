@@ -325,10 +325,16 @@ bool ClassGridMapHandler::check_line_clear__by_grid(int x1, int y1, int x2, int 
     else if (co == EnumCollosionCheckType::all_grids)
     {
         // use bresenham to find the grids in the middle, and check each of them.
+        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
     }
     else if (co == EnumCollosionCheckType::spaced)
     {
         // similar to above, but check only some grids.
+        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
+    }
+    else
+    {
+        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
     }
 }
 
@@ -442,6 +448,8 @@ inline bool ClassGridMapHandler::convert_grid_pose_to_fine(int grid_x, int grid_
 {
     fine_x = grid_x * K_ratio_fine_to_grid_xy_;
     fine_y = grid_y * K_ratio_fine_to_grid_xy_;
+
+    return true;
 }
 
 /**
