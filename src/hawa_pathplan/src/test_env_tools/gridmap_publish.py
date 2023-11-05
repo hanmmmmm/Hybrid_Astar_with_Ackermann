@@ -15,9 +15,12 @@ file_dir = "/home/jf/gitrepo/Hybrid_Astar_with_Ackermann/src/hawa_pathplan/src/t
 print (file_dir)
 
 
-map_image_file = file_dir + "/mymap.pgm"
+# map_image_file = file_dir + "/mymap.pgm"
 # map_image_file = file_dir + "/map_files/parking_1.pgm"
 # map_image_file = file_dir + "/map_files/office_1.pgm"
+map_image_file = file_dir + "/map.png"
+# map_image_file = file_dir + "/test_square.png"
+
 
 print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
@@ -25,7 +28,7 @@ print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 print(f"map_image_file  {map_image_file}")
 
-img = cv2.imread(map_image_file)
+img = cv2.imread(map_image_file, cv2.IMREAD_UNCHANGED)
 
 # # stright block
 # img[20:80, 90:100 ] = [0,0,0]
@@ -37,6 +40,7 @@ img = cv2.imread(map_image_file)
 # # # cover robot in obstble
 # img[50:70, 50:60 ] = [0,0,0]
 
+# print(img)
 
 print(img.shape)
 
@@ -46,15 +50,27 @@ with open(file_dir + "/mymap.yaml", 'r') as file:
 
 print(map_yaml)
 
-pxset = set()
+# pxset = set()
+# for y in range(img.shape[0]):
+#     for x in range(img.shape[1]):
+#         px = img[y][x]
+#         # pxset.add(px)
+#         print(px)
 
+# print(f"pxset {pxset}.")
+
+pxset = set()
 img_1d_list = []
 for y in range(img.shape[0]):
     for x in range(img.shape[1]):
-        px = img[img.shape[0]-1-y][x][0]
-        px = int(100.0 - float(px)*100.0/255.0)
+        px = img[img.shape[0]-1-y][x][3]
+        # px = int(100.0 - float(px)*100.0/255.0)
+        px = int(float(px)*100.0/255.0)
         px = max( px, 0.0 )
         img_1d_list.append( px )
+        pxset.add(px)
+print(f"pxset {pxset}.")
+
 
 img_1d_list_backup = img_1d_list.copy()
 
