@@ -1,3 +1,29 @@
+// MIT License
+
+// Copyright (c) 2023 Mingjie
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+/**
+ * 
+*/
+
 #ifndef CLASS_PATH_PLANNER
 #define CLASS_PATH_PLANNER
 
@@ -17,32 +43,27 @@
 #include "tf/transform_listener.h"
 #include "tf2/LinearMath/Quaternion.h"
 
-#include "hawa_msgs/car_states.h"
+// #include "hawa_msgs/car_states.h"
 
-// #include "../car_pathplan/struct_simple_pose.h"
-#include "../hybrid_a_star_module/hybrid_astar.h"
+#include "../hybrid_a_star_module/class_hybrid_astar.h"
 #include "../utils/hawa_conversion_tools.h"
 #include "../utils/hawa_tools.h"
 #include "../utils/hawa_data_containers.h"
 
 
-/*
-The pose of start/robot, goal, path are converted from /map frame to map-grid-space;
-converted_tf = tf_in_map_frame - map_msg_origin;
+// NOTE:
+// The poses of start(robot), goal, and paths are converted from /map frame to map-grid-space;
+// converted_tf = tf_in_map_frame - map_msg_origin;
 
-*/
+// TODO:
+// add a function to check if the current path is still valid:
+// - robot position xy is close to it
+// - robot heading is close to the path
+// - path is clear from obstacles
+// - 
+// if it's still valid, then no need to search new path. 
 
 
-/*
-TODO:
-add a function to check if the current path is still valid:
-- robot position xy is close to it
-- robot heading is close to the path
-- path is clear from obstacles
-- 
-if it's still valid, then no need to search new path. 
-
-*/
 
 
 class ClassPathPlanner
@@ -93,6 +114,10 @@ public:
     ~ClassPathPlanner();
 };
 
+/**
+ * @brief The constructor function for this class. 
+ * @param nh_in_  ros node handle.
+*/
 ClassPathPlanner::ClassPathPlanner(const ros::NodeHandle nh_in_): m_ros_nh_{nh_in_}
 {
     loadParameters(); 
@@ -111,10 +136,16 @@ ClassPathPlanner::ClassPathPlanner(const ros::NodeHandle nh_in_): m_ros_nh_{nh_i
     ROS_INFO_STREAM("ClassPathPlanner inti Done.");
 }
 
+/**
+ * @brief The destructor function.
+*/
 ClassPathPlanner::~ClassPathPlanner()
 {
 }
 
+/**
+ * @brief Load parameters from the json file. 
+*/
 void ClassPathPlanner::loadParameters()
 {
     m_topic_name_map_subscribed_ = "/map_fusion";
@@ -131,16 +162,25 @@ void ClassPathPlanner::loadParameters()
     ROS_INFO_STREAM("ClassPathPlanner loadParameters Done.");
 }
 
+/**
+ * @brief This function would be used in the function pathPlan(), when it needs 
+ * to terminate the path finding. 
+ * @param time_start This is the timestamp when the function pathPlan() starts.
+*/
 void ClassPathPlanner::exit_pathplan_function(const double time_start)
 {
     m_map_mutex_.unlock();
     m_goal_mutex_.unlock(); 
 
-    double t2 = helper_get_time(); 
+    double t2 = helperGetTime(); 
 
     ROS_INFO_STREAM("Function pathPlan() used " << int((t2-time_start)*1000.0) << " ms." << std::endl);
 }
 
+/**
+ * @brief This function will be executed by the ros timer, about 10 hz. 
+ * @param event The ROS timer event.
+*/
 void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
 {
     if( ! m_map_received_ ) return;
@@ -148,7 +188,7 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
 
     ROS_INFO("ClassPathPlanner::path_plan() start");
 
-    double t1 = helper_get_time();
+    double t1 = helperGetTime();
 
     m_map_mutex_.lock();
     m_goal_mutex_.lock();
@@ -174,7 +214,7 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     }
 
     ClassCustomPathContainer path;
-    m_ha_planner_.get_path(path);
+    m_ha_planner_.getFinalHybridAstarPath(path);
 
     // std::cout << "path size: " << path.size() << std::endl;
 
@@ -188,7 +228,7 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
         one_pose.pose.position.x = point[0] + m_map_msg_.info.origin.position.x;
         one_pose.pose.position.y = point[1] + m_map_msg_.info.origin.position.y;
         one_pose.pose.position.z = 0.0;
-        one_pose.pose.orientation = tf2qua_to_geoQua(twoD_yaw_to_tf2qua(point[2]));
+        one_pose.pose.orientation = tf2quaToGeoQua(twodYawToTf2qua(point[2]));
 
         m_navmsgs_path_msg_.poses.push_back(one_pose);
         // std::cout << "path_ " << point[0] << " " << point[1] << " " << std::endl;
@@ -200,16 +240,18 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     // std::cout << "Goal           point " << goal_pose_[0]+map_msg_.info.origin.position.x << " " << goal_pose_[1]+map_msg_.info.origin.position.y << " " << std::endl;
 
     exit_pathplan_function(t1);
-    return;
 }
 
+/**
+ * @brief Call this function to get the latest robot pose.
+*/
 void ClassPathPlanner::getRobotPoseInMapFrame(){
     try{
         m_tf_listener.lookupTransform( m_map_tf_frame_name_, m_robot_tf_frame_name_, ros::Time(0), m_tf_robot_to_map_);
 
         m_start_pose_.x = m_tf_robot_to_map_.getOrigin().x() - m_map_msg_.info.origin.position.x;
         m_start_pose_.y = m_tf_robot_to_map_.getOrigin().y() - m_map_msg_.info.origin.position.y;
-        m_start_pose_.yaw = tfStampedTransform_to_yaw(&m_tf_robot_to_map_);
+        m_start_pose_.yaw = tfStampedTransformToYaw(&m_tf_robot_to_map_);
         // std::cout << start_pose_[0] << " " << start_pose_[1] << " " << start_pose_[2] << std::endl;
         // std::cout << "robot yaw  " << start_pose_[2]*180.0/M_PI << std::endl;
     }
@@ -218,7 +260,10 @@ void ClassPathPlanner::getRobotPoseInMapFrame(){
     }
 }
 
-
+/**
+ * @brief ROS callback frunction for the goal message. 
+ * @param msg message of the rostopic
+*/
 void ClassPathPlanner::goalCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
     m_goal_mutex_.lock();
@@ -226,14 +271,17 @@ void ClassPathPlanner::goalCallback(const geometry_msgs::PoseStamped::ConstPtr &
 
     m_goal_pose_.x = msg->pose.position.x - m_map_msg_.info.origin.position.x;
     m_goal_pose_.y = msg->pose.position.y - m_map_msg_.info.origin.position.y;
-    m_goal_pose_.yaw =  geoQua_to_yaw(&(msg->pose.orientation));
+    m_goal_pose_.yaw =  geoQuaToYaw(&(msg->pose.orientation));
 
     m_goal_received_ = true;
     
     m_goal_mutex_.unlock();
 }
 
-
+/**
+ * @brief ROS callback frunction for the occupancy grid map message. 
+ * @param msg message of the rostopic
+*/
 void ClassPathPlanner::mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
 {
     m_map_mutex_.lock();

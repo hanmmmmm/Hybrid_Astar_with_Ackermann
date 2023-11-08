@@ -1,13 +1,39 @@
+// MIT License
 
-#ifndef REEDSSHEPP_H
-#define REEDSSHEPP_H
+// Copyright (c) 2023 Mingjie
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+/**
+ * This file is 
+ */
+
+
+#ifndef CLASS_HAWA_REEDSSHEPP_FINDER_H
+#define CLASS_HAWA_REEDSSHEPP_FINDER_H
 
 #include <iostream>
 #include <string>
 #include <queue>
 #include <unordered_map>
 #include <map>
-// #include <opencv2/core.hpp>
+
 #include <algorithm>
 #include <set>
 #include <stdexcept>
@@ -15,6 +41,8 @@
 #include <math.h>
 
 #include "reedshepp_path.h"
+
+#include "../../utils/hawa_conversion_tools.h"
 
 /*
 This is my implementation of Reeds-Sheep curve. 
@@ -54,10 +82,10 @@ private:
 
     void polar(double x, double y, double &radius_ro, double &theta);
 
-    double mod2pi(double angle_radian);
+    // double mod2pi(double angle_radian);
     const double pi2_ = M_PI*2.0;  
 
-    double rectify_angle_rad(double ang);
+    // double rectify_angle_rad(double ang);
 
     void tauOmega(double u, double v, double xi, double eta, double phi, double &tau, double &omega);
 
@@ -182,7 +210,7 @@ void ReedsSheppClass::setup(  std::array<double, 3> start_pose, std::array<doubl
 
     double goal_x_rotated_unitless = ( dx * cos_theta1 + dy * sin_theta1) / turning_raius_;
     double goal_y_rotated_unitless = (-dx * sin_theta1 + dy * cos_theta1) / turning_raius_;
-    double goal_theta_rotated = rectify_angle_rad( goal_pose[2] - start_pose[2] );
+    double goal_theta_rotated = mod2pi( goal_pose[2] - start_pose[2] );
 
     goal_pose_processed_ = { goal_x_rotated_unitless, goal_y_rotated_unitless, goal_theta_rotated };
 
@@ -192,8 +220,8 @@ void ReedsSheppClass::setup(  std::array<double, 3> start_pose, std::array<doubl
     double theta = std::atan2(dyy,dxx);
     double D = sqrt( dxx*dxx + dyy*dyy );
     ccc_d_ = D/turning_raius_;
-    ccc_alpha_ = rectify_angle_rad( start_pose[2] - theta );
-    ccc_beta_  = rectify_angle_rad( goal_pose[2] - theta );
+    ccc_alpha_ = mod2pi( start_pose[2] - theta );
+    ccc_beta_  = mod2pi( goal_pose[2] - theta );
 
     all_possible_paths_.reset();
     while ( results_.size() > 0 ){
@@ -211,34 +239,53 @@ void ReedsSheppClass::polar(double x, double y, double &radius_ro, double &theta
     theta = atan2(y, x);
 }
 
-double ReedsSheppClass::mod2pi(double angle_radian)
-{
-    double v = fmod(angle_radian, pi2_);
-    while (v < - M_PI){
-        v += pi2_;
-    }
-    while (v > M_PI){
-        v -= pi2_;
-    }
-    return v;
-}
+// double ReedsSheppClass::mod2pi(double angle_radian)
+// {
+//     double v = fmod(angle_radian, pi2_);
+//     while (v < - M_PI){
+//         v += pi2_;
+//     }
+//     while (v > M_PI){
+//         v -= pi2_;
+//     }
+//     return v;
+// }
 
-void ReedsSheppClass::tauOmega(double u, double v, double xi, double eta, double phi, double &tau, double &omega)
+// void ReedsSheppClass::tauOmega(double u, double v, double xi, double eta, double phi, double &tau, double &omega)
+// {
+//     double delta = mod2pi(u - v), A = sin(u) - sin(delta), B = cos(u) - cos(delta) - 1.;
+//     double t1 = atan2(eta * A - xi * B, xi * A + eta * B), t2 = 2. * (cos(delta) - cos(v) - cos(u)) + 3;
+//     tau = (t2 < 0) ? mod2pi(t1 + M_PI) : mod2pi(t1);
+//     omega = mod2pi(tau - u + v - phi);
+// }
+
+void ReedsSheppClass::tauOmega(const double u, const double v, const double xi, const double eta, const double phi,
+                               double &tau, double &omega)
 {
-    double delta = mod2pi(u - v), A = sin(u) - sin(delta), B = cos(u) - cos(delta) - 1.;
-    double t1 = atan2(eta * A - xi * B, xi * A + eta * B), t2 = 2. * (cos(delta) - cos(v) - cos(u)) + 3;
-    tau = (t2 < 0) ? mod2pi(t1 + M_PI) : mod2pi(t1);
+    double _delta = mod2pi(u - v);
+    double _A = std::sin(u) - std::sin(_delta);
+    double _B = std::cos(u) - std::cos(_delta) - 1.0;
+    double _t1 = std::atan2(eta * _A - xi * _B, xi * _A + eta * _B);
+    double _t2 = 2.0 * (std::cos(_delta) - std::cos(v) - std::cos(u)) + 3;
+    if (_t2 < 0)
+    {
+        tau = mod2pi(_t1 + M_PI);
+    }
+    else
+    {
+        tau = mod2pi(_t1);
+    }
     omega = mod2pi(tau - u + v - phi);
 }
 
-double ReedsSheppClass::rectify_angle_rad(double ang)
-{
-    while (ang > 2 * M_PI)
-        ang -= 2 * M_PI;
-    while (ang < 0)
-        ang += 2 * M_PI;
-    return ang;
-}
+// double ReedsSheppClass::rectify_angle_rad(double ang)
+// {
+//     while (ang > 2 * M_PI)
+//         ang -= 2 * M_PI;
+//     while (ang < 0)
+//         ang += 2 * M_PI;
+//     return ang;
+// }
 
 
 
@@ -541,9 +588,9 @@ void ReedsSheppClass::RmSmLm( ){
 
 void ReedsSheppClass::LRL_base( ){
     double d = ccc_d_; double beta = ccc_beta_;  double alpha = ccc_alpha_;
-    double u = rectify_angle_rad( 2*M_PI - acos(  ( 6-d*d +2*cos(alpha-beta) + 2*d*(-sin(alpha) + sin(beta)) )/8.0 ) ) ;
-    double t = rectify_angle_rad( -alpha - std::atan( ( cos(alpha) - cos(beta)) / (d+sin(alpha)-sin(beta))) + u/2.0 ) ;
-    double v = rectify_angle_rad(beta) - alpha -t +  rectify_angle_rad(u);
+    double u = mod2pi( 2*M_PI - acos(  ( 6-d*d +2*cos(alpha-beta) + 2*d*(-sin(alpha) + sin(beta)) )/8.0 ) ) ;
+    double t = mod2pi( -alpha - std::atan( ( cos(alpha) - cos(beta)) / (d+sin(alpha)-sin(beta))) + u/2.0 ) ;
+    double v = mod2pi(beta) - alpha -t +  mod2pi(u);
 
     bool valid = false;
 
@@ -668,9 +715,9 @@ void ReedsSheppClass::LRL_base( ){
 
 void ReedsSheppClass::RLR_base( ){
     double d = ccc_d_; double beta = ccc_beta_;  double alpha = ccc_alpha_;
-    double u = rectify_angle_rad( 2*M_PI - acos(  ( 6-d*d +2*cos(alpha-beta) + 2*d*(sin(alpha) - sin(beta)) )/8.0 ) ) ;
-    double t = rectify_angle_rad( alpha - std::atan( ( cos(alpha) - cos(beta)) / (d-sin(alpha)+sin(beta))) + rectify_angle_rad(u/2.0) ) ;
-    double v = rectify_angle_rad( -beta + alpha -t +  rectify_angle_rad(u));
+    double u = mod2pi( 2*M_PI - acos(  ( 6-d*d +2*cos(alpha-beta) + 2*d*(sin(alpha) - sin(beta)) )/8.0 ) ) ;
+    double t = mod2pi( alpha - std::atan( ( cos(alpha) - cos(beta)) / (d-sin(alpha)+sin(beta))) + mod2pi(u/2.0) ) ;
+    double v = mod2pi( -beta + alpha -t +  mod2pi(u));
 
     bool valid = false;
     if( t>=0.0 && u>=0.0 && v>=0.0) valid = true;

@@ -7,8 +7,10 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/Quaternion.h"
 
-
-double mod_2pi(double angle)
+/**
+ * -
+*/
+double mod2pi(double angle)
 {
     while (angle > 2 * M_PI)
     {
@@ -21,8 +23,10 @@ double mod_2pi(double angle)
     return angle;
 }
 
-
-tf2::Quaternion twoD_yaw_to_tf2qua(double yaw_rad)
+/**
+ * 
+*/
+tf2::Quaternion twodYawToTf2qua(double yaw_rad)
 {
     tf2::Quaternion myQuaternion;
     myQuaternion.setRPY(0, 0, yaw_rad);
@@ -30,7 +34,10 @@ tf2::Quaternion twoD_yaw_to_tf2qua(double yaw_rad)
     return myQuaternion;
 }
 
-geometry_msgs::Quaternion tf2qua_to_geoQua(tf2::Quaternion tf2quaternion)
+/**
+ * 
+*/
+geometry_msgs::Quaternion tf2quaToGeoQua(tf2::Quaternion tf2quaternion)
 {
     geometry_msgs::Quaternion myQuaternion;
     myQuaternion.w = tf2quaternion.getW();
@@ -40,7 +47,10 @@ geometry_msgs::Quaternion tf2qua_to_geoQua(tf2::Quaternion tf2quaternion)
     return myQuaternion;
 }
 
-double tfStampedTransform_to_yaw(const tf::StampedTransform* tftrans)
+/**
+ * 
+*/
+double tfStampedTransformToYaw(const tf::StampedTransform* tftrans)
 {
     // tf::Quaternion q(m_tf_robot_to_map_.getRotation().x(),
     //                 m_tf_robot_to_map_.getRotation().y(),
@@ -58,10 +68,13 @@ double tfStampedTransform_to_yaw(const tf::StampedTransform* tftrans)
     tfScalar yaw, pitch, roll;
     tf::Matrix3x3 mat(q);
     mat.getEulerYPR(yaw, pitch, roll);
-    return mod_2pi(yaw);
+    return mod2pi(yaw);
 }
 
-double geoQua_to_yaw(const geometry_msgs::Quaternion* geoqua)
+/**
+ * 
+*/
+double geoQuaToYaw(const geometry_msgs::Quaternion* geoqua)
 {
     // tf::Quaternion q(msg->pose.orientation.x,
     //                  msg->pose.orientation.y,
@@ -78,7 +91,7 @@ double geoQua_to_yaw(const geometry_msgs::Quaternion* geoqua)
     tfScalar yaw, pitch, roll;
     tf::Matrix3x3 mat(q);
     mat.getEulerYPR(yaw, pitch, roll);
-    return mod_2pi(yaw);
+    return mod2pi(yaw);
 }
 
 

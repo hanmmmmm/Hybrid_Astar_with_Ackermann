@@ -63,10 +63,10 @@ target_link_libraries( path_plan_node
   # ${cppad_lib} ${colpack_libs} ipopt
 )
 
-add_executable(path_plan_astar_test_node 
-  src/astar_node_test.cpp
-)
+# add_executable(path_plan_astar_test_node 
+#   src/astar_node_test.cpp
+# )
 
-target_link_libraries( path_plan_astar_test_node
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries( path_plan_astar_test_node
+#   ${catkin_LIBRARIES}
+# )
