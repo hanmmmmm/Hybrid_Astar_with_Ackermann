@@ -44,10 +44,15 @@
 #include "nav_msgs/OccupancyGrid.h"
 #include "nav_msgs/MapMetaData.h"
 
-#include "Reeds_Shepp_curve/reedsshepp.h"
+// #include "Reeds_Shepp_curve/reedsshepp.h"
 
-#include "../car_pathplan/class_gridmap_handler.h"
-#include "../car_pathplan/class_custom_path.h"
+// #include "../car_pathplan/class_gridmap_handler.h"
+// #include "../car_pathplan/class_custom_path.h"
+
+#include "reedsshepp.h"
+
+#include "../hawa_modules/class_gridmap_handler.h"
+#include "../hawa_modules/class_custom_path.h"
 
 #include "../utils/hawa_data_containers.h"
 #include "../utils/hawa_conversion_tools.h"
@@ -139,9 +144,9 @@ ClassHybridAStar::~ClassHybridAStar()
  */
 bool ClassHybridAStar::loadParameters()
 {
-    std::string _path = ros::package::getPath("car_pathplan");
+    std::string _path = ros::package::getPath("hawa_pathplan");
 
-    cout << "pkg path: >" << _path << "< " << endl;
+    std::cout << "pkg path: >" << _path << "< " << std::endl;
 
     boost::property_tree::ptree root;
     boost::property_tree::read_json(_path + "/cfg/hybrid_astar_cfg.json", root);
@@ -321,8 +326,11 @@ bool ClassHybridAStar::tryFindReedsSheppCurve(const StructPoseGrid &r_curr_grid)
     try
     {
         int _curr_grid_index_1d = m_gridmap_handler_.convert_3D_to_oneD(r_curr_grid.x, r_curr_grid.y, r_curr_grid.yaw);
-        std::array<double, 3> _rs_start_pose = m_gridinfo_vector_.at(_curr_grid_index_1d).real_pose.to_array3();
-        std::array<double, 3> _rs_goal_pose = m_important_poses_.goal_pose.to_array3();
+        std::array<double, 3> _rs_start_pose_array = m_gridinfo_vector_.at(_curr_grid_index_1d).real_pose.to_array3();
+        std::array<double, 3> _rs_goal_pose_array = m_important_poses_.goal_pose.to_array3();
+
+        StructPoseReal _rs_start_pose(_rs_start_pose_array.at(0), _rs_start_pose_array.at(1), _rs_start_pose_array.at(2));
+        StructPoseReal _rs_goal_pose(_rs_goal_pose_array.at(0), _rs_goal_pose_array.at(1), _rs_goal_pose_array.at(2));
 
         m_RS_curve_finder_.setup(_rs_start_pose, _rs_goal_pose);
         m_RS_curve_finder_.search();

@@ -24,7 +24,7 @@
 
 // #include "array_hasher.h"
 
-#include "struct_simple_pose.h"
+// #include "struct_simple_pose.h"
 
 #include "../utils/hawa_data_containers.h"
 
