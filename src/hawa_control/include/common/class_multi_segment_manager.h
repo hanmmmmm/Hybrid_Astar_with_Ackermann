@@ -60,6 +60,8 @@ private:
 
     bool m_finished_all_;
 
+    double m_distance_to_end_;
+
 private:
     std::vector<int> findSingularPoints();
     void split_whole_path(std::vector<int> singular_points, std::vector<ClassPath2DSegment>& result);
@@ -79,6 +81,8 @@ public:
 
     bool doesPathExist();
 
+    bool didFinishAll();
+
     ClassPath2DSegment getCurrentSegment();
 
     int getCounter();
@@ -86,6 +90,8 @@ public:
     nav_msgs::Path getOriginalPath();
 
     void update(const double robot_x,const double robot_y,const double robot_yaw);
+
+    double getDistToEnd();
     
 };
 
@@ -93,6 +99,7 @@ ClassHawaMultiSegmentManager::ClassHawaMultiSegmentManager()
 {
     m_counter_current_segment_ = 0;
     m_finished_all_ = true;
+    m_distance_to_end_ = 0;
 }
 
 ClassHawaMultiSegmentManager::~ClassHawaMultiSegmentManager()
@@ -210,10 +217,10 @@ void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_po
         {
             // cout << ct << " ";
             // StructPoseReal _pt(_original_path[ct][0], _original_path[ct][1], _original_path[ct][2]);
-            _one_segment.pushback_for_original(ClassPose2D(m_original_path_.poses.at(ct).pose.position.x, 
+            _one_segment.pushbackForOriginal(ClassPose2D(m_original_path_.poses.at(ct).pose.position.x, 
                                                            m_original_path_.poses.at(ct).pose.position.y, 
                                                            quaternion_to_eular_yaw( m_original_path_.poses.at(ct).pose.orientation)));
-            _one_segment.pushback_for_extended(ClassPose2D(m_original_path_.poses.at(ct).pose.position.x, 
+            _one_segment.pushbackForExtended(ClassPose2D(m_original_path_.poses.at(ct).pose.position.x, 
                                                            m_original_path_.poses.at(ct).pose.position.y, 
                                                            quaternion_to_eular_yaw( m_original_path_.poses.at(ct).pose.orientation)));
             // _one_segment.push_back(_pt);
@@ -221,11 +228,11 @@ void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_po
         _one_segment.extendThePath();
         if (estimate_direction_is_forward(_one_segment))
         {
-            _one_segment.set_direction_forward();
+            _one_segment.setDirectionForward();
         }
         else
         {
-            _one_segment.set_direction_backward();
+            _one_segment.setDirectionBackward();
         }
         
         // cout << endl;
@@ -261,8 +268,8 @@ bool ClassHawaMultiSegmentManager::estimate_direction_is_forward(ClassPath2DSegm
     double _dx = p2.x - p1.x;
     double _dy = p2.y - p1.y;
     double _yaw_p2_to_p1 = std::atan2(_dy, _dx);
-    _yaw_p2_to_p1 = mod_2pi(_yaw_p2_to_p1);
-    double _yaw_p1 = mod_2pi(p1.yaw);
+    _yaw_p2_to_p1 = mod2pi(_yaw_p2_to_p1);
+    double _yaw_p1 = mod2pi(p1.yaw);
     double _large = std::max(_yaw_p2_to_p1, _yaw_p1);
     double _small = std::min(_yaw_p2_to_p1, _yaw_p1);
     double _diff = _large - _small;
@@ -278,23 +285,29 @@ bool ClassHawaMultiSegmentManager::estimate_direction_is_forward(ClassPath2DSegm
     {
         return false;
     }
-
-
 }
 
-
-bool ClassHawaMultiSegmentManager::checkCurrentSegFinish(const double robot_x,const double robot_y,const double robot_yaw)
+/**
+ * 
+*/
+bool ClassHawaMultiSegmentManager::checkCurrentSegFinish(const double robot_x, const double robot_y, const double robot_yaw)
 {
     ClassPose2D _end = m_vector_segments_.at(m_counter_current_segment_).path_segment__original_.back();
 
-    double _dist_to_end = compute_distance_meter(_end.x, 
-                                                 _end.y, 
-                                                 robot_x, 
-                                                 robot_y);
+    double _dist_to_end = computeDistanceMeter(_end.x, 
+                                               _end.y, 
+                                               robot_x, 
+                                               robot_y);
     // ROS_INFO_STREAM("_dist_to_end " << _dist_to_end << "  look_ahead " << parameters_.look_ahead_distance_meter_);
+    m_distance_to_end_ = _dist_to_end;
+
+
     return (_dist_to_end <= 0.2);
 }
 
+/**
+ * 
+*/
 void ClassHawaMultiSegmentManager::update(const double robot_x,const double robot_y,const double robot_yaw)
 {
     if (m_vector_segments_.size() <= 0)
@@ -320,15 +333,34 @@ void ClassHawaMultiSegmentManager::update(const double robot_x,const double robo
 
 }
 
-
+/**
+ * 
+*/
 nav_msgs::Path ClassHawaMultiSegmentManager::getOriginalPath()
 {
     return m_original_path_;
 }
 
+/**
+ * 
+*/
 int ClassHawaMultiSegmentManager::getCounter()
 {
     return m_counter_current_segment_;
 }
+
+/**
+ * 
+*/
+double ClassHawaMultiSegmentManager::getDistToEnd()
+{
+    return m_distance_to_end_;
+}
+
+bool ClassHawaMultiSegmentManager::didFinishAll()
+{
+    return m_finished_all_;
+}
+
 
 #endif

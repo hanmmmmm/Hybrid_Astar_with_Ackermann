@@ -1,5 +1,27 @@
-#ifndef CLASS_ELEMENTAL_PATH2D_SEGMENT_H
-#define CLASS_ELEMENTAL_PATH2D_SEGMENT_H
+// MIT License
+
+// Copyright (c) 2023 Mingjie
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#ifndef CLASS_HAWA_ELEMENTAL_PATH2D_SEGMENT_H
+#define CLASS_HAWA_ELEMENTAL_PATH2D_SEGMENT_H
 
 #include <vector>
 #include <deque>
@@ -7,6 +29,10 @@
 #include "class_elemental_pose2d.h"
 #include "nav_msgs/Path.h"
 
+
+/**
+ * 
+*/
 class ClassPath2DSegment
 {
 public:
@@ -16,27 +42,19 @@ public:
         reverse
     };
 
-    // EnumDirection direction_;
-    
 private:
-    EnumDirection direction_;
+    EnumDirection m_direction_;
     
 public:
     ClassPath2DSegment();
     ~ClassPath2DSegment();
 
-    void pushback_for_original(ClassPose2D pose);
-    void pushfront_for_original(ClassPose2D pose);
+    void pushbackForOriginal(ClassPose2D pose);
     
-    void pushback_for_extended(ClassPose2D pose);
-    void pushfront_for_extended(ClassPose2D pose);
+    void pushbackForExtended(ClassPose2D pose);
 
-    void set_direction_forward();
-    void set_direction_backward();
-    
-    // void at_original(int index, ClassPose2D& pose, bool& valid);
-    
-    // size_t size();
+    void setDirectionForward();
+    void setDirectionBackward();
     
     void clear();
 
@@ -53,63 +71,71 @@ public:
 
 ClassPath2DSegment::ClassPath2DSegment()
 {
-    direction_ = EnumDirection::forawrd;
+    m_direction_ = EnumDirection::forawrd;
 }
 
 ClassPath2DSegment::~ClassPath2DSegment()
 {
 }
 
-void ClassPath2DSegment::pushback_for_original(ClassPose2D pose)
+/**
+ * @brief Add a pose into the member variable of original_path. Add at the end. 
+ * @param pose The pose to be added. Type is a custom type: ClassPose2D
+*/
+void ClassPath2DSegment::pushbackForOriginal(ClassPose2D pose)
 {
     path_segment__original_.push_back(pose);
 }
 
-void ClassPath2DSegment::pushback_for_extended(ClassPose2D pose)
+/**
+ * @brief Add a pose into the member variable of extended_path. Add at the end. 
+ * @param pose The pose to be added. Type is a custom type: ClassPose2D
+*/
+void ClassPath2DSegment::pushbackForExtended(ClassPose2D pose)
 {
     path_segment__extended_.push_back(pose);
 }
 
-void ClassPath2DSegment::set_direction_forward()
+/**
+ * @brief Call this to set the direction of this segment to be forawrd.
+*/
+void ClassPath2DSegment::setDirectionForward()
 {
-    direction_ = EnumDirection::forawrd;
+    m_direction_ = EnumDirection::forawrd;
 }
 
-void ClassPath2DSegment::set_direction_backward()
+/**
+ * @brief Call this to set the direction of this segment to be reversing.
+*/
+void ClassPath2DSegment::setDirectionBackward()
 {
-    direction_ = EnumDirection::reverse;
+    m_direction_ = EnumDirection::reverse;
 }
 
-// void ClassPath2DSegment::at(int index, ClassPose2D& pose, bool& valid)
-// {
-//     if (index >= 0 && index < path_segment.size())
-//     {
-//         valid = true;
-//         return path_segment[index];
-//     }
-//     else{
-//         valid = false;
-//         return ClassPose2D();
-//     }
-// }
-
-// size_t ClassPath2DSegment::size()
-// {
-//     return path_segment.size();
-// }
-
+/**
+ * @brief Call this when you want to empty the values in this class. 
+*/
 void ClassPath2DSegment::clear()
 {
     path_segment__original_.clear();
     path_segment__extended_.clear();
-    direction_ = EnumDirection::forawrd;
+    m_direction_ = EnumDirection::forawrd;
 }
 
+/**
+ * @brief Call this to know if this segment is going forward to goinf reverse.
+ * @return True means forward. False means reverse. 
+*/
 bool ClassPath2DSegment::isForward()
 {
-    return direction_ == EnumDirection::forawrd;
+    return m_direction_ == EnumDirection::forawrd;
 }
 
+/**
+ * @brief Call this function after all points are added. This function will put several more points
+ * at the end. These extra points will be needed by the pure pursuit algo to find the target point,
+ * when the robot is close to the end the segment. 
+*/
 void ClassPath2DSegment::extendThePath()
 {
     double _path_size = path_segment__extended_.size();
@@ -127,6 +153,10 @@ void ClassPath2DSegment::extendThePath()
     }
 }
 
+/**
+ * @brief Convert the path from custom type to ROS standard navmsgs path. 
+ * @return the converted path.
+*/
 nav_msgs::Path ClassPath2DSegment::toRosPath()
 {
     nav_msgs::Path _ros_path;

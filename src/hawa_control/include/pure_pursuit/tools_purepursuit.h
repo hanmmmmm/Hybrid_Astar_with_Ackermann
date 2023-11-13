@@ -20,31 +20,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <iostream>
-#include "ros/ros.h"
-#include "pure_pursuit/class_node_test_pure_pursuit.h"
+#ifndef HAWA_TOOLS_PUREPURSUIT_H
+#define HAWA_TOOLS_PUREPURSUIT_H
 
 
-int main(int argc, char **argv)
+#include <math.h>
+
+/**
+ * @brief compute the Euclidean distance between 2 points. 
+ * @param x1 
+ * @param y1
+ * @param x2
+ * @param y2
+ * @return distance in meter.
+*/
+inline double computeDistanceMeter(double x1, double y1, double x2, double y2)
 {
-    ros::init(argc, argv, "purepursuit_test_node");
-
-    ros::NodeHandle n;
-
-    ClassNodePurePursuit cnpp( n );
-
-    // ros::spin();
-    ros::AsyncSpinner s(2);
-    s.start();
-
-    ros::waitForShutdown();
-
-    return 0;
+    return std::sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
 }
 
+/**
+ * @brief For hodling the parameters for pure_pursuit algorithm.
+*/
+struct StructParameters
+{
+    double target_longitude_speed_mps_;  // meter per second
+    double look_ahead_distance_meter_;
+    double look_ahead_coefficient_;
+
+    double k_max_target_speed_mps_;
+    double k_max_look_ahead_coefficient_;
+    double k_min_wheelbase_meter_;
+    double k_max_wheelbase_meter_;
+
+    double wheelbase_meter_;  
+    // wheelbase is the distance between the centers of the front and rear tires on an ackermann vehicle.
+};
+
+/**
+ * @brief For holding the values of robot pose.
+*/
+struct StructPose
+{
+    double x_meter;
+    double y_meter;
+    double yaw_rad;
+};
 
 
 
 
 
 
+
+
+
+#endif
