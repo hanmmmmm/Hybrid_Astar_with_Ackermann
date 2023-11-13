@@ -62,13 +62,13 @@ double helper_get_time_second()
 
 struct DynamicsLimits
 {
-    double max_linear_v_mps = 2.0;
-    double min_linear_v_mps = -2.0;
-    double linear_a_mpss = 1.5;
+    double max_linear_v_mps = 1.7;
+    double min_linear_v_mps = -1.7;
+    double linear_a_mpss = 0.8;
 
     double max_steer_rad = 0.5;
     double min_steer_rad = -0.5;
-    double steer_rate_radps = 0.8;
+    double steer_rate_radps = 1.0;
 
     // double max_angular_w_radps = 1.0;
     // double min_angular_w_radps = -1.0;
