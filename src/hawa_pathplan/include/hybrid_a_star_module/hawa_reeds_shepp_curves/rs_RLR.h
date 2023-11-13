@@ -83,6 +83,13 @@ void solveRpLpRp(StructPoseReal goal_pose,
     double new_u = ptr_dubins_para->u;
     double new_v = ptr_dubins_para->v;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
+
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -105,6 +112,12 @@ void solveRpLpRm(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v - M_PI*2.0;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -124,6 +137,12 @@ void solveRpLmRp(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -144,6 +163,12 @@ void solveRpLmRm(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v-M_PI*2.0;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -164,6 +189,12 @@ void solveRmLpRp(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -184,6 +215,12 @@ void solveRmLpRm(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v-M_PI*2.0;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -204,6 +241,12 @@ void solveRmLmRp(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
@@ -224,6 +267,12 @@ void solveRmLmRm(StructPoseReal goal_pose,
     double new_v = ptr_dubins_para->v-M_PI*2.0;
     ptr_path->path_length_unitless = std::abs(new_t) + std::abs(new_u) + std::abs(new_v) ;
 
+    double _limit = 1.5 * M_PI;
+    if (std::abs(new_t) > _limit || std::abs(new_u) > _limit || std::abs(new_v) > _limit)
+    {
+        ptr_dubins_para->valid = false;
+        return;
+    }
     sampleOnRightCurve(new_t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(new_u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnRightCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);

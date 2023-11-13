@@ -88,6 +88,9 @@ StructReedsSheppFormulaResult LpSpLp_base(StructPoseReal* ptr_pose)
     else{
         _rs_result.valid = false;
     }
+
+    if (std::abs(_rs_result.t) > 1.5 * M_PI || std::abs(_rs_result.v) > 1.5 * M_PI) _rs_result.valid = false;
+    
     return _rs_result;
 }
 
