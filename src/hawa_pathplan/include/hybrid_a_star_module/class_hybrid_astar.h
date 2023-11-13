@@ -49,7 +49,7 @@
 // #include "../car_pathplan/class_gridmap_handler.h"
 // #include "../car_pathplan/class_custom_path.h"
 
-#include "reedsshepp.h"
+#include "class_reedsshepp_solver.h"
 
 #include "../hawa_modules/class_gridmap_handler.h"
 #include "../hawa_modules/class_custom_path.h"
@@ -57,6 +57,7 @@
 #include "../utils/hawa_data_containers.h"
 #include "../utils/hawa_conversion_tools.h"
 #include "../utils/hawa_tools.h"
+#include "../utils/hawa_timer_class.h"
 
 #include "hybrid_astar_tools.h"
 #include "struct_motion_primitives.h"
@@ -66,7 +67,7 @@ class ClassHybridAStar
 private:
     ClassGridMapHandler m_gridmap_handler_;
 
-    ReedsSheppClass m_RS_curve_finder_;
+    ClassReedsSheppSolver m_RS_curve_finder_;
 
     StructMotionModel m_motion_model_;
 
@@ -343,7 +344,7 @@ bool ClassHybridAStar::tryFindReedsSheppCurve(const StructPoseGrid &r_curr_grid)
     _timer.endTiming();
     m_timer_and_counter_.sec__rs_search += _timer.getDuration();
 
-    if (m_RS_curve_finder_.results_.size() == 0)
+    if (m_RS_curve_finder_.m_vector_path_results_.size() == 0)
         return false;
 
     _timer.startNow();
@@ -372,7 +373,7 @@ bool ClassHybridAStar::checkRSSearchResult()
     _timer.startNow();
 
     bool _found_it = false;
-    for (auto one_rs_path : m_RS_curve_finder_.results_)
+    for (auto one_rs_path : m_RS_curve_finder_.m_vector_path_results_)
     {
         if (_found_it)
         {

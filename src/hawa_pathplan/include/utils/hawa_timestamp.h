@@ -27,23 +27,45 @@
  * things. 
 */
 
-#ifndef HAWA_TOOLS_H
-#define HAWA_TOOLS_H
+#ifndef HAWA_TIMESTAMP_CLASS_H
+#define HAWA_TIMESTAMP_CLASS_H
 
 
-#include <chrono>
-
+#include "hawa_tools.h"
 
 /**
- * @brief return time in seconds, epoch time. 
- * @return time, double type.
- */
-double helperGetTime()
+ * 
+*/
+class ClassHawaTimeStamp
 {
-    return std::chrono::high_resolution_clock::now().time_since_epoch().count()/1000000000.0; 
+private:
+    double m_stamp_;
+public:
+    ClassHawaTimeStamp(/* args */);
+    ~ClassHawaTimeStamp();
+    void stampNow();
+    bool checkPass(const double duration_sec);
+};
+
+ClassHawaTimeStamp::ClassHawaTimeStamp(/* args */)
+{
+    m_stamp_ = 0;
+}
+
+ClassHawaTimeStamp::~ClassHawaTimeStamp()
+{
+}
+
+void ClassHawaTimeStamp::stampNow()
+{
+    m_stamp_ = helperGetTime();
 }
 
 
+bool ClassHawaTimeStamp::checkPass(const double duration_sec)
+{
+    return (helperGetTime() - m_stamp_) > duration_sec;
+}
 
 
 #endif

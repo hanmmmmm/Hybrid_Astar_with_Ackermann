@@ -49,6 +49,7 @@
 #include "../utils/hawa_conversion_tools.h"
 #include "../utils/hawa_tools.h"
 #include "../utils/hawa_data_containers.h"
+#include "../utils/hawa_timestamp.h"
 
 
 // NOTE:
@@ -96,6 +97,9 @@ private:
     ros::Subscriber m_subscriber_goal_;
     std::string m_topic_name_goal_subscribed_;
     bool m_goal_received_;
+    bool m_goal_solved_;
+    ClassHawaTimeStamp m_goal_stamp_;
+    double m_goal_receive_timestamp_;
     std::mutex m_goal_mutex_;
     std::string m_robot_tf_frame_name_;
     void goalCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
@@ -124,6 +128,7 @@ ClassPathPlanner::ClassPathPlanner(const ros::NodeHandle nh_in_): m_ros_nh_{nh_i
 
     m_map_received_ = false;
     m_goal_received_ = false; 
+    m_goal_solved_ = false;
 
     m_publisher_path_  = m_ros_nh_.advertise<nav_msgs::Path>( m_topic_name_path_published_, 10);
 
@@ -186,6 +191,8 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     if( ! m_map_received_ ) return;
     if( ! m_goal_received_ ) return;
 
+    if (m_goal_solved_) return;
+
     ROS_INFO("ClassPathPlanner::path_plan() start");
 
     double t1 = helperGetTime();
@@ -216,6 +223,8 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     ClassCustomPathContainer path;
     m_ha_planner_.getFinalHybridAstarPath(path);
 
+    m_goal_solved_ = true;
+
     // std::cout << "path size: " << path.size() << std::endl;
 
     m_navmsgs_path_msg_.header.frame_id = m_map_tf_frame_name_;
@@ -235,6 +244,8 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     }
 
     m_publisher_path_.publish( m_navmsgs_path_msg_ );
+
+    
 
     // std::cout << "Hybrid-A* last point " << path_msg_.poses.back().pose.position.x << " " << path_msg_.poses.back().pose.position.y << " " << std::endl;
     // std::cout << "Goal           point " << goal_pose_[0]+map_msg_.info.origin.position.x << " " << goal_pose_[1]+map_msg_.info.origin.position.y << " " << std::endl;
@@ -274,6 +285,9 @@ void ClassPathPlanner::goalCallback(const geometry_msgs::PoseStamped::ConstPtr &
     m_goal_pose_.yaw =  geoQuaToYaw(&(msg->pose.orientation));
 
     m_goal_received_ = true;
+    m_goal_solved_ = false;
+
+    m_goal_stamp_.stampNow();
     
     m_goal_mutex_.unlock();
 }
