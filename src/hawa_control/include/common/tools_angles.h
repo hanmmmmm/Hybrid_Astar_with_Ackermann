@@ -6,6 +6,7 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "geometry_msgs/Quaternion.h"
 
+#include <array>
 
 
 double mod_2pi( double a)
@@ -77,6 +78,33 @@ double quaternion_to_eular_yaw(const geometry_msgs::Quaternion q_in)
 
 
 
+/// @brief 
+/// @param p1 
+/// @param p2 
+/// @param p3 
+/// @return the angle in radian. Range:[0, pi]
+double calc_angle_by_three_points(std::array<double,3> p1, std::array<double,3> p2, std::array<double,3> p3)
+{
+    double _p1x = p1[0] - p2[0];
+    double _p1y = p1[1] - p2[1];
+    double _p2x = p3[0] - p2[0];
+    double _p2y = p3[1] - p2[1];
+
+    // get the unit length versions of those 2 vectors
+
+    double _p1_length = std::sqrt(_p1x*_p1x + _p1y*_p1y);
+    double _p2_length = std::sqrt(_p2x*_p2x + _p2y*_p2y);
+
+    _p1x /= _p1_length;
+    _p1y /= _p1_length;
+    _p2x /= _p2_length;
+    _p2y /= _p2_length;
+
+    double _angle = std::acos(_p1x*_p2x + _p1y*_p2y);
+
+    return _angle;
+
+}
 
 
 

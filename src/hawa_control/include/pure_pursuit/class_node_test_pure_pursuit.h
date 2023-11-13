@@ -31,6 +31,7 @@
 
 #include "../common/class_elemental_path2d_segment.h"
 #include "../common/tools_angles.h"
+#include "../common/class_multi_segment_manager.h"
 
 
 class ClassNodeTestPurePursuit
@@ -45,6 +46,8 @@ private:
 
     std::mutex mutex_path_;
     bool FLAG_path_msg_is_new_;
+
+    ClassHawaMultiSegmentManager m_msm_;
 
 
     // For algorithm
@@ -63,11 +66,13 @@ private:
 
     // For human interactivity only
     ros::Publisher puber__target_point_marker_;
+    ros::Publisher puber__current_path_;
     ros::Subscriber suber__speed_mps_;
     ros::Subscriber suber__look_coefficient_;
     std::string topic_name__target_point_marker_;
     std::string topic_name__speed_mps_subscribed_;
     std::string topic_name__look_coefficient_subscribed_;
+    std::string topic_name__current_path_published_;
 
     
 
@@ -96,13 +101,14 @@ ClassNodeTestPurePursuit::ClassNodeTestPurePursuit(const ros::NodeHandle nh_in_)
 
     topic_name__odom_subscribed_ = "/odometry";
     topic_name__path_subscribed_ = "/path";
+    topic_name__current_path_published_ = "/current_segment";
 
     topic_name__speed_mps_subscribed_ = "/expected_speed_mps";
     topic_name__look_coefficient_subscribed_ = "/look_ahead_ratio";
 
     controller_interval_ = 0.1;
 
-    speed_mps_ = 0.8;
+    speed_mps_ = 0.6;
     look_ahead_ratio_ = 0.9;
 
     FLAG_path_msg_is_new_ = false;
@@ -111,6 +117,8 @@ ClassNodeTestPurePursuit::ClassNodeTestPurePursuit(const ros::NodeHandle nh_in_)
 
     puber__target_point_marker_ = nh_.advertise<visualization_msgs::Marker>(topic_name__target_point_marker_, 10);
     puber__ackerman_msg_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>(topic_name__ackerman_msg_, 10);
+
+    puber__current_path_ = nh_.advertise<nav_msgs::Path>(topic_name__current_path_published_, 10);
 
     suber__path_ = nh_.subscribe(topic_name__path_subscribed_, 1, &ClassNodeTestPurePursuit::path_callback, this);
     suber__odom_ = nh_.subscribe(topic_name__odom_subscribed_, 1, &ClassNodeTestPurePursuit::odom_callback, this);
@@ -142,20 +150,22 @@ void ClassNodeTestPurePursuit::path_callback(const nav_msgs::Path::ConstPtr &msg
     }
 
     mutex_path_.lock();
-    int _count = 0;
-    the_path_segment_.clear();
-    for(auto ps : msg->poses)
-    {
-        double _yaw = quaternion_to_eular_yaw(ps.pose.orientation);
-        ClassPose2D one_pose(ps.pose.position.x, ps.pose.position.y, _yaw);
-        the_path_segment_.path_segment__original_.push_back(one_pose);
-        the_path_segment_.path_segment__extended_.push_back(one_pose);
-        _count ++;
-    }
-    FLAG_path_msg_is_new_ = true;
+    // int _count = 0;
+    // the_path_segment_.clear();
+    // for(auto ps : msg->poses)
+    // {
+    //     double _yaw = quaternion_to_eular_yaw(ps.pose.orientation);
+    //     ClassPose2D one_pose(ps.pose.position.x, ps.pose.position.y, _yaw);
+    //     the_path_segment_.path_segment__original_.push_back(one_pose);
+    //     the_path_segment_.path_segment__extended_.push_back(one_pose);
+    //     _count ++;
+    // }
+    // FLAG_path_msg_is_new_ = true;
+
+    m_msm_.setPath(*msg);
     mutex_path_.unlock();
-    std::cout << "Put " << _count << " points in the path. Length: " << the_path_segment_.path_segment__original_.size() 
-    << " " << the_path_segment_.path_segment__extended_.size() << " " << std::endl;
+    // std::cout << "Put " << _count << " points in the path. Length: " << the_path_segment_.path_segment__original_.size() 
+    // << " " << the_path_segment_.path_segment__extended_.size() << " " << std::endl;
 }
 
 
@@ -198,20 +208,39 @@ void ClassNodeTestPurePursuit::controller_update(const ros::TimerEvent &event)
         return;
     }
 
+    mutex_path_.lock();
+
+    ROS_INFO_STREAM("m_counter_current_segment_ " << m_msm_.getCounter());
+
+    m_msm_.update(robot_odom_.pose.pose.position.x, 
+                    robot_odom_.pose.pose.position.y,
+                    quaternion_to_eular_yaw(robot_odom_.pose.pose.orientation));
+    if (m_msm_.doesPathExist())
+    {
+        the_path_segment_ = m_msm_.getCurrentSegment();
+        controller_pp_.set_path_segment(the_path_segment_);
+        nav_msgs::Path _ros_current_path = m_msm_.getCurrentSegment().toRosPath();
+        _ros_current_path.header = m_msm_.getOriginalPath().header;
+        puber__current_path_.publish(_ros_current_path);
+    }
+
+    double _signed_speed_mps = 0;
+    if (the_path_segment_.isForward())
+    {
+        _signed_speed_mps = std::abs(speed_mps_);
+    }
+    else
+    {
+        _signed_speed_mps = - std::abs(speed_mps_);
+    }
+
     // the values for the parameters of the controller algorithm.
     controller_pp_.set_look_ahead_coefficient(look_ahead_ratio_);
-    controller_pp_.set_target_linear_speed_mps(speed_mps_);
+    controller_pp_.set_target_linear_speed_mps(_signed_speed_mps);
     controller_pp_.set_vehicle_wheelbase_meter(0.25);
     controller_pp_.set_robot_pose(robot_odom_.pose.pose.position.x, 
                                   robot_odom_.pose.pose.position.y,
                                   quaternion_to_eular_yaw(robot_odom_.pose.pose.orientation));
-    // update the path data, when needed.
-    mutex_path_.lock();
-    if( FLAG_path_msg_is_new_ )
-    {
-        controller_pp_.set_path_segment(the_path_segment_);
-        FLAG_path_msg_is_new_ = false;
-    }
 
     bool _valid_target_point = false;
     controller_pp_.find_target_point(_valid_target_point);
@@ -251,11 +280,13 @@ void ClassNodeTestPurePursuit::controller_update(const ros::TimerEvent &event)
     std::cout << _steer_needed << std::endl;
 
     ackermann_msgs::AckermannDriveStamped  _akm_cmd_msg;
-    _akm_cmd_msg.drive.speed = speed_mps_;
+    _akm_cmd_msg.drive.speed = _signed_speed_mps;
     _akm_cmd_msg.drive.steering_angle = _steer_needed;
     _akm_cmd_msg.header.stamp = ros::Time::now();
 
     puber__ackerman_msg_.publish(_akm_cmd_msg);
+
+    
 
     mutex_path_.unlock();
 }
@@ -276,17 +307,4 @@ bool ClassNodeTestPurePursuit::validate_odom_msg()
 }
 
 #endif 
-
-
-
-
-
-
-
-
-
-
-
-
-
 

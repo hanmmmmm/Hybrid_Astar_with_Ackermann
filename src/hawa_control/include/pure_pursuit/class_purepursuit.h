@@ -76,6 +76,8 @@ private:
 
     ClassPath2DSegment path_;
 
+    // bool m_finish_;
+
 private:
     void compute_look_ahead_distnace();
     
@@ -103,6 +105,8 @@ public:
     void solve_for_speed_command(bool &success, double &steer_rad);
 
     void find_precise_target_point(std::array<geometry_msgs::Point, 2> two_pathpoints, geometry_msgs::PointStamped &result_point);
+
+    bool isFinish();
 };
 
 
@@ -112,6 +116,7 @@ ClassPurePursuit::ClassPurePursuit()
     parameters_.k_max_look_ahead_coefficient_ = 30.0;
     parameters_.k_min_wheelbase_meter_ = 0.05;
     parameters_.k_max_wheelbase_meter_ = 0.5;
+    // m_finish_ = false;
 }
 
 ClassPurePursuit::~ClassPurePursuit()
@@ -125,6 +130,9 @@ void ClassPurePursuit::set_path_segment(ClassPath2DSegment& path)
 {
     std::cout << "PurePursuit get new path." << std::endl;
     path_ = path;
+    // m_finish_ = false;
+
+    // ROS_INFO_STREAM("set_path_segment  m_finish_ " << m_finish_);
 }
 
 
@@ -200,14 +208,16 @@ void ClassPurePursuit::compute_look_ahead_distnace()
 void ClassPurePursuit::find_target_point(bool& success)
 {
     // std::cout << "find_target_point()" << std::endl;
+    // ROS_INFO_STREAM("find_target_point()1  m_finish_ " << m_finish_ );
+
     int _num_points = path_.path_segment__extended_.size();
     if(_num_points <= 2)
     {
-        std::cout << "Path too short." << std::endl;
+        std::cout << "find_target_point()  Path too short: " << _num_points << std::endl;
         success = false;
         return;
     }
-    std::cout << "Path length okay." << std::endl;
+    std::cout << "find_target_point()  Path length okay. " << _num_points << std::endl;
 
     compute_look_ahead_distnace();
     all_possible_target_points_.clear();
@@ -227,21 +237,11 @@ void ClassPurePursuit::find_target_point(bool& success)
         _p2.x = _pose_2.x;
         _p2.y = _pose_2.y;
 
-        // the logic for forward moving and reverse moving are slighly different.
-        if( parameters_.target_longitude_speed_mps_ > 0.0)  // forward
+        if( (dist_1 < parameters_.look_ahead_distance_meter_) && (dist_2 > parameters_.look_ahead_distance_meter_) )
         {
-            if( (dist_1 < parameters_.look_ahead_distance_meter_) && (dist_2 > parameters_.look_ahead_distance_meter_) )
-            {
-                all_possible_target_points_.push_back(std::array<geometry_msgs::Point, 2> {_p1, _p2});
-            }
+            all_possible_target_points_.push_back(std::array<geometry_msgs::Point, 2> {_p1, _p2});
         }
-        else  // reverse
-        {
-            if( (dist_1 > parameters_.look_ahead_distance_meter_) && (dist_2 < parameters_.look_ahead_distance_meter_) )
-            {
-                all_possible_target_points_.push_back(std::array<geometry_msgs::Point, 2> {_p2, _p1});
-            }
-        }
+
     }
 
     if(all_possible_target_points_.size() == 0)
@@ -268,6 +268,17 @@ void ClassPurePursuit::find_target_point(bool& success)
         return;
     }
     success = false;
+
+    // double _dist_to_end = compute_distance_meter(path_.path_segment__original_.back().x, 
+    //                                              path_.path_segment__original_.back().y, 
+    //                                              robot_pose_.x_meter, 
+    //                                              robot_pose_.y_meter);
+    // ROS_INFO_STREAM("_dist_to_end " << _dist_to_end << "  look_ahead " << parameters_.look_ahead_distance_meter_);
+    // if (_dist_to_end <= parameters_.look_ahead_distance_meter_ * 1.0)
+    // {
+    //     m_finish_ = true;
+    // }
+    // ROS_INFO_STREAM("find_target_point()2  m_finish_ " << m_finish_ );
 }
 
 
@@ -311,11 +322,11 @@ void ClassPurePursuit::solve_for_speed_command(bool &success, double &steer_rad)
     double _virtual_point_y = robot_pose_.y_meter + 1.0 * sin(robot_pose_.yaw_rad);
 
     bool on_left_side = check_if_point_on_left_of_line(robot_pose_.x_meter, 
-                                    robot_pose_.y_meter, 
-                                    _virtual_point_x, 
-                                    _virtual_point_y, 
-                                    target_points_.point.x, 
-                                    target_points_.point.y);
+                                                        robot_pose_.y_meter, 
+                                                        _virtual_point_x, 
+                                                        _virtual_point_y, 
+                                                        target_points_.point.x, 
+                                                        target_points_.point.y);
 
     if( ! on_left_side)
     {
@@ -346,7 +357,7 @@ void ClassPurePursuit::find_precise_target_point(std::array<geometry_msgs::Point
     // look_ahead_distance circle.  If close enough or for loop ends, then use this point as result. Otherwise, keep slicing
     // into halves.
     // Limit the number of iterations to be tried, in the worst case. 
-    for(int ct=0; ct<7; ct++)
+    for(int ct=0; ct<10; ct++)
     {
         pm.x = (p1.x + p2.x) /2.0;
         pm.y = (p1.y + p2.y) /2.0;
@@ -376,11 +387,9 @@ void ClassPurePursuit::find_precise_target_point(std::array<geometry_msgs::Point
     result_point.point.y = pm.y;
 }
 
+// bool ClassPurePursuit::isFinish()
+// {
+//     return m_finish_;
+// }
 
 #endif
-
-
-
-
-
-
