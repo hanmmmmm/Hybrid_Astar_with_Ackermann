@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Status1
         - /TF1/Frames1
+        - /Marker2/Status1
       Splitter Ratio: 0.35940802097320557
     Tree Height: 365
   - Class: rviz/Selection
@@ -65,7 +66,7 @@ Visualization Manager:
         odom:
           Value: false
         steer_link:
-          Value: false
+          Value: true
       Marker Alpha: 0.30000001192092896
       Marker Scale: 2.5999999046325684
       Name: TF
@@ -240,6 +241,22 @@ Visualization Manager:
       Topic: /path
       Unreliable: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /car_body_line_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /target_point_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -267,7 +284,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -0.0050003547221422195
+      Angle: 0
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -277,10 +294,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 42.44794464111328
+      Scale: 50.024452209472656
       Target Frame: <Fixed Frame>
-      X: 8.646653175354004
-      Y: 8.346903800964355
+      X: 6.308706760406494
+      Y: 5.4227824211120605
     Saved: ~
 Window Geometry:
   Displays:
@@ -298,5 +315,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 879
-  X: 683
-  Y: 121
+  X: 475
+  Y: 116
