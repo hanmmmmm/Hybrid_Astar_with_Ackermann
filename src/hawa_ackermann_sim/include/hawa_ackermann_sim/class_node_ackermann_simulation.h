@@ -64,7 +64,7 @@ struct DynamicsLimits
 {
     double max_linear_v_mps = 2.0;
     double min_linear_v_mps = -2.0;
-    double linear_a_mpss = 0.8;
+    double linear_a_mpss = 1.5;
 
     double max_steer_rad = 0.5;
     double min_steer_rad = -0.5;
