@@ -194,7 +194,7 @@ void ClassPurePursuit::computeLookAheadDistnace()
 */
 void ClassPurePursuit::findTargetPoint(bool& success)
 {
-    int _num_points = m_the_segment_.path_segment__extended_.size();
+    int _num_points = m_the_segment_.m_path_extended_.size();
     if(_num_points <= 2)
     {
         ROS_WARN_STREAM("findTargetPoint()  Path too short: " << _num_points);
@@ -207,8 +207,8 @@ void ClassPurePursuit::findTargetPoint(bool& success)
 
     for(int i=0; i<_num_points-1; i++)
     {
-        ClassPose2D _pose_1 = m_the_segment_.path_segment__extended_.at(i);
-        ClassPose2D _pose_2 = m_the_segment_.path_segment__extended_.at(i+1);
+        ClassPose2D _pose_1 = m_the_segment_.m_path_extended_.at(i);
+        ClassPose2D _pose_2 = m_the_segment_.m_path_extended_.at(i+1);
         double _dist_1 = computeDistanceMeter(_pose_1.x, _pose_1.y, m_robot_pose_.x_meter, m_robot_pose_.y_meter);
         double _dist_2 = computeDistanceMeter(_pose_2.x, _pose_2.y, m_robot_pose_.x_meter, m_robot_pose_.y_meter);
 
@@ -293,12 +293,12 @@ void ClassPurePursuit::solveForSpeedCommand(bool &r_success, double &r_steer_rad
     double _virtual_point_x = m_robot_pose_.x_meter + 1.0 * cos(m_robot_pose_.yaw_rad);
     double _virtual_point_y = m_robot_pose_.y_meter + 1.0 * sin(m_robot_pose_.yaw_rad);
 
-    bool on_left_side = check_if_point_on_left_of_line(m_robot_pose_.x_meter, 
-                                                       m_robot_pose_.y_meter, 
-                                                       _virtual_point_x, 
-                                                       _virtual_point_y, 
-                                                       m_actual_target_points_.point.x, 
-                                                       m_actual_target_points_.point.y);
+    bool on_left_side = checkIfPointOnLeftOfLine(m_robot_pose_.x_meter, 
+                                                 m_robot_pose_.y_meter, 
+                                                 _virtual_point_x, 
+                                                 _virtual_point_y, 
+                                                 m_actual_target_points_.point.x, 
+                                                 m_actual_target_points_.point.y);
 
     if( ! on_left_side)
     {

@@ -20,18 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * @file class_node_test_pure_pursuit.h
- * @author Mingjie
- * @brief The class for testing and implementing the pure pursuit algorithm. This does not utilize the path segmentation featrue, so
- *  only it only works with single path-segments or a long smooth path.
- * @version 0.1
- * @date 2023-02-05
- * 
- * @copyright Copyright (c) 2023
- * 
- */
-
 #ifndef CLASS_NODE_PURE_PURSUIT
 #define CLASS_NODE_PURE_PURSUIT
 
@@ -65,12 +53,12 @@ private:
     ClassPurePursuit m_controller_purepursuit_;
 
     ClassPath2DSegment m_current_path_segment_;
-    nav_msgs::Odometry m_robot_odom_msg_;
-
-    std::mutex m_mutex_path_;
 
     ClassHawaMultiSegmentManager m_segment_manager_;
 
+    nav_msgs::Odometry m_robot_odom_msg_;
+
+    std::mutex m_mutex_path_;
 
     // For algorithm
     ros::Subscriber m_suber__path_;
@@ -94,8 +82,6 @@ private:
     std::string m_topic_name__look_coefficient_subscribed_;
     std::string m_topic_name__current_path_published_;
 
-    
-
 private:
     void pathCallback(const nav_msgs::Path::ConstPtr &msg);
 
@@ -109,7 +95,11 @@ private:
 
     bool validateOdomMsg();
 
+    double calcSpeedRampping();
+
     double decideSpeedMps();
+
+    void visulizeTargetPoint();
 
 public:
     ClassNodePurePursuit(const ros::NodeHandle nh_in_);
@@ -148,7 +138,7 @@ ClassNodePurePursuit::ClassNodePurePursuit(const ros::NodeHandle nh_in_) : nh_{n
 
     m_periodic_controller_ = nh_.createTimer(ros::Duration(m_controller_interval_), &ClassNodePurePursuit::controllerUpdate, this);
 
-    ROS_INFO_STREAM("ClassPathPlanner inti Done");
+    ROS_INFO_STREAM("ClassNodePurePursuit inti Done");
 
     return;
 }
@@ -167,7 +157,7 @@ void ClassNodePurePursuit::pathCallback(const nav_msgs::Path::ConstPtr &msg)
 {
     if(msg->poses.size() < 2)
     {
-        ROS_WARN_STREAM("path msg size < 2.  Do not proceed.");
+        ROS_WARN_STREAM_NAMED("ClassNodePurePursuit::pathCallback()", "Path msg size < 2.  Do not proceed.");
         return;
     }
     m_mutex_path_.lock();
@@ -222,8 +212,8 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
     ROS_INFO_STREAM("m_counter_current_segment_ " << m_segment_manager_.getCounter());
 
     m_segment_manager_.update(m_robot_odom_msg_.pose.pose.position.x, 
-                    m_robot_odom_msg_.pose.pose.position.y,
-                    quaternion_to_eular_yaw(m_robot_odom_msg_.pose.pose.orientation));
+                              m_robot_odom_msg_.pose.pose.position.y,
+                              quaternionToEularYaw(m_robot_odom_msg_.pose.pose.orientation));
     if (m_segment_manager_.doesPathExist())
     {
         m_current_path_segment_ = m_segment_manager_.getCurrentSegment();
@@ -233,30 +223,15 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
         m_puber__current_path_.publish(_ros_current_path);
     }
 
-    double _signed_speed_mps = 0;
-    if (m_current_path_segment_.isForward())
-    {
-        // _signed_speed_mps = std::abs(m_expected_speed_mps_);
-        _signed_speed_mps = std::abs(decideSpeedMps());
-    }
-    else
-    {
-        // _signed_speed_mps = - std::abs(m_expected_speed_mps_);
-        _signed_speed_mps = - std::abs(decideSpeedMps());
-    }
-
-    if (m_segment_manager_.didFinishAll())
-    {
-        _signed_speed_mps = 0;
-    }
-
+    
+    double _signed_speed_mps = decideSpeedMps();
     // the values for the parameters of the controller algorithm.
     m_controller_purepursuit_.setLookAheadCoefficient(m_look_ahead_ratio_);
     m_controller_purepursuit_.setTargetLinearSpeedMps(_signed_speed_mps);
     m_controller_purepursuit_.setVehicleWheelbaseMeter(0.25);
     m_controller_purepursuit_.setRobotPose(m_robot_odom_msg_.pose.pose.position.x, 
                                   m_robot_odom_msg_.pose.pose.position.y,
-                                  quaternion_to_eular_yaw(m_robot_odom_msg_.pose.pose.orientation));
+                                  quaternionToEularYaw(m_robot_odom_msg_.pose.pose.orientation));
 
     bool _valid_target_point = false;
     m_controller_purepursuit_.findTargetPoint(_valid_target_point);
@@ -267,27 +242,7 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
         return;
     }
 
-    // get the target point position, and visulize it in RVIZ as a sphere. 
-    geometry_msgs::PointStamped _target_point;
-    m_controller_purepursuit_.getTargetPoint(_target_point);
-
-    visualization_msgs::Marker _target_point_marker;
-    _target_point_marker.pose.position.x = _target_point.point.x;
-    _target_point_marker.pose.position.y = _target_point.point.y;
-    _target_point_marker.header.frame_id = "map";
-    _target_point_marker.type = visualization_msgs::Marker::SPHERE;
-    _target_point_marker.action = visualization_msgs::Marker::MODIFY;
-
-    _target_point_marker.scale.x = 0.1;
-    _target_point_marker.scale.y = 0.1;
-    _target_point_marker.scale.z = 0.1;
-
-    _target_point_marker.color.a = 0.9; // Don't forget to set the alpha!
-    _target_point_marker.color.r = 1.0;
-    _target_point_marker.color.g = 0.0;
-    _target_point_marker.color.b = 0.0;
-    m_puber__target_point_marker_.publish(_target_point_marker);
-    // visulization done.
+    visulizeTargetPoint();    
 
     bool _success;  double _steer_needed = 0.0;
     m_controller_purepursuit_.solveForSpeedCommand(_success, _steer_needed);
@@ -318,13 +273,16 @@ bool ClassNodePurePursuit::validateOdomMsg()
 }
 
 /**
- * @brief 
+ * @brief When robot is approaching the end of the segment, the speed should reduce for a smoother
+ * transition. This function calculates the speed based on the distance between the robot and the 
+ * end of the segment. 
+ * @return the speed in unit of meter per second.
 */
-double ClassNodePurePursuit::decideSpeedMps()
+double ClassNodePurePursuit::calcSpeedRampping()
 {
     double _dist_to_end = m_segment_manager_.getDistToEnd();
-    double _dist_threshold = 1.0;
-    double _min_speed_mps = 0.4;
+    double _dist_threshold = 1.0; // meter
+    double _min_speed_mps = 0.4; // meter per second, this the mininum value of the output. 
     if (_dist_to_end >= _dist_threshold)
     {
         return m_expected_speed_mps_;
@@ -333,6 +291,60 @@ double ClassNodePurePursuit::decideSpeedMps()
 
     return _slope * _dist_to_end + _min_speed_mps;
 }
+
+/**
+ * @brief This function is for calculating the speed that the purepursuit algo should use, and the speed
+ * value in the control message that will be sent out.
+ * @return The speed is double type and is signed. Positive value means forward motion and negative value
+ * means reversing motion. 
+*/
+double ClassNodePurePursuit::decideSpeedMps()
+{
+    double _spd_val = 0;
+    if (m_current_path_segment_.isForward())
+    {
+        // _spd_val = std::abs(m_expected_speed_mps_);
+        _spd_val = std::abs(calcSpeedRampping());
+    }
+    else
+    {
+        // _spd_val = - std::abs(m_expected_speed_mps_);
+        _spd_val = - std::abs(calcSpeedRampping());
+    }
+
+    if (m_segment_manager_.didFinishAll())
+    {
+        _spd_val = 0;
+    }
+    return _spd_val;
+}
+
+/**
+ * @brief Get the target point position, and visulize it in RVIZ as a sphere. 
+*/
+void ClassNodePurePursuit::visulizeTargetPoint()
+{
+    geometry_msgs::PointStamped _target_point;
+    m_controller_purepursuit_.getTargetPoint(_target_point);
+
+    visualization_msgs::Marker _target_point_marker;
+    _target_point_marker.pose.position.x = _target_point.point.x;
+    _target_point_marker.pose.position.y = _target_point.point.y;
+    _target_point_marker.header.frame_id = "map";
+    _target_point_marker.type = visualization_msgs::Marker::SPHERE;
+    _target_point_marker.action = visualization_msgs::Marker::MODIFY;
+
+    _target_point_marker.scale.x = 0.1;
+    _target_point_marker.scale.y = 0.1;
+    _target_point_marker.scale.z = 0.1;
+
+    _target_point_marker.color.a = 0.9; // Don't forget to set the alpha!
+    _target_point_marker.color.r = 1.0;
+    _target_point_marker.color.g = 0.0;
+    _target_point_marker.color.b = 0.0;
+    m_puber__target_point_marker_.publish(_target_point_marker);
+}
+
 
 #endif 
 

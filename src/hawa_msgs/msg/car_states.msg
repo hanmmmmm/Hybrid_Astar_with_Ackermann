@@ -1,7 +1,0 @@
-Header header
-string car_id
-geometry_msgs/PoseWithCovariance pose
-float64 heading_yaw_radius
-float64 steer_radius
-geometry_msgs/TwistWithCovariance body_frame_velocity
-geometry_msgs/AccelWithCovariance body_frame_accel

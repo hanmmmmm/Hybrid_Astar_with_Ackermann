@@ -31,7 +31,9 @@
 
 
 /**
- * 
+ * @brief This class will be used to store a segment from the path. Segments are divided at where the
+ * robot is going to switch between forward motion and backward motion. The major components are the two 
+ * containers holding the waypoints and a variable holding the direction of this segment. 
 */
 class ClassPath2DSegment
 {
@@ -62,8 +64,11 @@ public:
 
     void extendThePath();
 
-    std::deque< ClassPose2D > path_segment__original_;  // the points from input path.
-    std::deque< ClassPose2D > path_segment__extended_;  // the original + the extra points extended at the begining and end of the original.
+    std::deque< ClassPose2D > m_path_original_;  
+    // the points from input path.
+
+    std::deque< ClassPose2D > m_path_extended_;  
+    // the original + the extra points extended at the end of the original.
     
     nav_msgs::Path toRosPath();
 
@@ -84,7 +89,7 @@ ClassPath2DSegment::~ClassPath2DSegment()
 */
 void ClassPath2DSegment::pushbackForOriginal(ClassPose2D pose)
 {
-    path_segment__original_.push_back(pose);
+    m_path_original_.push_back(pose);
 }
 
 /**
@@ -93,7 +98,7 @@ void ClassPath2DSegment::pushbackForOriginal(ClassPose2D pose)
 */
 void ClassPath2DSegment::pushbackForExtended(ClassPose2D pose)
 {
-    path_segment__extended_.push_back(pose);
+    m_path_extended_.push_back(pose);
 }
 
 /**
@@ -117,13 +122,13 @@ void ClassPath2DSegment::setDirectionBackward()
 */
 void ClassPath2DSegment::clear()
 {
-    path_segment__original_.clear();
-    path_segment__extended_.clear();
+    m_path_original_.clear();
+    m_path_extended_.clear();
     m_direction_ = EnumDirection::forawrd;
 }
 
 /**
- * @brief Call this to know if this segment is going forward to goinf reverse.
+ * @brief Call this to know if this segment is going forward to going reverse.
  * @return True means forward. False means reverse. 
 */
 bool ClassPath2DSegment::isForward()
@@ -132,35 +137,39 @@ bool ClassPath2DSegment::isForward()
 }
 
 /**
- * @brief Call this function after all points are added. This function will put several more points
- * at the end. These extra points will be needed by the pure pursuit algo to find the target point,
- * when the robot is close to the end the segment. 
+ * @brief Call this function after all points are added in the 'extend path'. This function will 
+ * put several more points at the end. These points are in the same direction of the last two points
+ * in the 'extend path'. These extra points will be needed by the pure pursuit algo 
+ * to find the target point, when the robot is approaching to the end the segment. 
 */
 void ClassPath2DSegment::extendThePath()
 {
-    double _path_size = path_segment__extended_.size();
-    double _dx = path_segment__extended_.back().x - path_segment__extended_.at(_path_size-2).x;
-    double _dy = path_segment__extended_.back().y - path_segment__extended_.at(_path_size-2).y;
+    double _path_size = m_path_extended_.size();
+    double _dx = m_path_extended_.back().x - m_path_extended_.at(_path_size-2).x;
+    double _dy = m_path_extended_.back().y - m_path_extended_.at(_path_size-2).y;
     ClassPose2D _temp(0, 0, 0);
-    double _last_x = path_segment__extended_.back().x;
-    double _last_y = path_segment__extended_.back().y;
+    double _last_x = m_path_extended_.back().x;
+    double _last_y = m_path_extended_.back().y;
+
+    // the value 7 here is arbitrary. This decides how many new points are added. 
     for(int i=1; i<7; i++)
     {
         _temp.x = _last_x + _dx * i;
         _temp.y = _last_y + _dy * i;
-        _temp.yaw = path_segment__extended_.back().yaw;
-        path_segment__extended_.push_back(_temp);
+        _temp.yaw = m_path_extended_.back().yaw;
+        m_path_extended_.push_back(_temp);
     }
 }
 
 /**
- * @brief Convert the path from custom type to ROS standard navmsgs path. 
+ * @brief Convert the path from custom type to ROS standard navmsgs path. Becasue at this moment (2023Nov) this
+ * ros path is only used for visulization, I didn't put the actual yaw for the waypoints in this path.
  * @return the converted path.
 */
 nav_msgs::Path ClassPath2DSegment::toRosPath()
 {
     nav_msgs::Path _ros_path;
-    for (auto pose : path_segment__original_)
+    for (auto pose : m_path_original_)
     {
         geometry_msgs::PoseStamped _temp;
         _temp.pose.position.x = pose.x;

@@ -21,24 +21,25 @@
 // SOFTWARE.
 
 /**
- * 
+ * This file is a collection of some tool functions used in the pure pursuit.
 */
 
 
 #ifndef TOOLS_ANGLES
 #define TOOLS_ANGLES
 
-
+#include <array>
 #include "tf/transform_listener.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "geometry_msgs/Quaternion.h"
 
-#include <array>
-
-
-double mod2pi( double a)
+/**
+ * @brief Make sure the angle value is between 0 and 2Pi.
+ * @param angle the value to be processed.
+ * @return Converted value.
+*/
+double mod2pi( double angle)
 {
-    double angle = a;
     while (angle > 2*M_PI){
         angle -= 2*M_PI;
     }
@@ -48,34 +49,49 @@ double mod2pi( double a)
     return angle;
 }
 
-
-
-/// @brief compute the yaw angle of the line formed by 2 points
-/// @param x1
-/// @param y1
-/// @param x2
-/// @param y2
-/// @return double , radian.
+/**
+ * @brief compute the yaw angle of the line formed by 2 points
+ *         /p2
+ *        /
+ *       /
+ *     p1-------> x_axis 
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @return The yaw value in unit of radian.
+*/
 inline double computeYawOf2Points(double x1, double y1, double x2, double y2)
 {
-    /*
-        /x2
-       /
-      /
-    x1-------
-    */
+    
     double dx = x2 - x1;
     double dy = y2 - y1;
     double yaw = atan2(dy, dx);
     return yaw;
 }
 
-
-bool check_if_point_on_left_of_line(double ax, double ay, double bx, double by, double cx, double cy ){
+/**
+ * @brief This function uses 3 points pa pb and pc.  The main vector is from pa to pb. 
+ * This function is checking if the point pc is on the left side of the main vector. 
+ *          pc (left)
+ *   pa --------> pb
+ *          pc (right)
+ * @return True if the third point is on the left side. False if on the right side. 
+*/
+bool checkIfPointOnLeftOfLine(double ax, double ay, double bx, double by, double cx, double cy )
+{
     return ((bx - ax)*(cy - ay) - (by - ay)*(cx - ax)) > 0;
 }
-        
-double quaternion_to_eular_yaw(const double q_x, const double q_y, const double q_z, const double q_w)
+
+/**
+ * @brief Find the yaw value in a pose that's being represented as a quaternion.
+ * @param q_x the x value in the quaternion.
+ * @param q_y the y value in the quaternion.
+ * @param q_z the z value in the quaternion.
+ * @param q_w the w value in the quaternion. 
+ * @return the value of the yaw. 
+*/
+double quaternionToEularYaw(const double q_x, const double q_y, const double q_z, const double q_w)
 {
     tf::Quaternion q( q_x, q_y, q_z, q_w );
     tfScalar yaw, pitch, roll;
@@ -84,7 +100,12 @@ double quaternion_to_eular_yaw(const double q_x, const double q_y, const double 
     return yaw;
 }
 
-double quaternion_to_eular_yaw(const tf::Quaternion q_in)
+/**
+ * @brief Find the yaw value in a pose that's being represented as a ros tf quaternion.
+ * @param q_in the quaternion.
+ * @return the value of the yaw. 
+*/
+double quaternionToEularYaw(const tf::Quaternion q_in)
 {
     tfScalar yaw, pitch, roll;
     tf::Matrix3x3 mat(q_in);
@@ -92,8 +113,12 @@ double quaternion_to_eular_yaw(const tf::Quaternion q_in)
     return yaw;
 }
 
-
-double quaternion_to_eular_yaw(const geometry_msgs::Quaternion q_in)
+/**
+ * @brief Find the yaw value in a pose that's being represented as a ros geometry_msgs quaternion.
+ * @param q_in the quaternion.
+ * @return the value of the yaw. 
+*/
+double quaternionToEularYaw(const geometry_msgs::Quaternion q_in)
 {
     tf::Quaternion q( q_in.x, q_in.y, q_in.z, q_in.w );
     tfScalar yaw, pitch, roll;
@@ -102,15 +127,17 @@ double quaternion_to_eular_yaw(const geometry_msgs::Quaternion q_in)
     return mod2pi(yaw);
 }
 
-
-
-
-/// @brief 
-/// @param p1 
-/// @param p2 
-/// @param p3 
-/// @return the angle in radian. Range:[0, pi]
-double calc_angle_by_three_points(std::array<double,3> p1, std::array<double,3> p2, std::array<double,3> p3)
+/**
+ * @brief This function finds the angle between 3 points. It's the angle covered by # sign in the graph below.
+ *                      p3
+ *                     /
+ *                 ###/
+ *               ##  /
+ *    p1 -----------p2
+ * 
+ * @return the angle in radian. Range:[0, pi]
+*/
+double calcAngleByThreePoints(std::array<double,3> p1, std::array<double,3> p2, std::array<double,3> p3)
 {
     double _p1x = p1[0] - p2[0];
     double _p1y = p1[1] - p2[1];
@@ -130,7 +157,6 @@ double calc_angle_by_three_points(std::array<double,3> p1, std::array<double,3> 
     double _angle = std::acos(_p1x*_p2x + _p1y*_p2y);
 
     return _angle;
-
 }
 
 

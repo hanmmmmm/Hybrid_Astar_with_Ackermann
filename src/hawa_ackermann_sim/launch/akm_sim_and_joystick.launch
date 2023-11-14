@@ -1,17 +1,9 @@
 <launch>
 
-  <node pkg="hawa_ackermann_sim" type="akm_sim_node" name="akm_sim_" output="screen" respawn="false"/>
+  <node pkg="hawa_ackermann_sim" type="akm_sim_node" name="akm_simulation_node" output="screen" respawn="false"/>
   
   <!-- <node pkg="hawa_ackermann_sim" type="joystick_to_ackermannDriveStamped.py" name="joystick_to_ackermannDriveStamped" output="screen" respawn="false"/> -->
 
   <node pkg="hawa_ackermann_sim" type="keyboard_to_ackermannDriveStamped.py" name="keyboard_to_ackermannDriveStamped" output="screen" respawn="false"/>
   
-  <!--arg name="model" default="$(find ackermann_sim)/urdf/mini_akm_model.urdf"/>
-  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" /-->
-  
-  <!--param name="robot_description" command="cat '$(find ackermann_sim)/urdf/mini_akm_model.urdf'" /-->
-
 </launch>
-
-
-

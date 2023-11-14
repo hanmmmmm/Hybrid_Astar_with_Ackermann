@@ -21,21 +21,6 @@
 // SOFTWARE.
 
 
-/*
-
-input: the complete Navmsg/path 
-
-processing:
-
-find singular points;
-split into short segment, so that each segment only one direction;
-find directoin in each segment;
-a counter to know which segment should be used now; 
-receive the signal to know robot has reached the end of the current segment;
-
-
-*/
-
 #ifndef HAWA_CLASS_MULTI_SEGMENT_MANAGER_H
 #define HAWA_CLASS_MULTI_SEGMENT_MANAGER_H
 
@@ -48,6 +33,10 @@ receive the signal to know robot has reached the end of the current segment;
 #include "tools_angles.h"
 
 
+/**
+ * @brief This class has the logics of converting the ros path msg into the format that is usable by 
+ * my custom pure pursuit implementation. Also has the logics for other module to use the path information.  
+*/
 class ClassHawaMultiSegmentManager
 {
 private:
@@ -64,15 +53,17 @@ private:
 
 private:
     std::vector<int> findSingularPoints();
-    void split_whole_path(std::vector<int> singular_points, std::vector<ClassPath2DSegment>& result);
 
-    bool estimate_direction_is_forward(ClassPath2DSegment& points);
+    void split_whole_path(std::vector<int> singular_points);
+
+    bool estimateDirectionIsForward(ClassPath2DSegment& points);
 
     bool checkCurrentSegFinish(const double robot_x,const double robot_y,const double robot_yaw);
 
     
 public:
     ClassHawaMultiSegmentManager();
+
     ~ClassHawaMultiSegmentManager();
 
     void setPath(nav_msgs::Path path_input);
@@ -92,9 +83,11 @@ public:
     void update(const double robot_x,const double robot_y,const double robot_yaw);
 
     double getDistToEnd();
-    
 };
 
+/**
+ * @brief Constructor function. Also initialize some member variables.
+*/
 ClassHawaMultiSegmentManager::ClassHawaMultiSegmentManager()
 {
     m_counter_current_segment_ = 0;
@@ -106,7 +99,11 @@ ClassHawaMultiSegmentManager::~ClassHawaMultiSegmentManager()
 {
 }
 
-
+/**
+ * @brief Call function when the robot reaches the end of the current segment. The counter holding the 
+ * the index of the active segment will increment by 1. And if this is the last segment, then the flag
+ * of finishing_the_entire_path will be updated too.  
+*/
 void ClassHawaMultiSegmentManager::finishCurrentSegment()
 {
     m_counter_current_segment_ ++;
@@ -117,21 +114,29 @@ void ClassHawaMultiSegmentManager::finishCurrentSegment()
     }
 }
 
-
+/**
+ * @brief Call this function to setup the path data. Also reinitialize the related flags. 
+*/
 void ClassHawaMultiSegmentManager::setPath(nav_msgs::Path path_input)
 {
     m_original_path_ = path_input;
 
     std::vector<int> _sgpoints = findSingularPoints();
-    split_whole_path(_sgpoints, m_vector_segments_);
+    // split_whole_path(_sgpoints, m_vector_segments_);
+    
+    split_whole_path(_sgpoints);
 
     m_finished_all_ = false;
 
     m_counter_current_segment_ = 0;
-
 }
 
-
+/**
+ * @brief This function will go through the original long path vector, and record the indices of the 
+ * waypoints where the path has large angle change. These are the points where the robot needs to 
+ * switch between forward and reverse motion. 
+ * @return A vector of the indices. 
+*/
 std::vector<int> ClassHawaMultiSegmentManager::findSingularPoints()
 {
     std::vector<int> _result;
@@ -146,45 +151,32 @@ std::vector<int> ClassHawaMultiSegmentManager::findSingularPoints()
     {
         std::array<double, 3> _point_last = {_ptr_poses.at(i-1).pose.position.x,
                                             _ptr_poses.at(i-1).pose.position.y,
-                                            quaternion_to_eular_yaw(_ptr_poses.at(i-1).pose.orientation)};
+                                            quaternionToEularYaw(_ptr_poses.at(i-1).pose.orientation)};
         std::array<double, 3> _point_this = {_ptr_poses.at(i).pose.position.x,
                                             _ptr_poses.at(i).pose.position.y,
-                                            quaternion_to_eular_yaw(_ptr_poses.at(i).pose.orientation)};
+                                            quaternionToEularYaw(_ptr_poses.at(i).pose.orientation)};
         std::array<double, 3> _point_next = {_ptr_poses.at(i+1).pose.position.x,
                                             _ptr_poses.at(i+1).pose.position.y,
-                                            quaternion_to_eular_yaw(_ptr_poses.at(i+1).pose.orientation)};
+                                            quaternionToEularYaw(_ptr_poses.at(i+1).pose.orientation)};
 
-        // if (i < 3)
-        // {
-        //     cout << endl;
-        //     cout << _point_last[0] << " " << _point_last[1] << " " << _point_last[2] << endl;
-        //     cout << _point_this[0] << " " << _point_this[1] << " " << _point_this[2] << endl;
-        //     cout << _point_next[0] << " " << _point_next[1] << " " << _point_next[2] << endl;
-        // }
-
-        if (calc_angle_by_three_points(_point_last, _point_this, _point_next) < M_PI/2.0)
+        if (calcAngleByThreePoints(_point_last, _point_this, _point_next) < M_PI/2.0)
         {
             _result.push_back(i);
         }
     }
-    
     return _result;
 }
 
-
-void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_points, 
-                                                    std::vector<ClassPath2DSegment>& result)
+/**
+ * @brief According to the vector of indices found by findSingularPoints(), split the orignal long
+ * path into several segments. The extracted segments will be stored in a member variable. 
+ * @param singular_points The vector of the indices where the path needs to be cut.
+*/
+void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_points)
 {
-    result.clear();
-
-    // // cout << "singular_points: " <<endl;
-    // for(int sp : singular_points)
-    // {
-    //     cout << sp << " ";
-    // }
-    // cout << endl;
-
     ROS_INFO_STREAM("split_whole_path(), " << singular_points.size() << " sg points.");
+
+    m_vector_segments_.clear();
 
     std::vector<std::array<int,2>> _range_of_all_segments;
 
@@ -205,28 +197,20 @@ void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_po
                                                            int(m_original_path_.poses.size()-1)});
     }
 
-    // auto _original_path = m_path_.get_path();
-    
-    // cout << "_range_of_all_segments" << endl;
     for (auto rg : _range_of_all_segments)
     {
         ClassPath2DSegment _one_segment;
-        // vector<StructPoseReal> _one_segment;
-        // std::cout << "[ " << rg[0] << "  " << rg[1] << " ]" << std::endl;
         for (int ct=rg[0]; ct<rg[1]+1; ct++)
         {
-            // cout << ct << " ";
-            // StructPoseReal _pt(_original_path[ct][0], _original_path[ct][1], _original_path[ct][2]);
             _one_segment.pushbackForOriginal(ClassPose2D(m_original_path_.poses.at(ct).pose.position.x, 
-                                                           m_original_path_.poses.at(ct).pose.position.y, 
-                                                           quaternion_to_eular_yaw( m_original_path_.poses.at(ct).pose.orientation)));
+                                                         m_original_path_.poses.at(ct).pose.position.y, 
+                                                         quaternionToEularYaw( m_original_path_.poses.at(ct).pose.orientation)));
             _one_segment.pushbackForExtended(ClassPose2D(m_original_path_.poses.at(ct).pose.position.x, 
-                                                           m_original_path_.poses.at(ct).pose.position.y, 
-                                                           quaternion_to_eular_yaw( m_original_path_.poses.at(ct).pose.orientation)));
-            // _one_segment.push_back(_pt);
+                                                         m_original_path_.poses.at(ct).pose.position.y, 
+                                                         quaternionToEularYaw( m_original_path_.poses.at(ct).pose.orientation)));
         }
         _one_segment.extendThePath();
-        if (estimate_direction_is_forward(_one_segment))
+        if (estimateDirectionIsForward(_one_segment))
         {
             _one_segment.setDirectionForward();
         }
@@ -235,35 +219,45 @@ void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_po
             _one_segment.setDirectionBackward();
         }
         
-        // cout << endl;
-        // result.push_back(_one_segment);
         m_vector_segments_.push_back(_one_segment);
     }
     ROS_INFO_STREAM("num of segments: " << m_vector_segments_.size());
 }
 
+/**
+ * @brief To get the active segment that the robot is running on.
+ * @return The segment.
+*/
 ClassPath2DSegment ClassHawaMultiSegmentManager::getCurrentSegment()
 {
     return m_vector_segments_.at(m_counter_current_segment_);
 }
 
+/**
+ * @brief A function to know if there is any unfinished segment left. 
+ * @return True if there's at least one segment left. False if there's no left or no path setup yet. 
+*/
 bool ClassHawaMultiSegmentManager::doesPathExist()
 {
     ROS_INFO_STREAM("doesPathExist: " << m_vector_segments_.size() << " " <<  m_counter_current_segment_);
     return bool(m_vector_segments_.size() - m_counter_current_segment_);
 }
 
-
-
-bool ClassHawaMultiSegmentManager::estimate_direction_is_forward(ClassPath2DSegment& r_segment)
+/**
+ * @brief For a given segment, this function tells if the robot will move in forward direction or reveser 
+ * direction.
+ * @param r_segment reference of the segment.
+ * @return True if it is forward. False if it is reversing. 
+*/
+bool ClassHawaMultiSegmentManager::estimateDirectionIsForward(ClassPath2DSegment& r_segment)
 {
-    if (r_segment.path_segment__extended_.size() < 2)
+    if (r_segment.m_path_extended_.size() < 2)
     {
-        std::cerr << "estimate_direction_is_forward. Not enough points. " << std::endl;
+        std::cerr << "estimateDirectionIsForward. Not enough points. " << std::endl;
     }
 
-    ClassPose2D p1 = r_segment.path_segment__extended_[0];
-    ClassPose2D p2 = r_segment.path_segment__extended_[1];
+    ClassPose2D p1 = r_segment.m_path_extended_[0];
+    ClassPose2D p2 = r_segment.m_path_extended_[1];
 
     double _dx = p2.x - p1.x;
     double _dy = p2.y - p1.y;
@@ -277,22 +271,20 @@ bool ClassHawaMultiSegmentManager::estimate_direction_is_forward(ClassPath2DSegm
     {
         _diff = 2*M_PI - _diff;
     }
-    if (_diff < (M_PI/2.0))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    return (_diff < (M_PI/2.0));
 }
 
 /**
- * 
+ * @brief With given robot pose, check if this segment can be marked as finished. The only critiria is the distance 
+ * from the roobt the end of the current active segment. More robust ideas could be added in the future. 
+ * @return True if finished. False if not finished. 
 */
-bool ClassHawaMultiSegmentManager::checkCurrentSegFinish(const double robot_x, const double robot_y, const double robot_yaw)
+bool ClassHawaMultiSegmentManager::checkCurrentSegFinish(const double robot_x, 
+                                                         const double robot_y, 
+                                                         const double robot_yaw)
 {
-    ClassPose2D _end = m_vector_segments_.at(m_counter_current_segment_).path_segment__original_.back();
+    ClassPose2D _end = m_vector_segments_.at(m_counter_current_segment_).m_path_original_.back();
 
     double _dist_to_end = computeDistanceMeter(_end.x, 
                                                _end.y, 
@@ -300,15 +292,14 @@ bool ClassHawaMultiSegmentManager::checkCurrentSegFinish(const double robot_x, c
                                                robot_y);
     // ROS_INFO_STREAM("_dist_to_end " << _dist_to_end << "  look_ahead " << parameters_.look_ahead_distance_meter_);
     m_distance_to_end_ = _dist_to_end;
-
-
     return (_dist_to_end <= 0.2);
 }
 
 /**
- * 
+ * @brief Call this function when the setup functions in this class have done. This is one of the main functions
+ * in this class. The input is the robot pose. 
 */
-void ClassHawaMultiSegmentManager::update(const double robot_x,const double robot_y,const double robot_yaw)
+void ClassHawaMultiSegmentManager::update(const double robot_x, const double robot_y, const double robot_yaw)
 {
     if (m_vector_segments_.size() <= 0)
     {
@@ -317,12 +308,9 @@ void ClassHawaMultiSegmentManager::update(const double robot_x,const double robo
 
     if (m_finished_all_)
     {
-        ROS_INFO_STREAM("update(), wait for new path.");
+        ROS_INFO_STREAM_NAMED("ClassHawaMultiSegmentManager::update()", "Wait for new path.");
         return;
     }
-
-    
-
 
     bool _this_finished = checkCurrentSegFinish( robot_x, robot_y, robot_yaw);
     ROS_INFO_STREAM("update() _this_finished " << _this_finished);
@@ -330,11 +318,11 @@ void ClassHawaMultiSegmentManager::update(const double robot_x,const double robo
     {
         finishCurrentSegment();
     }
-
 }
 
 /**
- * 
+ * @brief This function returns the original unprocessed path data.
+ * @return The original path in format of nav_msgs::Path.
 */
 nav_msgs::Path ClassHawaMultiSegmentManager::getOriginalPath()
 {
@@ -342,7 +330,8 @@ nav_msgs::Path ClassHawaMultiSegmentManager::getOriginalPath()
 }
 
 /**
- * 
+ * @brief This function returns the value of counter that is the index of the current active segment. 
+ * @return The index.
 */
 int ClassHawaMultiSegmentManager::getCounter()
 {
@@ -350,13 +339,19 @@ int ClassHawaMultiSegmentManager::getCounter()
 }
 
 /**
- * 
+ * @brief This function returns the latest value of the distance between the robot and the end of the current
+ * active segment.
+ * @return The distance in meter.
 */
 double ClassHawaMultiSegmentManager::getDistToEnd()
 {
     return m_distance_to_end_;
 }
 
+/**
+ * @brief This function tells if the robot has finished all segments. 
+ * @return True if all finished.  False if not. 
+*/
 bool ClassHawaMultiSegmentManager::didFinishAll()
 {
     return m_finished_all_;
