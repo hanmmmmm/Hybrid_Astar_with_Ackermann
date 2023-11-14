@@ -1,0 +1,102 @@
+\hypertarget{classClassReedsSheppSolver}{}\doxysection{Class\+Reeds\+Shepp\+Solver Class Reference}
+\label{classClassReedsSheppSolver}\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+
+
+{\ttfamily \#include $<$class\+\_\+reedsshepp\+\_\+solver.\+h$>$}
+
+
+
+Collaboration diagram for Class\+Reeds\+Shepp\+Solver\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classClassReedsSheppSolver__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classClassReedsSheppSolver_aaaae5d0a030ce9d9ff05a3dad3a06d8d}{Class\+Reeds\+Shepp\+Solver}} ()
+\item 
+\mbox{\hyperlink{classClassReedsSheppSolver_a814a5c4734f292e2c1f5c8407e500c06}{$\sim$\+Class\+Reeds\+Shepp\+Solver}} ()
+\item 
+void \mbox{\hyperlink{classClassReedsSheppSolver_a0ee50653ef1987e60d511bd06df62221}{setup}} (\mbox{\hyperlink{structStructPoseReal}{Struct\+Pose\+Real}} start\+\_\+pose, \mbox{\hyperlink{structStructPoseReal}{Struct\+Pose\+Real}} goal\+\_\+pose)
+\item 
+void \mbox{\hyperlink{classClassReedsSheppSolver_a09a9a1e9f763b2b5a61f4b7c9a10973d}{search}} ()
+\item 
+void \mbox{\hyperlink{classClassReedsSheppSolver_ab864ee46c6d17c909f5b51fc042d5a9d}{get\+\_\+path}} (std\+::array$<$ double, 3 $>$ start\+\_\+pose, std\+::array$<$ double, 3 $>$ goal\+\_\+pose, std\+::string path\+\_\+type, std\+::vector$<$ double $>$ \&path\+\_\+angle, bool \&valid)
+\item 
+std\+::array$<$ double, 2 $>$ \mbox{\hyperlink{classClassReedsSheppSolver_a411a0478c611f7a2a06223b28126e0e3}{calc\+\_\+fix\+\_\+frame\+\_\+dxdy}} (const double angle\+\_\+change, const double pose\+\_\+yaw)
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structClassReedSheppPath_1_1PathCollection}{Class\+Reed\+Shepp\+Path\+::\+Path\+Collection}} \mbox{\hyperlink{classClassReedsSheppSolver_a63ab87ffa429a2531ce206150859938d}{m\+\_\+all\+\_\+curves\+\_\+}}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $>$ \mbox{\hyperlink{classClassReedsSheppSolver_aab60df40aa31a901e1c56e0b94ca1590}{m\+\_\+vector\+\_\+path\+\_\+results\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This file is 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classClassReedsSheppSolver_aaaae5d0a030ce9d9ff05a3dad3a06d8d}\label{classClassReedsSheppSolver_aaaae5d0a030ce9d9ff05a3dad3a06d8d}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{ClassReedsSheppSolver()}{ClassReedsSheppSolver()}}
+{\footnotesize\ttfamily Class\+Reeds\+Shepp\+Solver\+::\+Class\+Reeds\+Shepp\+Solver (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classClassReedsSheppSolver_a814a5c4734f292e2c1f5c8407e500c06}\label{classClassReedsSheppSolver_a814a5c4734f292e2c1f5c8407e500c06}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!````~ClassReedsSheppSolver@{$\sim$ClassReedsSheppSolver}}
+\index{````~ClassReedsSheppSolver@{$\sim$ClassReedsSheppSolver}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{$\sim$ClassReedsSheppSolver()}{~ClassReedsSheppSolver()}}
+{\footnotesize\ttfamily Class\+Reeds\+Shepp\+Solver\+::$\sim$\+Class\+Reeds\+Shepp\+Solver (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classClassReedsSheppSolver_a411a0478c611f7a2a06223b28126e0e3}\label{classClassReedsSheppSolver_a411a0478c611f7a2a06223b28126e0e3}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!calc\_fix\_frame\_dxdy@{calc\_fix\_frame\_dxdy}}
+\index{calc\_fix\_frame\_dxdy@{calc\_fix\_frame\_dxdy}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{calc\_fix\_frame\_dxdy()}{calc\_fix\_frame\_dxdy()}}
+{\footnotesize\ttfamily std\+::array$<$ double, 2 $>$ Class\+Reeds\+Shepp\+Solver\+::calc\+\_\+fix\+\_\+frame\+\_\+dxdy (\begin{DoxyParamCaption}\item[{const double}]{angle\+\_\+change,  }\item[{const double}]{pose\+\_\+yaw }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classClassReedsSheppSolver_ab864ee46c6d17c909f5b51fc042d5a9d}\label{classClassReedsSheppSolver_ab864ee46c6d17c909f5b51fc042d5a9d}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!get\_path@{get\_path}}
+\index{get\_path@{get\_path}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{get\_path()}{get\_path()}}
+{\footnotesize\ttfamily void Class\+Reeds\+Shepp\+Solver\+::get\+\_\+path (\begin{DoxyParamCaption}\item[{std\+::array$<$ double, 3 $>$}]{start\+\_\+pose,  }\item[{std\+::array$<$ double, 3 $>$}]{goal\+\_\+pose,  }\item[{std\+::string}]{path\+\_\+type,  }\item[{std\+::vector$<$ double $>$ \&}]{path\+\_\+angle,  }\item[{bool \&}]{valid }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classClassReedsSheppSolver_a09a9a1e9f763b2b5a61f4b7c9a10973d}\label{classClassReedsSheppSolver_a09a9a1e9f763b2b5a61f4b7c9a10973d}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!search@{search}}
+\index{search@{search}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{search()}{search()}}
+{\footnotesize\ttfamily void Class\+Reeds\+Shepp\+Solver\+::search (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classClassReedsSheppSolver_a0ee50653ef1987e60d511bd06df62221}\label{classClassReedsSheppSolver_a0ee50653ef1987e60d511bd06df62221}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!setup@{setup}}
+\index{setup@{setup}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{setup()}{setup()}}
+{\footnotesize\ttfamily void Class\+Reeds\+Shepp\+Solver\+::setup (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structStructPoseReal}{Struct\+Pose\+Real}}}]{start\+\_\+pose,  }\item[{\mbox{\hyperlink{structStructPoseReal}{Struct\+Pose\+Real}}}]{goal\+\_\+pose }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\Hypertarget{classClassReedsSheppSolver_a63ab87ffa429a2531ce206150859938d}\label{classClassReedsSheppSolver_a63ab87ffa429a2531ce206150859938d}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!m\_all\_curves\_@{m\_all\_curves\_}}
+\index{m\_all\_curves\_@{m\_all\_curves\_}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{m\_all\_curves\_}{m\_all\_curves\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structClassReedSheppPath_1_1PathCollection}{Class\+Reed\+Shepp\+Path\+::\+Path\+Collection}} Class\+Reeds\+Shepp\+Solver\+::m\+\_\+all\+\_\+curves\+\_\+}
+
+\mbox{\Hypertarget{classClassReedsSheppSolver_aab60df40aa31a901e1c56e0b94ca1590}\label{classClassReedsSheppSolver_aab60df40aa31a901e1c56e0b94ca1590}} 
+\index{ClassReedsSheppSolver@{ClassReedsSheppSolver}!m\_vector\_path\_results\_@{m\_vector\_path\_results\_}}
+\index{m\_vector\_path\_results\_@{m\_vector\_path\_results\_}!ClassReedsSheppSolver@{ClassReedsSheppSolver}}
+\doxysubsubsection{\texorpdfstring{m\_vector\_path\_results\_}{m\_vector\_path\_results\_}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}}$>$ Class\+Reeds\+Shepp\+Solver\+::m\+\_\+vector\+\_\+path\+\_\+results\+\_\+}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/hybrid\+\_\+a\+\_\+star\+\_\+module/\mbox{\hyperlink{class__reedsshepp__solver_8h}{class\+\_\+reedsshepp\+\_\+solver.\+h}}\end{DoxyCompactItemize}

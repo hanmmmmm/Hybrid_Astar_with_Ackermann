@@ -68,11 +68,4 @@ struct StructPose
 };
 
 
-
-
-
-
-
-
-
 #endif

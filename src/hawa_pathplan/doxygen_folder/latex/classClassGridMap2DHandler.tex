@@ -1,0 +1,342 @@
+\hypertarget{classClassGridMap2DHandler}{}\doxysection{Class\+Grid\+Map2\+D\+Handler Class Reference}
+\label{classClassGridMap2DHandler}\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+
+
+The class for storing gridmap and perform actions about it. Remeber to set the requied parameters !!  
+
+
+
+
+{\ttfamily \#include $<$class\+\_\+gridmap\+\_\+2d\+\_\+handler.\+h$>$}
+
+
+
+Collaboration diagram for Class\+Grid\+Map2\+D\+Handler\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=248pt]{classClassGridMap2DHandler__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299a}{Enum\+Mode}} \{ \mbox{\hyperlink{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299aad5b84fdb82d3468416f0f8f22d8975a2}{plan}}, 
+\mbox{\hyperlink{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299aac7cf65b1ec8f0e6b8da34adb107d0d80}{validate}}
+ \}
+\item 
+enum \mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4c}{Enum\+Collosion\+Check\+Type}} \{ \mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4cac19327db776b090fd07891149136663a}{end\+\_\+points\+\_\+only}}, 
+\mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4cafdca29c7c0d809c7e8ad2dad0cae6e25}{all\+\_\+grids}}, 
+\mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4ca540ebbf824f4f408b14888915f073475}{spaced}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classClassGridMap2DHandler_ad74aad230c958dead0fedb9fa9030cf3}{Class\+Grid\+Map2\+D\+Handler}} ()
+\begin{DoxyCompactList}\small\item\em Construct a new Class Grid Map Handler\+:\+: Class Grid Map Handler object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classClassGridMap2DHandler_a12492f834c78f266e481140301f38b1b}{$\sim$\+Class\+Grid\+Map2\+D\+Handler}} ()
+\begin{DoxyCompactList}\small\item\em Destroy the Class Grid Map Handler\+:\+: Class Grid Map Handler object. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classClassGridMap2DHandler_a66d69ceb07c8353d0ff3cabd751520ca}{convert\+\_\+two\+D\+\_\+to\+\_\+oneD}} (const int x, const int y)
+\begin{DoxyCompactList}\small\item\em The grid is 2D in logic, but the grid\+\_\+map is saved in 1D vector. So need this function to convert 2D grid (x,y) into 1D index. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a5435c83ef7f1db73eecfe29a28602897}{convert\+\_\+fine\+\_\+pose\+\_\+to\+\_\+grid}} (double fine\+\_\+x, double fine\+\_\+y, int \&grid\+\_\+x, int \&grid\+\_\+y)
+\begin{DoxyCompactList}\small\item\em convert pose (x,y,yaw) in meter \& radian to grid. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a1833578eba6e763d46b70d0886ef1f9d}{convert\+\_\+fine\+\_\+pose\+\_\+to\+\_\+grid}} (const \mbox{\hyperlink{structStructPoseReal}{Struct\+Pose\+Real}} realpose, \mbox{\hyperlink{structStructPoseGrid}{Struct\+Pose\+Grid}} \&gridpose)
+\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a4e84054a394c351f985c04cdbd322659}{convert\+\_\+grid\+\_\+pose\+\_\+to\+\_\+fine}} (int grid\+\_\+x, int grid\+\_\+y, double \&fine\+\_\+x, double \&fine\+\_\+y)
+\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a1be76f0a38f9fb7151214cb8f72a7160}{check\+\_\+grid\+\_\+within\+\_\+map}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em check if a grid in inside of grid map \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a670370be388a22158856041641292386}{check\+\_\+grid\+\_\+clear}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em check if a grid is clear or it\textquotesingle{}s obstacle. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_af40857f65578b91050777a9e928796f0}{set\+\_\+grid\+\_\+width\+\_\+height}} (int width, int height)
+\begin{DoxyCompactList}\small\item\em Because the map is saved in 1D vector, its width and height need to saved. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a3a0c4732ae50563aca52dffa08802d35}{set\+\_\+planning\+\_\+obstacle\+\_\+threshold}} (int8\+\_\+t thd)
+\begin{DoxyCompactList}\small\item\em set the value of obstacle\+\_\+threshold for plan mode. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a12ced5fe9056b51451514c038c7991f1}{set\+\_\+grid\+\_\+map\+\_\+ptr}} (vector$<$ int8\+\_\+t $>$ $\ast$ptr\+\_\+)
+\item 
+bool \mbox{\hyperlink{classClassGridMap2DHandler_a00d23f6d2c7a3b62a4a49449ae679b27}{set\+\_\+grid\+\_\+meter\+\_\+ratio}} (double xy)
+\item 
+double \mbox{\hyperlink{classClassGridMap2DHandler_a8dbc298de0847fe1ee6c09ef19a2a0ae}{get\+\_\+resolution}} ()
+\item 
+size\+\_\+t \mbox{\hyperlink{classClassGridMap2DHandler_af6611929695b065125e6e1137008132c}{get\+\_\+map\+\_\+size}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299a}{Class\+Grid\+Map2\+D\+Handler\+::\+Enum\+Mode}} \mbox{\hyperlink{classClassGridMap2DHandler_addb0a8cd98c1010929c8609e3da31321}{enum\+\_\+mode\+\_\+}}
+\item 
+enum \mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4c}{Class\+Grid\+Map2\+D\+Handler\+::\+Enum\+Collosion\+Check\+Type}} \mbox{\hyperlink{classClassGridMap2DHandler_a8608ab21daeb67bfbe8fe58ede6e51f7}{enum\+\_\+collosion\+\_\+type\+\_\+}}
+\item 
+int \mbox{\hyperlink{classClassGridMap2DHandler_a19e1e1da52cb332d279eedc7d9ee5548}{m\+\_\+number\+\_\+of\+\_\+angle\+\_\+layers\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The class for storing gridmap and perform actions about it. Remeber to set the requied parameters !! 
+
+\doxysubsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4c}\label{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4c}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!EnumCollosionCheckType@{EnumCollosionCheckType}}
+\index{EnumCollosionCheckType@{EnumCollosionCheckType}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{EnumCollosionCheckType}{EnumCollosionCheckType}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4c}{Class\+Grid\+Map2\+D\+Handler\+::\+Enum\+Collosion\+Check\+Type}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{end\_points\_only@{end\_points\_only}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!end\_points\_only@{end\_points\_only}}}\mbox{\Hypertarget{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4cac19327db776b090fd07891149136663a}\label{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4cac19327db776b090fd07891149136663a}} 
+end\+\_\+points\+\_\+only&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{all\_grids@{all\_grids}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!all\_grids@{all\_grids}}}\mbox{\Hypertarget{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4cafdca29c7c0d809c7e8ad2dad0cae6e25}\label{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4cafdca29c7c0d809c7e8ad2dad0cae6e25}} 
+all\+\_\+grids&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{spaced@{spaced}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!spaced@{spaced}}}\mbox{\Hypertarget{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4ca540ebbf824f4f408b14888915f073475}\label{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4ca540ebbf824f4f408b14888915f073475}} 
+spaced&\\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299a}\label{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299a}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!EnumMode@{EnumMode}}
+\index{EnumMode@{EnumMode}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{EnumMode}{EnumMode}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299a}{Class\+Grid\+Map2\+D\+Handler\+::\+Enum\+Mode}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{plan@{plan}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!plan@{plan}}}\mbox{\Hypertarget{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299aad5b84fdb82d3468416f0f8f22d8975a2}\label{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299aad5b84fdb82d3468416f0f8f22d8975a2}} 
+plan&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{validate@{validate}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!validate@{validate}}}\mbox{\Hypertarget{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299aac7cf65b1ec8f0e6b8da34adb107d0d80}\label{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299aac7cf65b1ec8f0e6b8da34adb107d0d80}} 
+validate&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classClassGridMap2DHandler_ad74aad230c958dead0fedb9fa9030cf3}\label{classClassGridMap2DHandler_ad74aad230c958dead0fedb9fa9030cf3}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{ClassGridMap2DHandler()}{ClassGridMap2DHandler()}}
+{\footnotesize\ttfamily Class\+Grid\+Map2\+D\+Handler\+::\+Class\+Grid\+Map2\+D\+Handler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Construct a new Class Grid Map Handler\+:\+: Class Grid Map Handler object. 
+
+\mbox{\Hypertarget{classClassGridMap2DHandler_a12492f834c78f266e481140301f38b1b}\label{classClassGridMap2DHandler_a12492f834c78f266e481140301f38b1b}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!````~ClassGridMap2DHandler@{$\sim$ClassGridMap2DHandler}}
+\index{````~ClassGridMap2DHandler@{$\sim$ClassGridMap2DHandler}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{$\sim$ClassGridMap2DHandler()}{~ClassGridMap2DHandler()}}
+{\footnotesize\ttfamily Class\+Grid\+Map2\+D\+Handler\+::$\sim$\+Class\+Grid\+Map2\+D\+Handler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Destroy the Class Grid Map Handler\+:\+: Class Grid Map Handler object. 
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a670370be388a22158856041641292386}\label{classClassGridMap2DHandler_a670370be388a22158856041641292386}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!check\_grid\_clear@{check\_grid\_clear}}
+\index{check\_grid\_clear@{check\_grid\_clear}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{check\_grid\_clear()}{check\_grid\_clear()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::check\+\_\+grid\+\_\+clear (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})}
+
+
+
+check if a grid is clear or it\textquotesingle{}s obstacle. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x,int.} & grid index. \\
+\hline
+{\em y,int.} & grid index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true , if it\textquotesingle{}s clear. 
+
+false , if it\textquotesingle{}s obstacle or error happened. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a1be76f0a38f9fb7151214cb8f72a7160}\label{classClassGridMap2DHandler_a1be76f0a38f9fb7151214cb8f72a7160}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!check\_grid\_within\_map@{check\_grid\_within\_map}}
+\index{check\_grid\_within\_map@{check\_grid\_within\_map}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{check\_grid\_within\_map()}{check\_grid\_within\_map()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::check\+\_\+grid\+\_\+within\+\_\+map (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+check if a grid in inside of grid map 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & int \\
+\hline
+{\em y} & int \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true , if inside or on the edges. 
+
+false , if outside. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a1833578eba6e763d46b70d0886ef1f9d}\label{classClassGridMap2DHandler_a1833578eba6e763d46b70d0886ef1f9d}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!convert\_fine\_pose\_to\_grid@{convert\_fine\_pose\_to\_grid}}
+\index{convert\_fine\_pose\_to\_grid@{convert\_fine\_pose\_to\_grid}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{convert\_fine\_pose\_to\_grid()}{convert\_fine\_pose\_to\_grid()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::convert\+\_\+fine\+\_\+pose\+\_\+to\+\_\+grid (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structStructPoseReal}{Struct\+Pose\+Real}}}]{realpose,  }\item[{\mbox{\hyperlink{structStructPoseGrid}{Struct\+Pose\+Grid}} \&}]{gridpose }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em realpose} & \\
+\hline
+{\em gridpose} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a5435c83ef7f1db73eecfe29a28602897}\label{classClassGridMap2DHandler_a5435c83ef7f1db73eecfe29a28602897}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!convert\_fine\_pose\_to\_grid@{convert\_fine\_pose\_to\_grid}}
+\index{convert\_fine\_pose\_to\_grid@{convert\_fine\_pose\_to\_grid}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{convert\_fine\_pose\_to\_grid()}{convert\_fine\_pose\_to\_grid()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::convert\+\_\+fine\+\_\+pose\+\_\+to\+\_\+grid (\begin{DoxyParamCaption}\item[{double}]{fine\+\_\+x,  }\item[{double}]{fine\+\_\+y,  }\item[{int \&}]{grid\+\_\+x,  }\item[{int \&}]{grid\+\_\+y }\end{DoxyParamCaption})}
+
+
+
+convert pose (x,y,yaw) in meter \& radian to grid. 
+
+\begin{DoxyReturn}{Returns}
+true , if the values look okay. 
+
+false , if the values look unreasonably large/small. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a4e84054a394c351f985c04cdbd322659}\label{classClassGridMap2DHandler_a4e84054a394c351f985c04cdbd322659}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!convert\_grid\_pose\_to\_fine@{convert\_grid\_pose\_to\_fine}}
+\index{convert\_grid\_pose\_to\_fine@{convert\_grid\_pose\_to\_fine}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{convert\_grid\_pose\_to\_fine()}{convert\_grid\_pose\_to\_fine()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::convert\+\_\+grid\+\_\+pose\+\_\+to\+\_\+fine (\begin{DoxyParamCaption}\item[{int}]{grid\+\_\+x,  }\item[{int}]{grid\+\_\+y,  }\item[{double \&}]{fine\+\_\+x,  }\item[{double \&}]{fine\+\_\+y }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{classClassGridMap2DHandler_a66d69ceb07c8353d0ff3cabd751520ca}\label{classClassGridMap2DHandler_a66d69ceb07c8353d0ff3cabd751520ca}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!convert\_twoD\_to\_oneD@{convert\_twoD\_to\_oneD}}
+\index{convert\_twoD\_to\_oneD@{convert\_twoD\_to\_oneD}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{convert\_twoD\_to\_oneD()}{convert\_twoD\_to\_oneD()}}
+{\footnotesize\ttfamily int Class\+Grid\+Map2\+D\+Handler\+::convert\+\_\+two\+D\+\_\+to\+\_\+oneD (\begin{DoxyParamCaption}\item[{const int}]{x,  }\item[{const int}]{y }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+The grid is 2D in logic, but the grid\+\_\+map is saved in 1D vector. So need this function to convert 2D grid (x,y) into 1D index. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & \\
+\hline
+{\em y} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassGridMap2DHandler_af6611929695b065125e6e1137008132c}\label{classClassGridMap2DHandler_af6611929695b065125e6e1137008132c}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!get\_map\_size@{get\_map\_size}}
+\index{get\_map\_size@{get\_map\_size}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{get\_map\_size()}{get\_map\_size()}}
+{\footnotesize\ttfamily size\+\_\+t Class\+Grid\+Map2\+D\+Handler\+::get\+\_\+map\+\_\+size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{classClassGridMap2DHandler_a8dbc298de0847fe1ee6c09ef19a2a0ae}\label{classClassGridMap2DHandler_a8dbc298de0847fe1ee6c09ef19a2a0ae}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!get\_resolution@{get\_resolution}}
+\index{get\_resolution@{get\_resolution}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{get\_resolution()}{get\_resolution()}}
+{\footnotesize\ttfamily double Class\+Grid\+Map2\+D\+Handler\+::get\+\_\+resolution (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{classClassGridMap2DHandler_a12ced5fe9056b51451514c038c7991f1}\label{classClassGridMap2DHandler_a12ced5fe9056b51451514c038c7991f1}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!set\_grid\_map\_ptr@{set\_grid\_map\_ptr}}
+\index{set\_grid\_map\_ptr@{set\_grid\_map\_ptr}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{set\_grid\_map\_ptr()}{set\_grid\_map\_ptr()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::set\+\_\+grid\+\_\+map\+\_\+ptr (\begin{DoxyParamCaption}\item[{vector$<$ int8\+\_\+t $>$ $\ast$}]{ptr\+\_\+ }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em ptr\+\_\+} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a00d23f6d2c7a3b62a4a49449ae679b27}\label{classClassGridMap2DHandler_a00d23f6d2c7a3b62a4a49449ae679b27}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!set\_grid\_meter\_ratio@{set\_grid\_meter\_ratio}}
+\index{set\_grid\_meter\_ratio@{set\_grid\_meter\_ratio}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{set\_grid\_meter\_ratio()}{set\_grid\_meter\_ratio()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::set\+\_\+grid\+\_\+meter\+\_\+ratio (\begin{DoxyParamCaption}\item[{double}]{xy }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em xy} & \\
+\hline
+{\em angle} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassGridMap2DHandler_af40857f65578b91050777a9e928796f0}\label{classClassGridMap2DHandler_af40857f65578b91050777a9e928796f0}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!set\_grid\_width\_height@{set\_grid\_width\_height}}
+\index{set\_grid\_width\_height@{set\_grid\_width\_height}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{set\_grid\_width\_height()}{set\_grid\_width\_height()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::set\+\_\+grid\+\_\+width\+\_\+height (\begin{DoxyParamCaption}\item[{int}]{width,  }\item[{int}]{height }\end{DoxyParamCaption})}
+
+
+
+Because the map is saved in 1D vector, its width and height need to saved. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em width} & \\
+\hline
+{\em height} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a3a0c4732ae50563aca52dffa08802d35}\label{classClassGridMap2DHandler_a3a0c4732ae50563aca52dffa08802d35}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!set\_planning\_obstacle\_threshold@{set\_planning\_obstacle\_threshold}}
+\index{set\_planning\_obstacle\_threshold@{set\_planning\_obstacle\_threshold}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{set\_planning\_obstacle\_threshold()}{set\_planning\_obstacle\_threshold()}}
+{\footnotesize\ttfamily bool Class\+Grid\+Map2\+D\+Handler\+::set\+\_\+planning\+\_\+obstacle\+\_\+threshold (\begin{DoxyParamCaption}\item[{int8\+\_\+t}]{thd }\end{DoxyParamCaption})}
+
+
+
+set the value of obstacle\+\_\+threshold for plan mode. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em thd} & the threshold you want. Range\+:(0,100). Higher = Stricter. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Field Documentation}
+\mbox{\Hypertarget{classClassGridMap2DHandler_a8608ab21daeb67bfbe8fe58ede6e51f7}\label{classClassGridMap2DHandler_a8608ab21daeb67bfbe8fe58ede6e51f7}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!enum\_collosion\_type\_@{enum\_collosion\_type\_}}
+\index{enum\_collosion\_type\_@{enum\_collosion\_type\_}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{enum\_collosion\_type\_}{enum\_collosion\_type\_}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classClassGridMap2DHandler_a3845b94c59e724e8b8aac0cb0422fe4c}{Class\+Grid\+Map2\+D\+Handler\+::\+Enum\+Collosion\+Check\+Type}} Class\+Grid\+Map2\+D\+Handler\+::enum\+\_\+collosion\+\_\+type\+\_\+}
+
+\mbox{\Hypertarget{classClassGridMap2DHandler_addb0a8cd98c1010929c8609e3da31321}\label{classClassGridMap2DHandler_addb0a8cd98c1010929c8609e3da31321}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!enum\_mode\_@{enum\_mode\_}}
+\index{enum\_mode\_@{enum\_mode\_}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{enum\_mode\_}{enum\_mode\_}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classClassGridMap2DHandler_a40a6d97ad68763dc8c85db33e91c299a}{Class\+Grid\+Map2\+D\+Handler\+::\+Enum\+Mode}} Class\+Grid\+Map2\+D\+Handler\+::enum\+\_\+mode\+\_\+}
+
+\mbox{\Hypertarget{classClassGridMap2DHandler_a19e1e1da52cb332d279eedc7d9ee5548}\label{classClassGridMap2DHandler_a19e1e1da52cb332d279eedc7d9ee5548}} 
+\index{ClassGridMap2DHandler@{ClassGridMap2DHandler}!m\_number\_of\_angle\_layers\_@{m\_number\_of\_angle\_layers\_}}
+\index{m\_number\_of\_angle\_layers\_@{m\_number\_of\_angle\_layers\_}!ClassGridMap2DHandler@{ClassGridMap2DHandler}}
+\doxysubsubsection{\texorpdfstring{m\_number\_of\_angle\_layers\_}{m\_number\_of\_angle\_layers\_}}
+{\footnotesize\ttfamily int Class\+Grid\+Map2\+D\+Handler\+::m\+\_\+number\+\_\+of\+\_\+angle\+\_\+layers\+\_\+}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/car\+\_\+pathplan/\mbox{\hyperlink{class__gridmap__2d__handler_8h}{class\+\_\+gridmap\+\_\+2d\+\_\+handler.\+h}}\end{DoxyCompactItemize}

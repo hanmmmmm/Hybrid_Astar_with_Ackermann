@@ -1,0 +1,102 @@
+\hypertarget{classClassHawaTimer}{}\doxysection{Class\+Hawa\+Timer Class Reference}
+\label{classClassHawaTimer}\index{ClassHawaTimer@{ClassHawaTimer}}
+
+
+{\ttfamily \#include $<$hawa\+\_\+timer\+\_\+class.\+h$>$}
+
+
+
+Collaboration diagram for Class\+Hawa\+Timer\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=214pt]{classClassHawaTimer__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classClassHawaTimer_a4c645db6e8f43ae2b5bad0cc8f51ce1f}{Class\+Hawa\+Timer}} ()
+\item 
+\mbox{\hyperlink{classClassHawaTimer_a3df11556cb3e89114a98c2b0b3d38865}{$\sim$\+Class\+Hawa\+Timer}} ()
+\item 
+void \mbox{\hyperlink{classClassHawaTimer_a9b514f4f71edb43861f31f0d5b17f041}{start\+Now}} ()
+\begin{DoxyCompactList}\small\item\em Call this when you want to Start the timing. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}{end\+Timing}} ()
+\begin{DoxyCompactList}\small\item\em Call this when you want to End the timing. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classClassHawaTimer_a73f4cbae8ce004f8fa1492c463878b81}{get\+Duration}} ()
+\begin{DoxyCompactList}\small\item\em Call this when you want to get the value of duration. Note, \mbox{\hyperlink{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}{end\+Timing()}} should be called before this function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classClassHawaTimer_a024cf157940cea9d127b8b021e965bb1}{get\+Duration\+Non\+Stop}} ()
+\begin{DoxyCompactList}\small\item\em Call this when you want to get the value of duration. This function does not depend on \mbox{\hyperlink{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}{end\+Timing()}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This is a class that would be used to timing a part of the code. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classClassHawaTimer_a4c645db6e8f43ae2b5bad0cc8f51ce1f}\label{classClassHawaTimer_a4c645db6e8f43ae2b5bad0cc8f51ce1f}} 
+\index{ClassHawaTimer@{ClassHawaTimer}!ClassHawaTimer@{ClassHawaTimer}}
+\index{ClassHawaTimer@{ClassHawaTimer}!ClassHawaTimer@{ClassHawaTimer}}
+\doxysubsubsection{\texorpdfstring{ClassHawaTimer()}{ClassHawaTimer()}}
+{\footnotesize\ttfamily Class\+Hawa\+Timer\+::\+Class\+Hawa\+Timer (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classClassHawaTimer_a3df11556cb3e89114a98c2b0b3d38865}\label{classClassHawaTimer_a3df11556cb3e89114a98c2b0b3d38865}} 
+\index{ClassHawaTimer@{ClassHawaTimer}!````~ClassHawaTimer@{$\sim$ClassHawaTimer}}
+\index{````~ClassHawaTimer@{$\sim$ClassHawaTimer}!ClassHawaTimer@{ClassHawaTimer}}
+\doxysubsubsection{\texorpdfstring{$\sim$ClassHawaTimer()}{~ClassHawaTimer()}}
+{\footnotesize\ttfamily Class\+Hawa\+Timer\+::$\sim$\+Class\+Hawa\+Timer (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}\label{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}} 
+\index{ClassHawaTimer@{ClassHawaTimer}!endTiming@{endTiming}}
+\index{endTiming@{endTiming}!ClassHawaTimer@{ClassHawaTimer}}
+\doxysubsubsection{\texorpdfstring{endTiming()}{endTiming()}}
+{\footnotesize\ttfamily void Class\+Hawa\+Timer\+::end\+Timing (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this when you want to End the timing. 
+
+\mbox{\Hypertarget{classClassHawaTimer_a73f4cbae8ce004f8fa1492c463878b81}\label{classClassHawaTimer_a73f4cbae8ce004f8fa1492c463878b81}} 
+\index{ClassHawaTimer@{ClassHawaTimer}!getDuration@{getDuration}}
+\index{getDuration@{getDuration}!ClassHawaTimer@{ClassHawaTimer}}
+\doxysubsubsection{\texorpdfstring{getDuration()}{getDuration()}}
+{\footnotesize\ttfamily double Class\+Hawa\+Timer\+::get\+Duration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this when you want to get the value of duration. Note, \mbox{\hyperlink{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}{end\+Timing()}} should be called before this function. 
+
+\begin{DoxyReturn}{Returns}
+the duration between the moments of executing \mbox{\hyperlink{classClassHawaTimer_a9b514f4f71edb43861f31f0d5b17f041}{start\+Now()}} and \mbox{\hyperlink{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}{end\+Timing()}}. Double type. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassHawaTimer_a024cf157940cea9d127b8b021e965bb1}\label{classClassHawaTimer_a024cf157940cea9d127b8b021e965bb1}} 
+\index{ClassHawaTimer@{ClassHawaTimer}!getDurationNonStop@{getDurationNonStop}}
+\index{getDurationNonStop@{getDurationNonStop}!ClassHawaTimer@{ClassHawaTimer}}
+\doxysubsubsection{\texorpdfstring{getDurationNonStop()}{getDurationNonStop()}}
+{\footnotesize\ttfamily double Class\+Hawa\+Timer\+::get\+Duration\+Non\+Stop (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this when you want to get the value of duration. This function does not depend on \mbox{\hyperlink{classClassHawaTimer_afe64eaa6b9da9f67d29f8b21874e8294}{end\+Timing()}}. 
+
+\begin{DoxyReturn}{Returns}
+the duration since the moments of executing \mbox{\hyperlink{classClassHawaTimer_a9b514f4f71edb43861f31f0d5b17f041}{start\+Now()}} until now. Double type. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassHawaTimer_a9b514f4f71edb43861f31f0d5b17f041}\label{classClassHawaTimer_a9b514f4f71edb43861f31f0d5b17f041}} 
+\index{ClassHawaTimer@{ClassHawaTimer}!startNow@{startNow}}
+\index{startNow@{startNow}!ClassHawaTimer@{ClassHawaTimer}}
+\doxysubsubsection{\texorpdfstring{startNow()}{startNow()}}
+{\footnotesize\ttfamily void Class\+Hawa\+Timer\+::start\+Now (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this when you want to Start the timing. 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/utils/\mbox{\hyperlink{hawa__timer__class_8h}{hawa\+\_\+timer\+\_\+class.\+h}}\end{DoxyCompactItemize}

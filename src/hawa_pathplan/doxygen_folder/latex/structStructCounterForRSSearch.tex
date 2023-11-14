@@ -1,0 +1,90 @@
+\hypertarget{structStructCounterForRSSearch}{}\doxysection{Struct\+Counter\+For\+R\+S\+Search Struct Reference}
+\label{structStructCounterForRSSearch}\index{StructCounterForRSSearch@{StructCounterForRSSearch}}
+
+
+This struct handles the logic for triggering the RS curve searching, during the the hybrid astar exploration. The value of interval would be modified to the actual desired value. Briefly, everytime when counter is an interger multiplication of the interval, then the hybrid astar should try to see if any RS curve connecting to the goal pose. ~\newline
+  
+
+
+
+
+{\ttfamily \#include $<$hybrid\+\_\+astar\+\_\+tools.\+h$>$}
+
+
+
+Collaboration diagram for Struct\+Counter\+For\+R\+S\+Search\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=224pt]{structStructCounterForRSSearch__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{structStructCounterForRSSearch_a776dcd856ac7a2ddf44094733aa45632}{reset\+Vals}} ()
+\item 
+void \mbox{\hyperlink{structStructCounterForRSSearch_a850e0cc4b4ff976ea28859a1c799e812}{set\+Interval}} (const int expected\+\_\+interval)
+\item 
+bool \mbox{\hyperlink{structStructCounterForRSSearch_a8448ce35962bca5ec9fe8d89e3e9cca0}{check\+\_\+match}} ()
+\item 
+void \mbox{\hyperlink{structStructCounterForRSSearch_a773c4b254f21b8d1c30c8c11a5beb95a}{increment\+\_\+counter}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{structStructCounterForRSSearch_a9d15927053330b05512a47039c859861}{counter}} = 0
+\item 
+int \mbox{\hyperlink{structStructCounterForRSSearch_a3900c088d5dfb5abc4d4c2258b755351}{interval}} = 1
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This struct handles the logic for triggering the RS curve searching, during the the hybrid astar exploration. The value of interval would be modified to the actual desired value. Briefly, everytime when counter is an interger multiplication of the interval, then the hybrid astar should try to see if any RS curve connecting to the goal pose. ~\newline
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structStructCounterForRSSearch_a8448ce35962bca5ec9fe8d89e3e9cca0}\label{structStructCounterForRSSearch_a8448ce35962bca5ec9fe8d89e3e9cca0}} 
+\index{StructCounterForRSSearch@{StructCounterForRSSearch}!check\_match@{check\_match}}
+\index{check\_match@{check\_match}!StructCounterForRSSearch@{StructCounterForRSSearch}}
+\doxysubsubsection{\texorpdfstring{check\_match()}{check\_match()}}
+{\footnotesize\ttfamily bool Struct\+Counter\+For\+R\+S\+Search\+::check\+\_\+match (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{structStructCounterForRSSearch_a773c4b254f21b8d1c30c8c11a5beb95a}\label{structStructCounterForRSSearch_a773c4b254f21b8d1c30c8c11a5beb95a}} 
+\index{StructCounterForRSSearch@{StructCounterForRSSearch}!increment\_counter@{increment\_counter}}
+\index{increment\_counter@{increment\_counter}!StructCounterForRSSearch@{StructCounterForRSSearch}}
+\doxysubsubsection{\texorpdfstring{increment\_counter()}{increment\_counter()}}
+{\footnotesize\ttfamily void Struct\+Counter\+For\+R\+S\+Search\+::increment\+\_\+counter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{structStructCounterForRSSearch_a776dcd856ac7a2ddf44094733aa45632}\label{structStructCounterForRSSearch_a776dcd856ac7a2ddf44094733aa45632}} 
+\index{StructCounterForRSSearch@{StructCounterForRSSearch}!resetVals@{resetVals}}
+\index{resetVals@{resetVals}!StructCounterForRSSearch@{StructCounterForRSSearch}}
+\doxysubsubsection{\texorpdfstring{resetVals()}{resetVals()}}
+{\footnotesize\ttfamily void Struct\+Counter\+For\+R\+S\+Search\+::reset\+Vals (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{structStructCounterForRSSearch_a850e0cc4b4ff976ea28859a1c799e812}\label{structStructCounterForRSSearch_a850e0cc4b4ff976ea28859a1c799e812}} 
+\index{StructCounterForRSSearch@{StructCounterForRSSearch}!setInterval@{setInterval}}
+\index{setInterval@{setInterval}!StructCounterForRSSearch@{StructCounterForRSSearch}}
+\doxysubsubsection{\texorpdfstring{setInterval()}{setInterval()}}
+{\footnotesize\ttfamily void Struct\+Counter\+For\+R\+S\+Search\+::set\+Interval (\begin{DoxyParamCaption}\item[{const int}]{expected\+\_\+interval }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\Hypertarget{structStructCounterForRSSearch_a9d15927053330b05512a47039c859861}\label{structStructCounterForRSSearch_a9d15927053330b05512a47039c859861}} 
+\index{StructCounterForRSSearch@{StructCounterForRSSearch}!counter@{counter}}
+\index{counter@{counter}!StructCounterForRSSearch@{StructCounterForRSSearch}}
+\doxysubsubsection{\texorpdfstring{counter}{counter}}
+{\footnotesize\ttfamily int Struct\+Counter\+For\+R\+S\+Search\+::counter = 0}
+
+\mbox{\Hypertarget{structStructCounterForRSSearch_a3900c088d5dfb5abc4d4c2258b755351}\label{structStructCounterForRSSearch_a3900c088d5dfb5abc4d4c2258b755351}} 
+\index{StructCounterForRSSearch@{StructCounterForRSSearch}!interval@{interval}}
+\index{interval@{interval}!StructCounterForRSSearch@{StructCounterForRSSearch}}
+\doxysubsubsection{\texorpdfstring{interval}{interval}}
+{\footnotesize\ttfamily int Struct\+Counter\+For\+R\+S\+Search\+::interval = 1}
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/hybrid\+\_\+a\+\_\+star\+\_\+module/\mbox{\hyperlink{hybrid__astar__tools_8h}{hybrid\+\_\+astar\+\_\+tools.\+h}}\end{DoxyCompactItemize}

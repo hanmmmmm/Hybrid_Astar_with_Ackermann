@@ -51,6 +51,10 @@ class ClassAckermannMsgKeyboard:
         self.FLAG_publish_sim_cmd = True
         self.end_process = False
 
+        print()
+        print("Ending keyboard control by pressing SpaceBar on keyboard. Ctrl+C cannot stop this process.")
+        print()
+
         while not rospy.is_shutdown():
             key = getKey(settings, key_timeout)
             valid = self.process_key_inputs(key=key)
@@ -73,12 +77,15 @@ class ClassAckermannMsgKeyboard:
         
         key = key.lower().strip()
 
+        # print(f">{key}<")
+        # print(type(key))
+
         if "k" in key:
             self.reset_akm_msg()
             return True
         
-        if "`" in key:
-            print("ending this process by pressing key.")
+        if "" == key:
+            print("Ending keyboard control.")
             self.end_process = True
             return True
         
@@ -123,7 +130,7 @@ class ClassAckermannMsgKeyboard:
             self.msg.drive.steering_angle = steer_right
             return True
         
-        print(key)
+        # print(key)
 
 
     def reset_akm_msg(self):

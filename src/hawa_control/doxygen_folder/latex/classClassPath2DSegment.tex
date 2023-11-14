@@ -1,0 +1,214 @@
+\hypertarget{classClassPath2DSegment}{}\doxysection{Class\+Path2\+D\+Segment Class Reference}
+\label{classClassPath2DSegment}\index{ClassPath2DSegment@{ClassPath2DSegment}}
+
+
+This class will be used to store a segment from the path. Segments are divided at where the robot is going to switch between forward motion and backward motion. The major components are the two containers holding the waypoints and a variable holding the direction of this segment.  
+
+
+
+
+{\ttfamily \#include $<$class\+\_\+elemental\+\_\+path2d\+\_\+segment.\+h$>$}
+
+
+
+Collaboration diagram for Class\+Path2\+D\+Segment\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=229pt]{classClassPath2DSegment__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9b}{Enum\+Direction}} \{ \mbox{\hyperlink{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9ba3deeb586a93d77b0faf21e7b211fb92d}{forawrd}}, 
+\mbox{\hyperlink{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9ba3c6ba417e3862a00495a1f11a7e69205}{reverse}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classClassPath2DSegment_aa7f4ee9a95c5f8807df0257318d89111}{Class\+Path2\+D\+Segment}} ()
+\item 
+\mbox{\hyperlink{classClassPath2DSegment_aec0d1d8f923fb205f6cb34c0862e98f5}{$\sim$\+Class\+Path2\+D\+Segment}} ()
+\item 
+void \mbox{\hyperlink{classClassPath2DSegment_ad80c89dcaebe34c233f3aaeba9d03f64}{pushback\+For\+Original}} (\mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} pose)
+\begin{DoxyCompactList}\small\item\em Add a pose into the member variable of original\+\_\+path. Add at the end. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassPath2DSegment_af6d424c33db32057b728c5d0e32c7022}{pushback\+For\+Extended}} (\mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} pose)
+\begin{DoxyCompactList}\small\item\em Add a pose into the member variable of extended\+\_\+path. Add at the end. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassPath2DSegment_a34c0f7f8caf01d94adc0cb4dab6a1b32}{set\+Direction\+Forward}} ()
+\begin{DoxyCompactList}\small\item\em Call this to set the direction of this segment to be forawrd. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassPath2DSegment_a73cbf54edc96ab940faffbc9556944d8}{set\+Direction\+Backward}} ()
+\begin{DoxyCompactList}\small\item\em Call this to set the direction of this segment to be reversing. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassPath2DSegment_a4213d26d76ff37d64352b8fc29aa11f3}{clear}} ()
+\begin{DoxyCompactList}\small\item\em Call this when you want to empty the values in this class. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classClassPath2DSegment_af42741669e8c7ed5a646aa4f030c40a5}{is\+Forward}} ()
+\begin{DoxyCompactList}\small\item\em Call this to know if this segment is going forward to going reverse. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassPath2DSegment_a68bf37e77d4e4e877c8930f6cf5e65af}{extend\+The\+Path}} ()
+\begin{DoxyCompactList}\small\item\em Call this function after all points are added in the \textquotesingle{}extend path\textquotesingle{}. This function will put several more points at the end. These points are in the same direction of the last two points in the \textquotesingle{}extend path\textquotesingle{}. These extra points will be needed by the pure pursuit algo to find the target point, when the robot is approaching to the end the segment. \end{DoxyCompactList}\item 
+nav\+\_\+msgs\+::\+Path \mbox{\hyperlink{classClassPath2DSegment_a6cff3b5df2915e0dd8704446c181dd4b}{to\+Ros\+Path}} ()
+\begin{DoxyCompactList}\small\item\em Convert the path from custom type to R\+OS standard navmsgs path. Becasue at this moment (2023Nov) this ros path is only used for visulization, I didn\textquotesingle{}t put the actual yaw for the waypoints in this path. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::deque$<$ \mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} $>$ \mbox{\hyperlink{classClassPath2DSegment_ada00b1ebd89bdc290b04139da34bd0f9}{m\+\_\+path\+\_\+original\+\_\+}}
+\item 
+std\+::deque$<$ \mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} $>$ \mbox{\hyperlink{classClassPath2DSegment_af5430e753b47428f7cb2346e3cf285ed}{m\+\_\+path\+\_\+extended\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This class will be used to store a segment from the path. Segments are divided at where the robot is going to switch between forward motion and backward motion. The major components are the two containers holding the waypoints and a variable holding the direction of this segment. 
+
+\doxysubsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9b}\label{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9b}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!EnumDirection@{EnumDirection}}
+\index{EnumDirection@{EnumDirection}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{EnumDirection}{EnumDirection}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9b}{Class\+Path2\+D\+Segment\+::\+Enum\+Direction}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{forawrd@{forawrd}!ClassPath2DSegment@{ClassPath2DSegment}}\index{ClassPath2DSegment@{ClassPath2DSegment}!forawrd@{forawrd}}}\mbox{\Hypertarget{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9ba3deeb586a93d77b0faf21e7b211fb92d}\label{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9ba3deeb586a93d77b0faf21e7b211fb92d}} 
+forawrd&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{reverse@{reverse}!ClassPath2DSegment@{ClassPath2DSegment}}\index{ClassPath2DSegment@{ClassPath2DSegment}!reverse@{reverse}}}\mbox{\Hypertarget{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9ba3c6ba417e3862a00495a1f11a7e69205}\label{classClassPath2DSegment_a7e33e57ef6d379d529b59fb1cf1eee9ba3c6ba417e3862a00495a1f11a7e69205}} 
+reverse&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classClassPath2DSegment_aa7f4ee9a95c5f8807df0257318d89111}\label{classClassPath2DSegment_aa7f4ee9a95c5f8807df0257318d89111}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!ClassPath2DSegment@{ClassPath2DSegment}}
+\index{ClassPath2DSegment@{ClassPath2DSegment}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{ClassPath2DSegment()}{ClassPath2DSegment()}}
+{\footnotesize\ttfamily Class\+Path2\+D\+Segment\+::\+Class\+Path2\+D\+Segment (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classClassPath2DSegment_aec0d1d8f923fb205f6cb34c0862e98f5}\label{classClassPath2DSegment_aec0d1d8f923fb205f6cb34c0862e98f5}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!````~ClassPath2DSegment@{$\sim$ClassPath2DSegment}}
+\index{````~ClassPath2DSegment@{$\sim$ClassPath2DSegment}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{$\sim$ClassPath2DSegment()}{~ClassPath2DSegment()}}
+{\footnotesize\ttfamily Class\+Path2\+D\+Segment\+::$\sim$\+Class\+Path2\+D\+Segment (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classClassPath2DSegment_a4213d26d76ff37d64352b8fc29aa11f3}\label{classClassPath2DSegment_a4213d26d76ff37d64352b8fc29aa11f3}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!clear@{clear}}
+\index{clear@{clear}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{clear()}{clear()}}
+{\footnotesize\ttfamily void Class\+Path2\+D\+Segment\+::clear (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this when you want to empty the values in this class. 
+
+\mbox{\Hypertarget{classClassPath2DSegment_a68bf37e77d4e4e877c8930f6cf5e65af}\label{classClassPath2DSegment_a68bf37e77d4e4e877c8930f6cf5e65af}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!extendThePath@{extendThePath}}
+\index{extendThePath@{extendThePath}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{extendThePath()}{extendThePath()}}
+{\footnotesize\ttfamily void Class\+Path2\+D\+Segment\+::extend\+The\+Path (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this function after all points are added in the \textquotesingle{}extend path\textquotesingle{}. This function will put several more points at the end. These points are in the same direction of the last two points in the \textquotesingle{}extend path\textquotesingle{}. These extra points will be needed by the pure pursuit algo to find the target point, when the robot is approaching to the end the segment. 
+
+\mbox{\Hypertarget{classClassPath2DSegment_af42741669e8c7ed5a646aa4f030c40a5}\label{classClassPath2DSegment_af42741669e8c7ed5a646aa4f030c40a5}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!isForward@{isForward}}
+\index{isForward@{isForward}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{isForward()}{isForward()}}
+{\footnotesize\ttfamily bool Class\+Path2\+D\+Segment\+::is\+Forward (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this to know if this segment is going forward to going reverse. 
+
+\begin{DoxyReturn}{Returns}
+True means forward. False means reverse. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassPath2DSegment_af6d424c33db32057b728c5d0e32c7022}\label{classClassPath2DSegment_af6d424c33db32057b728c5d0e32c7022}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!pushbackForExtended@{pushbackForExtended}}
+\index{pushbackForExtended@{pushbackForExtended}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{pushbackForExtended()}{pushbackForExtended()}}
+{\footnotesize\ttfamily void Class\+Path2\+D\+Segment\+::pushback\+For\+Extended (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}}}]{pose }\end{DoxyParamCaption})}
+
+
+
+Add a pose into the member variable of extended\+\_\+path. Add at the end. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pose} & The pose to be added. Type is a custom type\+: \mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classClassPath2DSegment_ad80c89dcaebe34c233f3aaeba9d03f64}\label{classClassPath2DSegment_ad80c89dcaebe34c233f3aaeba9d03f64}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!pushbackForOriginal@{pushbackForOriginal}}
+\index{pushbackForOriginal@{pushbackForOriginal}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{pushbackForOriginal()}{pushbackForOriginal()}}
+{\footnotesize\ttfamily void Class\+Path2\+D\+Segment\+::pushback\+For\+Original (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}}}]{pose }\end{DoxyParamCaption})}
+
+
+
+Add a pose into the member variable of original\+\_\+path. Add at the end. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pose} & The pose to be added. Type is a custom type\+: \mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classClassPath2DSegment_a73cbf54edc96ab940faffbc9556944d8}\label{classClassPath2DSegment_a73cbf54edc96ab940faffbc9556944d8}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!setDirectionBackward@{setDirectionBackward}}
+\index{setDirectionBackward@{setDirectionBackward}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{setDirectionBackward()}{setDirectionBackward()}}
+{\footnotesize\ttfamily void Class\+Path2\+D\+Segment\+::set\+Direction\+Backward (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this to set the direction of this segment to be reversing. 
+
+\mbox{\Hypertarget{classClassPath2DSegment_a34c0f7f8caf01d94adc0cb4dab6a1b32}\label{classClassPath2DSegment_a34c0f7f8caf01d94adc0cb4dab6a1b32}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!setDirectionForward@{setDirectionForward}}
+\index{setDirectionForward@{setDirectionForward}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{setDirectionForward()}{setDirectionForward()}}
+{\footnotesize\ttfamily void Class\+Path2\+D\+Segment\+::set\+Direction\+Forward (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this to set the direction of this segment to be forawrd. 
+
+\mbox{\Hypertarget{classClassPath2DSegment_a6cff3b5df2915e0dd8704446c181dd4b}\label{classClassPath2DSegment_a6cff3b5df2915e0dd8704446c181dd4b}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!toRosPath@{toRosPath}}
+\index{toRosPath@{toRosPath}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{toRosPath()}{toRosPath()}}
+{\footnotesize\ttfamily nav\+\_\+msgs\+::\+Path Class\+Path2\+D\+Segment\+::to\+Ros\+Path (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Convert the path from custom type to R\+OS standard navmsgs path. Becasue at this moment (2023Nov) this ros path is only used for visulization, I didn\textquotesingle{}t put the actual yaw for the waypoints in this path. 
+
+\begin{DoxyReturn}{Returns}
+the converted path. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classClassPath2DSegment_af5430e753b47428f7cb2346e3cf285ed}\label{classClassPath2DSegment_af5430e753b47428f7cb2346e3cf285ed}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!m\_path\_extended\_@{m\_path\_extended\_}}
+\index{m\_path\_extended\_@{m\_path\_extended\_}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{m\_path\_extended\_}{m\_path\_extended\_}}
+{\footnotesize\ttfamily std\+::deque$<$ \mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} $>$ Class\+Path2\+D\+Segment\+::m\+\_\+path\+\_\+extended\+\_\+}
+
+\mbox{\Hypertarget{classClassPath2DSegment_ada00b1ebd89bdc290b04139da34bd0f9}\label{classClassPath2DSegment_ada00b1ebd89bdc290b04139da34bd0f9}} 
+\index{ClassPath2DSegment@{ClassPath2DSegment}!m\_path\_original\_@{m\_path\_original\_}}
+\index{m\_path\_original\_@{m\_path\_original\_}!ClassPath2DSegment@{ClassPath2DSegment}}
+\doxysubsubsection{\texorpdfstring{m\_path\_original\_}{m\_path\_original\_}}
+{\footnotesize\ttfamily std\+::deque$<$ \mbox{\hyperlink{classClassPose2D}{Class\+Pose2D}} $>$ Class\+Path2\+D\+Segment\+::m\+\_\+path\+\_\+original\+\_\+}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/common/\mbox{\hyperlink{class__elemental__path2d__segment_8h}{class\+\_\+elemental\+\_\+path2d\+\_\+segment.\+h}}\end{DoxyCompactItemize}

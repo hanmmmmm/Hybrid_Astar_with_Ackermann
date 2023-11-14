@@ -6,7 +6,7 @@
     "searching_turning_radius_meter": 0.5,
     "searching_time_limt_ms": 3000,
     "gridmap_obstacle_threshold": {
-        "planning": 70,
+        "planning": 60,
         "validate": 50
     },
     "yaw_angle_grid_bin_size_rad": 0.1745329,

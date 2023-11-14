@@ -1,0 +1,69 @@
+\hypertarget{hawa__conversion__tools_8h}{}\doxysection{include/utils/hawa\+\_\+conversion\+\_\+tools.h File Reference}
+\label{hawa__conversion__tools_8h}\index{include/utils/hawa\_conversion\_tools.h@{include/utils/hawa\_conversion\_tools.h}}
+{\ttfamily \#include \char`\"{}tf2/\+Linear\+Math/\+Quaternion.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}geometry\+\_\+msgs/\+Pose.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}geometry\+\_\+msgs/\+Pose\+Stamped.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}geometry\+\_\+msgs/\+Quaternion.\+h\char`\"{}}\newline
+Include dependency graph for hawa\+\_\+conversion\+\_\+tools.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{hawa__conversion__tools_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{hawa__conversion__tools_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+double \mbox{\hyperlink{hawa__conversion__tools_8h_a35a14a1334a7ddfb305064e57600ad0f}{mod2pi}} (double angle)
+\item 
+tf2\+::\+Quaternion \mbox{\hyperlink{hawa__conversion__tools_8h_ac18665204759afcd5fc77f484c9ac13b}{twod\+Yaw\+To\+Tf2qua}} (double yaw\+\_\+rad)
+\item 
+geometry\+\_\+msgs\+::\+Quaternion \mbox{\hyperlink{hawa__conversion__tools_8h_aabc305e5e27b9a2adfb5dbd8f6ce78b9}{tf2qua\+To\+Geo\+Qua}} (tf2\+::\+Quaternion tf2quaternion)
+\item 
+double \mbox{\hyperlink{hawa__conversion__tools_8h_a46ae3eb9eba6911e7868aabfaefd7635}{tf\+Stamped\+Transform\+To\+Yaw}} (const tf\+::\+Stamped\+Transform $\ast$tftrans)
+\item 
+double \mbox{\hyperlink{hawa__conversion__tools_8h_abac6fcfeb63fac39d2489be0d248265e}{geo\+Qua\+To\+Yaw}} (const geometry\+\_\+msgs\+::\+Quaternion $\ast$geoqua)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{hawa__conversion__tools_8h_abac6fcfeb63fac39d2489be0d248265e}\label{hawa__conversion__tools_8h_abac6fcfeb63fac39d2489be0d248265e}} 
+\index{hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}!geoQuaToYaw@{geoQuaToYaw}}
+\index{geoQuaToYaw@{geoQuaToYaw}!hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}}
+\doxysubsubsection{\texorpdfstring{geoQuaToYaw()}{geoQuaToYaw()}}
+{\footnotesize\ttfamily double geo\+Qua\+To\+Yaw (\begin{DoxyParamCaption}\item[{const geometry\+\_\+msgs\+::\+Quaternion $\ast$}]{geoqua }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{hawa__conversion__tools_8h_a35a14a1334a7ddfb305064e57600ad0f}\label{hawa__conversion__tools_8h_a35a14a1334a7ddfb305064e57600ad0f}} 
+\index{hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}!mod2pi@{mod2pi}}
+\index{mod2pi@{mod2pi}!hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}}
+\doxysubsubsection{\texorpdfstring{mod2pi()}{mod2pi()}}
+{\footnotesize\ttfamily double mod2pi (\begin{DoxyParamCaption}\item[{double}]{angle }\end{DoxyParamCaption})}
+
+
+\begin{DoxyItemize}
+\item 
+\end{DoxyItemize}\mbox{\Hypertarget{hawa__conversion__tools_8h_aabc305e5e27b9a2adfb5dbd8f6ce78b9}\label{hawa__conversion__tools_8h_aabc305e5e27b9a2adfb5dbd8f6ce78b9}} 
+\index{hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}!tf2quaToGeoQua@{tf2quaToGeoQua}}
+\index{tf2quaToGeoQua@{tf2quaToGeoQua}!hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}}
+\doxysubsubsection{\texorpdfstring{tf2quaToGeoQua()}{tf2quaToGeoQua()}}
+{\footnotesize\ttfamily geometry\+\_\+msgs\+::\+Quaternion tf2qua\+To\+Geo\+Qua (\begin{DoxyParamCaption}\item[{tf2\+::\+Quaternion}]{tf2quaternion }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{hawa__conversion__tools_8h_a46ae3eb9eba6911e7868aabfaefd7635}\label{hawa__conversion__tools_8h_a46ae3eb9eba6911e7868aabfaefd7635}} 
+\index{hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}!tfStampedTransformToYaw@{tfStampedTransformToYaw}}
+\index{tfStampedTransformToYaw@{tfStampedTransformToYaw}!hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}}
+\doxysubsubsection{\texorpdfstring{tfStampedTransformToYaw()}{tfStampedTransformToYaw()}}
+{\footnotesize\ttfamily double tf\+Stamped\+Transform\+To\+Yaw (\begin{DoxyParamCaption}\item[{const tf\+::\+Stamped\+Transform $\ast$}]{tftrans }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{hawa__conversion__tools_8h_ac18665204759afcd5fc77f484c9ac13b}\label{hawa__conversion__tools_8h_ac18665204759afcd5fc77f484c9ac13b}} 
+\index{hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}!twodYawToTf2qua@{twodYawToTf2qua}}
+\index{twodYawToTf2qua@{twodYawToTf2qua}!hawa\_conversion\_tools.h@{hawa\_conversion\_tools.h}}
+\doxysubsubsection{\texorpdfstring{twodYawToTf2qua()}{twodYawToTf2qua()}}
+{\footnotesize\ttfamily tf2\+::\+Quaternion twod\+Yaw\+To\+Tf2qua (\begin{DoxyParamCaption}\item[{double}]{yaw\+\_\+rad }\end{DoxyParamCaption})}
+

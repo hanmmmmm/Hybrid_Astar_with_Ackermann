@@ -4,9 +4,8 @@ project(hawa_control)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
+
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -14,16 +13,26 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
 )
 
+find_package(Boost REQUIRED COMPONENTS system)
+
+
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES hawa_pathplan
+#  CATKIN_DEPENDS roscpp rospy
+#  DEPENDS system_lib
+)
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
   include
 )
 
-add_executable(purepurpuit_test_node 
-  src/test/node_test_purepersuit.cpp
+add_executable(purepursuit_node 
+  src/node_purepursuit.cpp
 )
 
-target_link_libraries( purepurpuit_test_node
+target_link_libraries( purepursuit_node
   ${catkin_LIBRARIES}
 )
 

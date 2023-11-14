@@ -12,21 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2
   roslib
-  hawa_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
 
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES hawa_pathplan
@@ -34,13 +24,6 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-include_directories(/usr/local/include)
-link_directories(/usr/local/lib)
-
-
-# SET(cppad_lib /usr/local/lib/libcppad_lib.so)
-
-# SET(ipopt /usr/include )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -62,11 +45,3 @@ target_link_libraries( path_plan_node
   ${catkin_LIBRARIES}
   # ${cppad_lib} ${colpack_libs} ipopt
 )
-
-# add_executable(path_plan_astar_test_node 
-#   src/astar_node_test.cpp
-# )
-
-# target_link_libraries( path_plan_astar_test_node
-#   ${catkin_LIBRARIES}
-# )

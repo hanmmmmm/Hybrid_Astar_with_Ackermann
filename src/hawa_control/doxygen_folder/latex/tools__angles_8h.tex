@@ -1,0 +1,174 @@
+\hypertarget{tools__angles_8h}{}\doxysection{include/common/tools\+\_\+angles.h File Reference}
+\label{tools__angles_8h}\index{include/common/tools\_angles.h@{include/common/tools\_angles.h}}
+{\ttfamily \#include $<$array$>$}\newline
+{\ttfamily \#include \char`\"{}tf/transform\+\_\+listener.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}tf2/\+Linear\+Math/\+Quaternion.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}geometry\+\_\+msgs/\+Quaternion.\+h\char`\"{}}\newline
+Include dependency graph for tools\+\_\+angles.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tools__angles_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tools__angles_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+double \mbox{\hyperlink{tools__angles_8h_a35a14a1334a7ddfb305064e57600ad0f}{mod2pi}} (double angle)
+\begin{DoxyCompactList}\small\item\em Make sure the angle value is between 0 and 2Pi. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{tools__angles_8h_abd7d8b07a38e40dd925498eeff06e06f}{compute\+Yaw\+Of2\+Points}} (double x1, double y1, double x2, double y2)
+\begin{DoxyCompactList}\small\item\em compute the yaw angle of the line formed by 2 points /p2 / / p1-\/-\/-\/-\/---$>$ x\+\_\+axis \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{tools__angles_8h_a113eb9ca3e5833b8592628274ba667af}{check\+If\+Point\+On\+Left\+Of\+Line}} (double ax, double ay, double bx, double by, double cx, double cy)
+\begin{DoxyCompactList}\small\item\em This function uses 3 points pa pb and pc. The main vector is from pa to pb. This function is checking if the point pc is on the left side of the main vector. pc (left) pa -\/-\/-\/-\/-\/---$>$ pb pc (right) \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{tools__angles_8h_a711926fad7e7dcdf63383ac4f6200cbb}{quaternion\+To\+Eular\+Yaw}} (const double q\+\_\+x, const double q\+\_\+y, const double q\+\_\+z, const double q\+\_\+w)
+\begin{DoxyCompactList}\small\item\em Find the yaw value in a pose that\textquotesingle{}s being represented as a quaternion. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{tools__angles_8h_a9451b2e61555d6e0b8b16910ef663287}{quaternion\+To\+Eular\+Yaw}} (const tf\+::\+Quaternion q\+\_\+in)
+\begin{DoxyCompactList}\small\item\em Find the yaw value in a pose that\textquotesingle{}s being represented as a ros tf quaternion. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{tools__angles_8h_a7433d6eaa044445fdc2472e5fb2e1e5f}{quaternion\+To\+Eular\+Yaw}} (const geometry\+\_\+msgs\+::\+Quaternion q\+\_\+in)
+\begin{DoxyCompactList}\small\item\em Find the yaw value in a pose that\textquotesingle{}s being represented as a ros geometry\+\_\+msgs quaternion. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{tools__angles_8h_a4e86167094ff877d4ee4ea6141dfd3a8}{calc\+Angle\+By\+Three\+Points}} (std\+::array$<$ double, 3 $>$ p1, std\+::array$<$ double, 3 $>$ p2, std\+::array$<$ double, 3 $>$ p3)
+\begin{DoxyCompactList}\small\item\em This function finds the angle between 3 points. It\textquotesingle{}s the angle covered by \# sign in the graph below. p3 /. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{tools__angles_8h_a4e86167094ff877d4ee4ea6141dfd3a8}\label{tools__angles_8h_a4e86167094ff877d4ee4ea6141dfd3a8}} 
+\index{tools\_angles.h@{tools\_angles.h}!calcAngleByThreePoints@{calcAngleByThreePoints}}
+\index{calcAngleByThreePoints@{calcAngleByThreePoints}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{calcAngleByThreePoints()}{calcAngleByThreePoints()}}
+{\footnotesize\ttfamily double calc\+Angle\+By\+Three\+Points (\begin{DoxyParamCaption}\item[{std\+::array$<$ double, 3 $>$}]{p1,  }\item[{std\+::array$<$ double, 3 $>$}]{p2,  }\item[{std\+::array$<$ double, 3 $>$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+This function finds the angle between 3 points. It\textquotesingle{}s the angle covered by \# sign in the graph below. p3 /. 
+
+\hypertarget{tools__angles_8h_autotoc_md0}{}\doxyparagraph{/}\label{tools__angles_8h_autotoc_md0}
+\hypertarget{tools__angles_8h_autotoc_md1}{}\doxysubsubsection{/}\label{tools__angles_8h_autotoc_md1}
+p1 -\/-\/-\/-\/-\/-\/-\/-\/---p2
+
+\begin{DoxyReturn}{Returns}
+the angle in radian. Range\+:\mbox{[}0, pi\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{tools__angles_8h_a113eb9ca3e5833b8592628274ba667af}\label{tools__angles_8h_a113eb9ca3e5833b8592628274ba667af}} 
+\index{tools\_angles.h@{tools\_angles.h}!checkIfPointOnLeftOfLine@{checkIfPointOnLeftOfLine}}
+\index{checkIfPointOnLeftOfLine@{checkIfPointOnLeftOfLine}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{checkIfPointOnLeftOfLine()}{checkIfPointOnLeftOfLine()}}
+{\footnotesize\ttfamily bool check\+If\+Point\+On\+Left\+Of\+Line (\begin{DoxyParamCaption}\item[{double}]{ax,  }\item[{double}]{ay,  }\item[{double}]{bx,  }\item[{double}]{by,  }\item[{double}]{cx,  }\item[{double}]{cy }\end{DoxyParamCaption})}
+
+
+
+This function uses 3 points pa pb and pc. The main vector is from pa to pb. This function is checking if the point pc is on the left side of the main vector. pc (left) pa -\/-\/-\/-\/-\/---$>$ pb pc (right) 
+
+\begin{DoxyReturn}{Returns}
+True if the third point is on the left side. False if on the right side. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{tools__angles_8h_abd7d8b07a38e40dd925498eeff06e06f}\label{tools__angles_8h_abd7d8b07a38e40dd925498eeff06e06f}} 
+\index{tools\_angles.h@{tools\_angles.h}!computeYawOf2Points@{computeYawOf2Points}}
+\index{computeYawOf2Points@{computeYawOf2Points}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{computeYawOf2Points()}{computeYawOf2Points()}}
+{\footnotesize\ttfamily double compute\+Yaw\+Of2\+Points (\begin{DoxyParamCaption}\item[{double}]{x1,  }\item[{double}]{y1,  }\item[{double}]{x2,  }\item[{double}]{y2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+compute the yaw angle of the line formed by 2 points /p2 / / p1-\/-\/-\/-\/---$>$ x\+\_\+axis 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x1} & \\
+\hline
+{\em y1} & \\
+\hline
+{\em x2} & \\
+\hline
+{\em y2} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The yaw value in unit of radian. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{tools__angles_8h_a35a14a1334a7ddfb305064e57600ad0f}\label{tools__angles_8h_a35a14a1334a7ddfb305064e57600ad0f}} 
+\index{tools\_angles.h@{tools\_angles.h}!mod2pi@{mod2pi}}
+\index{mod2pi@{mod2pi}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{mod2pi()}{mod2pi()}}
+{\footnotesize\ttfamily double mod2pi (\begin{DoxyParamCaption}\item[{double}]{angle }\end{DoxyParamCaption})}
+
+
+
+Make sure the angle value is between 0 and 2Pi. 
+
+This file is a collection of some tool functions used in the pure pursuit. 
+\begin{DoxyParams}{Parameters}
+{\em angle} & the value to be processed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Converted value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{tools__angles_8h_a711926fad7e7dcdf63383ac4f6200cbb}\label{tools__angles_8h_a711926fad7e7dcdf63383ac4f6200cbb}} 
+\index{tools\_angles.h@{tools\_angles.h}!quaternionToEularYaw@{quaternionToEularYaw}}
+\index{quaternionToEularYaw@{quaternionToEularYaw}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{quaternionToEularYaw()}{quaternionToEularYaw()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily double quaternion\+To\+Eular\+Yaw (\begin{DoxyParamCaption}\item[{const double}]{q\+\_\+x,  }\item[{const double}]{q\+\_\+y,  }\item[{const double}]{q\+\_\+z,  }\item[{const double}]{q\+\_\+w }\end{DoxyParamCaption})}
+
+
+
+Find the yaw value in a pose that\textquotesingle{}s being represented as a quaternion. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em q\+\_\+x} & the x value in the quaternion. \\
+\hline
+{\em q\+\_\+y} & the y value in the quaternion. \\
+\hline
+{\em q\+\_\+z} & the z value in the quaternion. \\
+\hline
+{\em q\+\_\+w} & the w value in the quaternion. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the yaw. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{tools__angles_8h_a7433d6eaa044445fdc2472e5fb2e1e5f}\label{tools__angles_8h_a7433d6eaa044445fdc2472e5fb2e1e5f}} 
+\index{tools\_angles.h@{tools\_angles.h}!quaternionToEularYaw@{quaternionToEularYaw}}
+\index{quaternionToEularYaw@{quaternionToEularYaw}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{quaternionToEularYaw()}{quaternionToEularYaw()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily double quaternion\+To\+Eular\+Yaw (\begin{DoxyParamCaption}\item[{const geometry\+\_\+msgs\+::\+Quaternion}]{q\+\_\+in }\end{DoxyParamCaption})}
+
+
+
+Find the yaw value in a pose that\textquotesingle{}s being represented as a ros geometry\+\_\+msgs quaternion. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em q\+\_\+in} & the quaternion. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the yaw. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{tools__angles_8h_a9451b2e61555d6e0b8b16910ef663287}\label{tools__angles_8h_a9451b2e61555d6e0b8b16910ef663287}} 
+\index{tools\_angles.h@{tools\_angles.h}!quaternionToEularYaw@{quaternionToEularYaw}}
+\index{quaternionToEularYaw@{quaternionToEularYaw}!tools\_angles.h@{tools\_angles.h}}
+\doxysubsubsection{\texorpdfstring{quaternionToEularYaw()}{quaternionToEularYaw()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily double quaternion\+To\+Eular\+Yaw (\begin{DoxyParamCaption}\item[{const tf\+::\+Quaternion}]{q\+\_\+in }\end{DoxyParamCaption})}
+
+
+
+Find the yaw value in a pose that\textquotesingle{}s being represented as a ros tf quaternion. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em q\+\_\+in} & the quaternion. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the yaw. 
+\end{DoxyReturn}

@@ -17,7 +17,7 @@
 #include "ackermann_msgs/AckermannDriveStamped.h"
 #include "nav_msgs/Odometry.h"
 
-#include "hawa_msgs/car_states.h"
+// #include "hawa_msgs/car_states.h"
 
 #include "visualization_msgs/Marker.h"
 #include "class_car_body_box_marker.h"
@@ -197,7 +197,7 @@ private:
     ackermann_msgs::AckermannDriveStamped akm_drive_msg_;
     double akm_drive_msg_stamp_system_;
     nav_msgs::Odometry odometry_msg_;
-    hawa_msgs::car_states states_msg_;
+    // hawa_msgs::car_states states_msg_;
 
     ClassCarBox2D car_box_;
 
@@ -230,7 +230,7 @@ ClassNodeAckermannSim::ClassNodeAckermannSim(const ros::NodeHandle nh_in_): nh_{
 
     akm_drive_suber_ = nh_.subscribe( akm_drive_subscribed_topic_name_, 1, &ClassNodeAckermannSim::akm_callback, this);
     odometry_puber_ = nh_.advertise<nav_msgs::Odometry>(odometry_published_topic_name_, 1, this);
-    states_puber_ = nh_.advertise<hawa_msgs::car_states>(states_published_topic_name_, 1, this);
+    // states_puber_ = nh_.advertise<hawa_msgs::car_states>(states_published_topic_name_, 1, this);
     car_body_line_puber_ = nh_.advertise<visualization_msgs::Marker>(car_body_line_published_topic_name_, 1, this);
 
     periodic_timer_ = nh_.createTimer( ros::Duration(main_loop_timer_interval_second_), &ClassNodeAckermannSim::main_update, this );
@@ -352,17 +352,17 @@ void ClassNodeAckermannSim::main_update( const ros::TimerEvent &event )
     
     odometry_puber_.publish(odometry_msg_);
 
-    states_msg_.header.stamp = ros::Time::now();
-    states_msg_.car_id = "ego";
-    states_msg_.body_frame_velocity.twist.linear.x = dyna_states_.linear_vb_mps_actual_;
-    states_msg_.body_frame_velocity.twist.angular.z = dyna_states_.angular_wb_radps_actual_;
-    states_msg_.body_frame_accel.accel.linear.x = linear_acc;
-    states_msg_.steer_radius = dyna_states_.steer_rad_actual_;
-    states_msg_.pose.pose.position.x = dyna_states_.x_meter_;
-    states_msg_.pose.pose.position.y = dyna_states_.y_meter_;
-    states_msg_.heading_yaw_radius = dyna_states_.yaw_rad_;
+    // states_msg_.header.stamp = ros::Time::now();
+    // states_msg_.car_id = "ego";
+    // states_msg_.body_frame_velocity.twist.linear.x = dyna_states_.linear_vb_mps_actual_;
+    // states_msg_.body_frame_velocity.twist.angular.z = dyna_states_.angular_wb_radps_actual_;
+    // states_msg_.body_frame_accel.accel.linear.x = linear_acc;
+    // states_msg_.steer_radius = dyna_states_.steer_rad_actual_;
+    // states_msg_.pose.pose.position.x = dyna_states_.x_meter_;
+    // states_msg_.pose.pose.position.y = dyna_states_.y_meter_;
+    // states_msg_.heading_yaw_radius = dyna_states_.yaw_rad_;
 
-    states_puber_.publish(states_msg_);
+    // states_puber_.publish(states_msg_);
 
 
 }

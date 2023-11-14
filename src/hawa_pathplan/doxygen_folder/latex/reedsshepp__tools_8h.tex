@@ -1,0 +1,84 @@
+\hypertarget{reedsshepp__tools_8h}{}\doxysection{include/hybrid\+\_\+a\+\_\+star\+\_\+module/reedsshepp\+\_\+tools.h File Reference}
+\label{reedsshepp__tools_8h}\index{include/hybrid\_a\_star\_module/reedsshepp\_tools.h@{include/hybrid\_a\_star\_module/reedsshepp\_tools.h}}
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}../utils/hawa\+\_\+conversion\+\_\+tools.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}hawa\+\_\+reeds\+\_\+shepp\+\_\+curves/reedshepp\+\_\+path.\+h\char`\"{}}\newline
+Include dependency graph for reedsshepp\+\_\+tools.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{reedsshepp__tools_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{reedsshepp__tools_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structStructReedsSheppFormulaResult}{Struct\+Reeds\+Shepp\+Formula\+Result}}
+\item 
+struct \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}}
+\item 
+struct \mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}}
+\item 
+struct \mbox{\hyperlink{structStructDubinsCurveCCCvalcollection}{Struct\+Dubins\+Curve\+C\+C\+Cvalcollection}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{reedsshepp__tools_8h_a65a2f60f8a33b437a33ee5a146911946}{convert\+Cartesian\+To\+Polar}} (const double x, const double y, double \&radius\+\_\+ro, double \&theta)
+\item 
+void \mbox{\hyperlink{reedsshepp__tools_8h_af4df98eed8b6fbe4ada1ba8fd8adaf45}{tau\+Omega}} (const double u, const double v, const double xi, const double eta, const double phi, double \&tau, double \&omega)
+\item 
+void \mbox{\hyperlink{reedsshepp__tools_8h_a80ce8107ee0ba30cb4b6c935b4d643a2}{sample\+On\+Left\+Curve}} (const double target\+\_\+angle\+\_\+change, double \&robot\+\_\+yaw, double \&robotx, double \&roboty, \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$ptr\+\_\+path\+\_\+result, \mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}} $\ast$r\+\_\+properties)
+\item 
+void \mbox{\hyperlink{reedsshepp__tools_8h_a1378a824e133b550b8649de3cee0a205}{sample\+On\+Right\+Curve}} (const double target\+\_\+angle\+\_\+change, double \&robot\+\_\+yaw, double \&robotx, double \&roboty, \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$ptr\+\_\+path\+\_\+result, \mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}} $\ast$r\+\_\+properties)
+\item 
+void \mbox{\hyperlink{reedsshepp__tools_8h_ac9d337dbeb5677ffd7e1d8a9db204765}{sample\+On\+Straight\+Line}} (const double target\+\_\+angle\+\_\+change, double robot\+\_\+yaw, double \&robotx, double \&roboty, \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$ptr\+\_\+path\+\_\+result, \mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}} $\ast$r\+\_\+properties)
+\item 
+void \mbox{\hyperlink{reedsshepp__tools_8h_a1cdbb843ab69efaf0c517ecd7fa047ef}{add\+\_\+sort\+\_\+path}} (\mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$ptr\+\_\+path, std\+::vector$<$ \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $>$ \&r\+\_\+path\+\_\+collection)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{reedsshepp__tools_8h_a1cdbb843ab69efaf0c517ecd7fa047ef}\label{reedsshepp__tools_8h_a1cdbb843ab69efaf0c517ecd7fa047ef}} 
+\index{reedsshepp\_tools.h@{reedsshepp\_tools.h}!add\_sort\_path@{add\_sort\_path}}
+\index{add\_sort\_path@{add\_sort\_path}!reedsshepp\_tools.h@{reedsshepp\_tools.h}}
+\doxysubsubsection{\texorpdfstring{add\_sort\_path()}{add\_sort\_path()}}
+{\footnotesize\ttfamily void add\+\_\+sort\+\_\+path (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$}]{ptr\+\_\+path,  }\item[{std\+::vector$<$ \mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $>$ \&}]{r\+\_\+path\+\_\+collection }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{reedsshepp__tools_8h_a65a2f60f8a33b437a33ee5a146911946}\label{reedsshepp__tools_8h_a65a2f60f8a33b437a33ee5a146911946}} 
+\index{reedsshepp\_tools.h@{reedsshepp\_tools.h}!convertCartesianToPolar@{convertCartesianToPolar}}
+\index{convertCartesianToPolar@{convertCartesianToPolar}!reedsshepp\_tools.h@{reedsshepp\_tools.h}}
+\doxysubsubsection{\texorpdfstring{convertCartesianToPolar()}{convertCartesianToPolar()}}
+{\footnotesize\ttfamily void convert\+Cartesian\+To\+Polar (\begin{DoxyParamCaption}\item[{const double}]{x,  }\item[{const double}]{y,  }\item[{double \&}]{radius\+\_\+ro,  }\item[{double \&}]{theta }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{reedsshepp__tools_8h_a80ce8107ee0ba30cb4b6c935b4d643a2}\label{reedsshepp__tools_8h_a80ce8107ee0ba30cb4b6c935b4d643a2}} 
+\index{reedsshepp\_tools.h@{reedsshepp\_tools.h}!sampleOnLeftCurve@{sampleOnLeftCurve}}
+\index{sampleOnLeftCurve@{sampleOnLeftCurve}!reedsshepp\_tools.h@{reedsshepp\_tools.h}}
+\doxysubsubsection{\texorpdfstring{sampleOnLeftCurve()}{sampleOnLeftCurve()}}
+{\footnotesize\ttfamily void sample\+On\+Left\+Curve (\begin{DoxyParamCaption}\item[{const double}]{target\+\_\+angle\+\_\+change,  }\item[{double \&}]{robot\+\_\+yaw,  }\item[{double \&}]{robotx,  }\item[{double \&}]{roboty,  }\item[{\mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$}]{ptr\+\_\+path\+\_\+result,  }\item[{\mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}} $\ast$}]{r\+\_\+properties }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{reedsshepp__tools_8h_a1378a824e133b550b8649de3cee0a205}\label{reedsshepp__tools_8h_a1378a824e133b550b8649de3cee0a205}} 
+\index{reedsshepp\_tools.h@{reedsshepp\_tools.h}!sampleOnRightCurve@{sampleOnRightCurve}}
+\index{sampleOnRightCurve@{sampleOnRightCurve}!reedsshepp\_tools.h@{reedsshepp\_tools.h}}
+\doxysubsubsection{\texorpdfstring{sampleOnRightCurve()}{sampleOnRightCurve()}}
+{\footnotesize\ttfamily void sample\+On\+Right\+Curve (\begin{DoxyParamCaption}\item[{const double}]{target\+\_\+angle\+\_\+change,  }\item[{double \&}]{robot\+\_\+yaw,  }\item[{double \&}]{robotx,  }\item[{double \&}]{roboty,  }\item[{\mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$}]{ptr\+\_\+path\+\_\+result,  }\item[{\mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}} $\ast$}]{r\+\_\+properties }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{reedsshepp__tools_8h_ac9d337dbeb5677ffd7e1d8a9db204765}\label{reedsshepp__tools_8h_ac9d337dbeb5677ffd7e1d8a9db204765}} 
+\index{reedsshepp\_tools.h@{reedsshepp\_tools.h}!sampleOnStraightLine@{sampleOnStraightLine}}
+\index{sampleOnStraightLine@{sampleOnStraightLine}!reedsshepp\_tools.h@{reedsshepp\_tools.h}}
+\doxysubsubsection{\texorpdfstring{sampleOnStraightLine()}{sampleOnStraightLine()}}
+{\footnotesize\ttfamily void sample\+On\+Straight\+Line (\begin{DoxyParamCaption}\item[{const double}]{target\+\_\+angle\+\_\+change,  }\item[{double}]{robot\+\_\+yaw,  }\item[{double \&}]{robotx,  }\item[{double \&}]{roboty,  }\item[{\mbox{\hyperlink{structStructRSPathResult}{Struct\+R\+S\+Path\+Result}} $\ast$}]{ptr\+\_\+path\+\_\+result,  }\item[{\mbox{\hyperlink{structStructSamplingProperties}{Struct\+Sampling\+Properties}} $\ast$}]{r\+\_\+properties }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{reedsshepp__tools_8h_af4df98eed8b6fbe4ada1ba8fd8adaf45}\label{reedsshepp__tools_8h_af4df98eed8b6fbe4ada1ba8fd8adaf45}} 
+\index{reedsshepp\_tools.h@{reedsshepp\_tools.h}!tauOmega@{tauOmega}}
+\index{tauOmega@{tauOmega}!reedsshepp\_tools.h@{reedsshepp\_tools.h}}
+\doxysubsubsection{\texorpdfstring{tauOmega()}{tauOmega()}}
+{\footnotesize\ttfamily void tau\+Omega (\begin{DoxyParamCaption}\item[{const double}]{u,  }\item[{const double}]{v,  }\item[{const double}]{xi,  }\item[{const double}]{eta,  }\item[{const double}]{phi,  }\item[{double \&}]{tau,  }\item[{double \&}]{omega }\end{DoxyParamCaption})}
+
