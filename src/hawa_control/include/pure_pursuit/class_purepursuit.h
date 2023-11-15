@@ -85,13 +85,14 @@ public:
 
     void setRobotPose(double x_meter, double y_meter, double yaw_rad);
 
-    void findTargetPoint(bool& success);
+    void findTargetPoint(bool& r_success);
 
-    void getTargetPoint(geometry_msgs::PointStamped &target);
+    void getTargetPoint(geometry_msgs::PointStamped& r_target);
 
-    void solveForSpeedCommand(bool &success, double &steer_rad);
+    void solveForSpeedCommand(bool& r_success, double& r_steer_rad);
 
-    void findPreciseTargetPoint(std::array<geometry_msgs::Point, 2> two_pathpoints, geometry_msgs::PointStamped &result_point);
+    void findPreciseTargetPoint(std::array<geometry_msgs::Point, 2> two_pathpoints, 
+                                geometry_msgs::PointStamped& r_result_point);
 
 };
 
@@ -190,15 +191,15 @@ void ClassPurePursuit::computeLookAheadDistnace()
  * @brief One of the main functions to be called. After all parameters are updated, call this func to 
  * find the target_point from the path. This function is possible to fail finding the target_point when
  * robot is significantly far away from the path.
- * @param success bool
+ * @param r_success bool
 */
-void ClassPurePursuit::findTargetPoint(bool& success)
+void ClassPurePursuit::findTargetPoint(bool& r_success)
 {
     int _num_points = m_the_segment_.m_path_extended_.size();
     if(_num_points <= 2)
     {
-        ROS_WARN_STREAM("findTargetPoint()  Path too short: " << _num_points);
-        success = false;
+        ROS_WARN_STREAM_THROTTLE(10 , "findTargetPoint()  Path too short: " << _num_points);
+        r_success = false;
         return;
     }
 
@@ -230,7 +231,7 @@ void ClassPurePursuit::findTargetPoint(bool& success)
 
     if(m_vector_target_points_.size() == 0)
     {
-        std::cout << "No Target point found." << std::endl;
+        ROS_DEBUG_STREAM_THROTTLE(10, "No Target point found.");
         /*
         TODO:
         expand searching area and try again.
@@ -238,7 +239,7 @@ void ClassPurePursuit::findTargetPoint(bool& success)
     }
     else if(m_vector_target_points_.size() >= 2)
     {
-        std::cout << " >= 2 Target points found." << std::endl;
+        ROS_DEBUG_STREAM_THROTTLE(10, "Found >= 2 Target points.");
         /*
         TODO:
         select the best one.
@@ -246,19 +247,19 @@ void ClassPurePursuit::findTargetPoint(bool& success)
     }
     else if(m_vector_target_points_.size() == 1)
     {
-        std::cout << " == 1 Target point found." << std::endl;
-        success = true;
+        ROS_DEBUG_STREAM_THROTTLE(10, "Found 1 Target point.");
+        r_success = true;
         findPreciseTargetPoint(m_vector_target_points_[0], m_actual_target_points_);
         return;
     }
-    success = false;
+    r_success = false;
 }
 
 /**
  * @brief For calling from external only. To get the value of the target_point at the moment.
  * @param r_target : result.  geometry_msgs::PointStamped
 */
-void ClassPurePursuit::getTargetPoint(geometry_msgs::PointStamped &r_target)
+void ClassPurePursuit::getTargetPoint(geometry_msgs::PointStamped& r_target)
 {
     r_target = m_actual_target_points_;
 }
@@ -269,7 +270,7 @@ void ClassPurePursuit::getTargetPoint(geometry_msgs::PointStamped &r_target)
  * @param r_success : bool. 
  * @param r_steer_rad : the result to be found.
 */
-void ClassPurePursuit::solveForSpeedCommand(bool &r_success, double &r_steer_rad)
+void ClassPurePursuit::solveForSpeedCommand(bool& r_success, double& r_steer_rad)
 {
     // first, compute the angle difference between the robot_heading and the line from robot 
     // to the target_point. 
@@ -318,10 +319,10 @@ void ClassPurePursuit::solveForSpeedCommand(bool &r_success, double &r_steer_rad
  * use this funciton to find a more precise point between these two point, which is closer to the 
  * look_ahead_distance circle.
  * @param two_pathpoints : the two points mentioned in brief.
- * @param result_point : the precise point to be found.
+ * @param r_result_point : the precise point to be found.
 */
 void ClassPurePursuit::findPreciseTargetPoint(std::array<geometry_msgs::Point, 2> two_pathpoints, 
-                                              geometry_msgs::PointStamped &result_point)
+                                              geometry_msgs::PointStamped& r_result_point)
 {
     geometry_msgs::Point p1 = two_pathpoints[0];
     geometry_msgs::Point p2 = two_pathpoints[1];
@@ -341,8 +342,8 @@ void ClassPurePursuit::findPreciseTargetPoint(std::array<geometry_msgs::Point, 2
         double _distance_pm_to_robot = computeDistanceMeter(pm.x, pm.y, m_robot_pose_.x_meter, m_robot_pose_.y_meter);
         if( std::abs(_distance_pm_to_robot - m_parameters_.look_ahead_distance_meter_) < _critical_distance_meter )
         {
-            result_point.point.x = pm.x;
-            result_point.point.y = pm.y;
+            r_result_point.point.x = pm.x;
+            r_result_point.point.y = pm.y;
             return;
         }
         else
@@ -358,8 +359,8 @@ void ClassPurePursuit::findPreciseTargetPoint(std::array<geometry_msgs::Point, 2
         }
     }
     ROS_DEBUG_STREAM_THROTTLE(4, "Reached max TargetPoint search iterations.");
-    result_point.point.x = pm.x;
-    result_point.point.y = pm.y;
+    r_result_point.point.x = pm.x;
+    r_result_point.point.y = pm.y;
 }
 
 #endif

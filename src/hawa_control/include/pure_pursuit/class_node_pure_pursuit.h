@@ -203,13 +203,13 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
 {
     if( ! validateOdomMsg() )
     {
-        ROS_WARN_STREAM("Invalid robot odom msg.  Do not proceed.");
+        ROS_WARN_STREAM_THROTTLE(2 , "Invalid robot odom msg.  Do not proceed.");
         return;
     }
 
     m_mutex_path_.lock();
 
-    ROS_INFO_STREAM("m_counter_current_segment_ " << m_segment_manager_.getCounter());
+    ROS_DEBUG_STREAM_THROTTLE(10 , "m_counter_current_segment_ " << m_segment_manager_.getCounter());
 
     m_segment_manager_.update(m_robot_odom_msg_.pose.pose.position.x, 
                               m_robot_odom_msg_.pose.pose.position.y,
@@ -237,7 +237,7 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
     m_controller_purepursuit_.findTargetPoint(_valid_target_point);
     if( ! _valid_target_point )
     {
-        ROS_WARN_STREAM("Invalid target point.  Do not proceed.");
+        ROS_WARN_STREAM_THROTTLE(10 , "Invalid target point.  Do not proceed.");
         m_mutex_path_.unlock();
         return;
     }

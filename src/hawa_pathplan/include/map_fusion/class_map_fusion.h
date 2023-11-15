@@ -26,8 +26,8 @@
 */
 
 
-#ifndef CLASS_MAP_FUSION
-#define CLASS_MAP_FUSION
+#ifndef HAWA_CLASS_MAP_FUSION_NODE_H
+#define HAWA_CLASS_MAP_FUSION_NODE_H
 
 #include "ros/ros.h"
 #include "sensor_msgs/LaserScan.h"
@@ -351,13 +351,16 @@ double ClassMapFusion::helper_get_time()
 
 
 /**
- * @brief 
- * change the map data grids, around position (x,y) , using the inflation_sample_grids. 
+ * @brief Change the map data grids, around position (x,y) , using the inflation_sample_grids. 
  */
-void ClassMapFusion::inflate_one_cell( std::vector<int8_t>& grids, const int x, const int y, const int map_width, const int map_height, const std::vector<std::vector<int8_t>>& inflate_sample_in , const int radius  )
+void ClassMapFusion::inflate_one_cell( std::vector<int8_t>& grids, 
+                                       const int x, 
+                                       const int y, 
+                                       const int map_width, 
+                                       const int map_height, 
+                                       const std::vector<std::vector<int8_t>>& inflate_sample_in , 
+                                       const int radius  )
 {
-    // std::cout << "inflate_one_cell" << std::endl;
-    
     // prepare the index ranges 
     int x_start_in_map, x_end_in_map, y_start_in_map, y_end_in_map;
     int x_start_in_smpl, x_end_in_smpl, y_start_in_smpl, y_end_in_smpl;

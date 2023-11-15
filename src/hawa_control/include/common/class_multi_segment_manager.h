@@ -239,7 +239,7 @@ ClassPath2DSegment ClassHawaMultiSegmentManager::getCurrentSegment()
 */
 bool ClassHawaMultiSegmentManager::doesPathExist()
 {
-    ROS_INFO_STREAM("doesPathExist: " << m_vector_segments_.size() << " " <<  m_counter_current_segment_);
+    ROS_DEBUG_STREAM_THROTTLE(10, "doesPathExist: " << m_vector_segments_.size() << " " <<  m_counter_current_segment_);
     return bool(m_vector_segments_.size() - m_counter_current_segment_);
 }
 
