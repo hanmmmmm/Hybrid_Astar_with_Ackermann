@@ -247,8 +247,6 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
     bool _success;  double _steer_needed = 0.0;
     m_controller_purepursuit_.solveForSpeedCommand(_success, _steer_needed);
 
-    std::cout << _steer_needed << std::endl;
-
     ackermann_msgs::AckermannDriveStamped  _akm_cmd_msg;
     _akm_cmd_msg.drive.speed = _signed_speed_mps;
     _akm_cmd_msg.drive.steering_angle = _steer_needed;

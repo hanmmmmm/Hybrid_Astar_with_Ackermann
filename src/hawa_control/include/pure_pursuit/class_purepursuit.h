@@ -20,9 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef HAWA_CLASS_PUREPURSUIT_H
-#define HAWA_CLASS_PUREPURSUIT_H
-
 
 /**
  * @file class_purepursuit.h
@@ -35,6 +32,10 @@
  * @copyright Copyright (c) 2023
  * 
  */
+
+
+#ifndef HAWA_CLASS_PUREPURSUIT_H
+#define HAWA_CLASS_PUREPURSUIT_H
 
 
 #include <iostream>
@@ -115,7 +116,6 @@ ClassPurePursuit::~ClassPurePursuit()
 */
 void ClassPurePursuit::setPathSegment(ClassPath2DSegment& r_segment)
 {
-    ROS_INFO_STREAM("PurePursuit get new path.");
     m_the_segment_ = r_segment;
 }
 

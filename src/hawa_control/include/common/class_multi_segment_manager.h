@@ -308,12 +308,12 @@ void ClassHawaMultiSegmentManager::update(const double robot_x, const double rob
 
     if (m_finished_all_)
     {
-        ROS_INFO_STREAM_NAMED("ClassHawaMultiSegmentManager::update()", "Wait for new path.");
+        ROS_INFO_STREAM_THROTTLE_NAMED(20, "ClassHawaMultiSegmentManager::update()", "Wait for new path.");
         return;
     }
 
     bool _this_finished = checkCurrentSegFinish( robot_x, robot_y, robot_yaw);
-    ROS_INFO_STREAM("update() _this_finished " << _this_finished);
+    ROS_DEBUG_STREAM_THROTTLE(20, "update() _this_finished " << _this_finished);
     if (_this_finished)
     {
         finishCurrentSegment();

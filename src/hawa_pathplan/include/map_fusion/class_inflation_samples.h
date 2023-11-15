@@ -30,11 +30,13 @@
 class ClassInflationSamples
 {
 private:
-    int8_t obs_0;
-    int8_t clr__;
-    int8_t obs_1;
-    int8_t obs_2;
-    int8_t obs_3;
+    int8_t v0;
+    int8_t cr;
+    int8_t v1;
+    int8_t v2;
+    int8_t v3;
+    int8_t v4;
+    int8_t v5;
 public:
     ClassInflationSamples();
     ~ClassInflationSamples();
@@ -44,11 +46,13 @@ public:
 
 ClassInflationSamples::ClassInflationSamples()
 {
-    obs_0 = 100;
-    clr__ = 0; 
-    obs_1 = 90;
-    obs_2 = 80;
-    obs_3 = 70;
+    v0 = 100;
+    cr = 0; 
+    v1 = 95;
+    v2 = 90;
+    v3 = 85;
+    v4 = 80;
+    v5 = 75;
 }
 
 ClassInflationSamples::~ClassInflationSamples()
@@ -58,34 +62,49 @@ ClassInflationSamples::~ClassInflationSamples()
 void ClassInflationSamples::get_sample_by_radius(std::vector< std::vector<int8_t> >& inflate_sample_target, 
                                                  const int radius){
     if( radius == 1){
-        inflate_sample_target.push_back( {obs_2, obs_1, obs_2} );
-        inflate_sample_target.push_back( {obs_1, obs_0, obs_1} );
-        inflate_sample_target.push_back( {obs_2, obs_1, obs_2} );
+        inflate_sample_target.push_back( {v2, v1, v2} );
+        inflate_sample_target.push_back( {v1, v0, v1} );
+        inflate_sample_target.push_back( {v2, v1, v2} );
     }
     else if( radius == 2){
-        inflate_sample_target.push_back( {clr__, obs_3, obs_2, obs_3, clr__} );
-        inflate_sample_target.push_back( {obs_3, obs_1, obs_1, obs_1, obs_3} );
-        inflate_sample_target.push_back( {obs_2, obs_1, obs_0, obs_1, obs_2} );
-        inflate_sample_target.push_back( {obs_3, obs_1, obs_1, obs_1, obs_3} );
-        inflate_sample_target.push_back( {clr__, obs_3, obs_2, obs_3, clr__} );
+        inflate_sample_target.push_back( {cr, v3, v2, v3, cr} );
+        inflate_sample_target.push_back( {v3, v1, v1, v1, v3} );
+        inflate_sample_target.push_back( {v2, v1, v0, v1, v2} );
+        inflate_sample_target.push_back( {v3, v1, v1, v1, v3} );
+        inflate_sample_target.push_back( {cr, v3, v2, v3, cr} );
     }
     else if( radius == 3){
-        inflate_sample_target.push_back( {clr__,clr__,obs_3,obs_3,obs_3,clr__,clr__} );
-        inflate_sample_target.push_back( {clr__,obs_2,obs_2,obs_2,obs_2,obs_2,clr__} );
-        inflate_sample_target.push_back( {obs_3,obs_2,obs_1,obs_1,obs_1,obs_2,obs_3} );
-        inflate_sample_target.push_back( {obs_3,obs_2,obs_1,obs_0,obs_1,obs_2,obs_3} );
-        inflate_sample_target.push_back( {obs_3,obs_2,obs_1,obs_1,obs_1,obs_2,obs_3} );
-        inflate_sample_target.push_back( {clr__,obs_2,obs_2,obs_2,obs_2,obs_2,clr__} );
-        inflate_sample_target.push_back( {clr__,clr__,obs_3,obs_3,obs_3,clr__,clr__} );
+        inflate_sample_target.push_back( {cr,cr,v3,v3,v3,cr,cr} );
+        inflate_sample_target.push_back( {cr,v2,v2,v2,v2,v2,cr} );
+        inflate_sample_target.push_back( {v3,v2,v1,v1,v1,v2,v3} );
+        inflate_sample_target.push_back( {v3,v2,v1,v0,v1,v2,v3} );
+        inflate_sample_target.push_back( {v3,v2,v1,v1,v1,v2,v3} );
+        inflate_sample_target.push_back( {cr,v2,v2,v2,v2,v2,cr} );
+        inflate_sample_target.push_back( {cr,cr,v3,v3,v3,cr,cr} );
     }
-    else if( radius >= 4){
-        inflate_sample_target.push_back( {clr__,clr__,obs_3,obs_3,obs_3,clr__,clr__} );
-        inflate_sample_target.push_back( {clr__,obs_2,obs_2,obs_2,obs_2,obs_2,clr__} );
-        inflate_sample_target.push_back( {obs_3,obs_2,obs_1,obs_1,obs_1,obs_2,obs_3} );
-        inflate_sample_target.push_back( {obs_3,obs_2,obs_1,obs_0,obs_1,obs_2,obs_3} );
-        inflate_sample_target.push_back( {obs_3,obs_2,obs_1,obs_1,obs_1,obs_2,obs_3} );
-        inflate_sample_target.push_back( {clr__,obs_2,obs_2,obs_2,obs_2,obs_2,clr__} );
-        inflate_sample_target.push_back( {clr__,clr__,obs_3,obs_3,obs_3,clr__,clr__} );
+    else if( radius == 4){
+        inflate_sample_target.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
+        inflate_sample_target.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
+        inflate_sample_target.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
+        inflate_sample_target.push_back( {v4,v3,v2,v1,v1,v1,v2,v3,v4} );
+        inflate_sample_target.push_back( {v4,v3,v2,v1,v0,v1,v2,v3,v4} );
+        inflate_sample_target.push_back( {v4,v3,v2,v1,v1,v1,v2,v3,v4} );
+        inflate_sample_target.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
+        inflate_sample_target.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
+        inflate_sample_target.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
+    }
+    else if( radius >= 5){
+        inflate_sample_target.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
+        inflate_sample_target.push_back( {cr,cr,cr,v4,v4,v4,v4,v4,cr,cr,cr} );
+        inflate_sample_target.push_back( {cr,cr,v4,v4,v3,v3,v3,v4,v4,cr,cr} );
+        inflate_sample_target.push_back( {cr,v4,v3,v2,v2,v2,v2,v2,v3,v4,cr} );
+        inflate_sample_target.push_back( {v5,v4,v3,v2,v1,v1,v1,v2,v3,v4,v5} );
+        inflate_sample_target.push_back( {v5,v4,v3,v2,v1,v0,v1,v2,v3,v4,v5} );
+        inflate_sample_target.push_back( {v5,v4,v3,v2,v1,v1,v1,v2,v3,v4,v5} );
+        inflate_sample_target.push_back( {cr,v4,v3,v2,v2,v2,v2,v2,v3,v4,cr} );
+        inflate_sample_target.push_back( {cr,cr,v5,v4,v3,v3,v3,v4,v5,cr,cr} );
+        inflate_sample_target.push_back( {cr,cr,cr,v4,v4,v4,v4,v4,cr,cr,cr} );
+        inflate_sample_target.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
     }
 }
 
