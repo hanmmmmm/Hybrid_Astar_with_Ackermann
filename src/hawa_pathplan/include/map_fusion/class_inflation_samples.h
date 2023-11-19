@@ -27,6 +27,9 @@
 #include <vector>
 #include <iostream>
 
+/**
+ * @brief This class contains the data for the inflation used in grid map. 
+*/
 class ClassInflationSamples
 {
 private:
@@ -37,8 +40,6 @@ private:
     const int8_t v3 = 85; // Occupancy value for the 4th highest occ score.
     const int8_t v4 = 80; // Occupancy value for the 5th highest occ score.
     const int8_t v5 = 75; // Occupancy value for the 6th highest occ score.
-
-    
 
     int m_radius_val_;
 
@@ -63,13 +64,6 @@ public:
 ClassInflationSamples::ClassInflationSamples()
 {
     m_radius_is_set_ = false;
-    // cr = 0; 
-    // v0 = 100;
-    // v1 = 95;
-    // v2 = 90;
-    // v3 = 85;
-    // v4 = 80;
-    // v5 = 75;
 }
 
 ClassInflationSamples::~ClassInflationSamples()
@@ -77,7 +71,9 @@ ClassInflationSamples::~ClassInflationSamples()
 }
 
 /**
- * 
+ * @brief Set the value of the radius. The value is in grid wise. 
+ * @param rad The radius. It should be at least 1. Be careful about the maximum supported value. It can be found
+ * in the function prepareSampleByRadius().
 */
 void ClassInflationSamples::setRadius(const int rad)
 {
@@ -121,19 +117,22 @@ void ClassInflationSamples::prepareSampleByRadius()
 
     m_inflate_sample_.clear();
 
-    if( m_radius_val_ == 1){
-        m_inflate_sample_.push_back( {v2, v1, v2} );
-        m_inflate_sample_.push_back( {v1, v0, v1} );
-        m_inflate_sample_.push_back( {v2, v1, v2} );
+    if( m_radius_val_ == 1)
+    {
+        m_inflate_sample_.push_back( {v2,v1,v2} );
+        m_inflate_sample_.push_back( {v1,v0,v1} );
+        m_inflate_sample_.push_back( {v2,v1,v2} );
     }
-    else if( m_radius_val_ == 2){
-        m_inflate_sample_.push_back( {cr, v3, v2, v3, cr} );
-        m_inflate_sample_.push_back( {v3, v1, v1, v1, v3} );
-        m_inflate_sample_.push_back( {v2, v1, v0, v1, v2} );
-        m_inflate_sample_.push_back( {v3, v1, v1, v1, v3} );
-        m_inflate_sample_.push_back( {cr, v3, v2, v3, cr} );
+    else if( m_radius_val_ == 2)
+    {
+        m_inflate_sample_.push_back( {cr,v3,v2,v3,cr} );
+        m_inflate_sample_.push_back( {v3,v1,v1,v1,v3} );
+        m_inflate_sample_.push_back( {v2,v1,v0,v1,v2} );
+        m_inflate_sample_.push_back( {v3,v1,v1,v1,v3} );
+        m_inflate_sample_.push_back( {cr,v3,v2,v3,cr} );
     }
-    else if( m_radius_val_ == 3){
+    else if( m_radius_val_ == 3)
+    {
         m_inflate_sample_.push_back( {cr,cr,v3,v3,v3,cr,cr} );
         m_inflate_sample_.push_back( {cr,v2,v2,v2,v2,v2,cr} );
         m_inflate_sample_.push_back( {v3,v2,v1,v1,v1,v2,v3} );
@@ -142,7 +141,8 @@ void ClassInflationSamples::prepareSampleByRadius()
         m_inflate_sample_.push_back( {cr,v2,v2,v2,v2,v2,cr} );
         m_inflate_sample_.push_back( {cr,cr,v3,v3,v3,cr,cr} );
     }
-    else if( m_radius_val_ == 4){
+    else if( m_radius_val_ == 4)
+    {
         m_inflate_sample_.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
         m_inflate_sample_.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
         m_inflate_sample_.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
@@ -153,7 +153,8 @@ void ClassInflationSamples::prepareSampleByRadius()
         m_inflate_sample_.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
         m_inflate_sample_.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
     }
-    else if( m_radius_val_ == 5){
+    else if( m_radius_val_ == 5)
+    {
         m_inflate_sample_.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
         m_inflate_sample_.push_back( {cr,cr,cr,v5,v4,v4,v4,v5,cr,cr,cr} );
         m_inflate_sample_.push_back( {cr,cr,v5,v4,v3,v3,v3,v4,v5,cr,cr} );
