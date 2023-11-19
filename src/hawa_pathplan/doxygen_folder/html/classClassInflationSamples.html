@@ -62,7 +62,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">ClassInflationSamples Class Reference</div>  </div>
 </div><!--header-->
@@ -74,7 +75,7 @@ Collaboration diagram for ClassInflationSamples:</div>
 <div class="dyncontent">
 <div class="center"><img src="classClassInflationSamples__coll__graph.png" border="0" usemap="#ClassInflationSamples_coll__map" alt="Collaboration graph"/></div>
 <map name="ClassInflationSamples_coll__map" id="ClassInflationSamples_coll__map">
-<area shape="rect" title=" " alt="" coords="5,5,208,112"/>
+<area shape="rect" title=" " alt="" coords="5,5,212,156"/>
 </map>
 </div>
 <table class="memberdecls">
@@ -84,8 +85,22 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aebeac561bcdd8ec81320b0610cce0329"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0616dc97ff6933ee21a397c5c5ef71f9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#a0616dc97ff6933ee21a397c5c5ef71f9">~ClassInflationSamples</a> ()</td></tr>
 <tr class="separator:a0616dc97ff6933ee21a397c5c5ef71f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa204cc296f9791817b6c871c9efa22d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#aa204cc296f9791817b6c871c9efa22d9">get_sample_by_radius</a> (std::vector&lt; std::vector&lt; int8_t &gt; &gt; &amp;inflate_sample_target, const int radius)</td></tr>
-<tr class="separator:aa204cc296f9791817b6c871c9efa22d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba70e465cbcbbf84452ed5941b09112f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#aba70e465cbcbbf84452ed5941b09112f">prepareSampleByRadius</a> ()</td></tr>
+<tr class="memdesc:aba70e465cbcbbf84452ed5941b09112f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate the inflation sample, and save in a member variable.  <a href="classClassInflationSamples.html#aba70e465cbcbbf84452ed5941b09112f">More...</a><br /></td></tr>
+<tr class="separator:aba70e465cbcbbf84452ed5941b09112f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3cbac289f673c569fdfa451ce46c30d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; int8_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#ad3cbac289f673c569fdfa451ce46c30d">getInflationSample</a> ()</td></tr>
+<tr class="memdesc:ad3cbac289f673c569fdfa451ce46c30d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this function to get the inflation.  <a href="classClassInflationSamples.html#ad3cbac289f673c569fdfa451ce46c30d">More...</a><br /></td></tr>
+<tr class="separator:ad3cbac289f673c569fdfa451ce46c30d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf38cf62be6d58d5a80f6638bb3a93bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#acf38cf62be6d58d5a80f6638bb3a93bb">setRadius</a> (const int rad)</td></tr>
+<tr class="separator:acf38cf62be6d58d5a80f6638bb3a93bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10fcba03650cc508069024dcd35cd2d4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#a10fcba03650cc508069024dcd35cd2d4">getRadius</a> ()</td></tr>
+<tr class="memdesc:a10fcba03650cc508069024dcd35cd2d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get value of the radius.  <a href="classClassInflationSamples.html#a10fcba03650cc508069024dcd35cd2d4">More...</a><br /></td></tr>
+<tr class="separator:a10fcba03650cc508069024dcd35cd2d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a0d8b25fc59aa82391c23701fb424eaba"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; int8_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassInflationSamples.html#a0d8b25fc59aa82391c23701fb424eaba">m_inflate_sample_</a></td></tr>
+<tr class="separator:a0d8b25fc59aa82391c23701fb424eaba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aebeac561bcdd8ec81320b0610cce0329"></a>
@@ -123,28 +138,92 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa204cc296f9791817b6c871c9efa22d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa204cc296f9791817b6c871c9efa22d9">&#9670;&nbsp;</a></span>get_sample_by_radius()</h2>
+<a id="ad3cbac289f673c569fdfa451ce46c30d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3cbac289f673c569fdfa451ce46c30d">&#9670;&nbsp;</a></span>getInflationSample()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void ClassInflationSamples::get_sample_by_radius </td>
+          <td class="memname">std::vector&lt; std::vector&lt; int8_t &gt; &gt; ClassInflationSamples::getInflationSample </td>
           <td>(</td>
-          <td class="paramtype">std::vector&lt; std::vector&lt; int8_t &gt; &gt; &amp;&#160;</td>
-          <td class="paramname"><em>inflate_sample_target</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Call this function to get the inflation. </p>
+<dl class="section return"><dt>Returns</dt><dd>The inflation sample. </dd></dl>
+
+</div>
+</div>
+<a id="a10fcba03650cc508069024dcd35cd2d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10fcba03650cc508069024dcd35cd2d4">&#9670;&nbsp;</a></span>getRadius()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ClassInflationSamples::getRadius </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get value of the radius. </p>
+<dl class="section return"><dt>Returns</dt><dd>The radius. </dd></dl>
+
+</div>
+</div>
+<a id="aba70e465cbcbbf84452ed5941b09112f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba70e465cbcbbf84452ed5941b09112f">&#9670;&nbsp;</a></span>prepareSampleByRadius()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ClassInflationSamples::prepareSampleByRadius </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generate the inflation sample, and save in a member variable. </p>
+
+</div>
+</div>
+<a id="acf38cf62be6d58d5a80f6638bb3a93bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf38cf62be6d58d5a80f6638bb3a93bb">&#9670;&nbsp;</a></span>setRadius()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ClassInflationSamples::setRadius </td>
+          <td>(</td>
           <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>radius</em>&#160;</td>
-        </tr>
-        <tr>
+          <td class="paramname"><em>rad</em></td><td>)</td>
           <td></td>
-          <td>)</td>
-          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Field Documentation</h2>
+<a id="a0d8b25fc59aa82391c23701fb424eaba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d8b25fc59aa82391c23701fb424eaba">&#9670;&nbsp;</a></span>m_inflate_sample_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::vector&lt;int8_t&gt; &gt; ClassInflationSamples::m_inflate_sample_</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -89,17 +89,10 @@ private:
     ros::Publisher m_puber_map_;
     ros::Timer m_ros_timer_;
 
-    tf::TransformListener tf_listener;
-    tf::StampedTransform lidar_to_base_tf_;
+    tf::TransformListener m_tf_listener;
+    tf::StampedTransform m_lidar_to_base_tf_;
 
-    struct inflationInfo
-    {
-        std::vector<std::vector<int8_t>> inflate_sample;
-        int inflate_radius = 5 ;  // grid_wise
-    };
-
-    inflationInfo inflation_;
-    ClassInflationSamples inflat_options; 
+    ClassInflationSamples m_inflation_samples; 
 
 private:
 
@@ -111,11 +104,16 @@ private:
 
     void mergeData( const ros::TimerEvent &event );
 
-    void get_lidar_pose_in_map_frame();
-    void convertRealToGrid(const double x_meter, const double y_meter, int& x_index, int& y_index);
+    void getLidarPoseInMapFrame();
+    void convertRealToGrid(const double x_meter, const double y_meter, int &r_x_index, int &r_y_index);
     int convertGrid2dTo1d(const int xgrid, const int ygrid);
 
-    void inflateOneCell(std::vector<int8_t> &grids, const int x, const int y, const int map_width, const int map_height, const std::vector<std::vector<int8_t>> &inflate_sample_in, const int radius);
+    void putLidarIntoGrids(nav_msgs::OccupancyGrid &r_grids, sensor_msgs::LaserScan &r_scan);
+
+    void inflateOneCell(nav_msgs::OccupancyGrid *ptr_map_msg, 
+                        ClassInflationSamples *ptr_inflation, 
+                        const int center_x, 
+                        const int center_y);
 
 public:
     ClassMapFusion(const ros::NodeHandle nh_in_);
@@ -127,10 +125,13 @@ ClassMapFusion::ClassMapFusion(const ros::NodeHandle nh_in_): m_nh_{nh_in_}
 {
     loadParameters();
 
+    m_inflation_samples.setRadius(5);
+    m_inflation_samples.prepareSampleByRadius();
+
     m_puber_map_  = m_nh_.advertise<nav_msgs::OccupancyGrid>( m_topic_name_map_published_, 10);
 
     m_suber_map_ = m_nh_.subscribe( m_topic_name_map_subscribed_ , 1, &ClassMapFusion::mapCallback,  this);
-    m_suber_scan_= m_nh_.subscribe( m_topic_name_scan_subscribed_ , 1, &ClassMapFusion::scanCallback, this);
+    m_suber_scan_= m_nh_.subscribe( m_topic_name_scan_subscribed_ , 2, &ClassMapFusion::scanCallback, this);
     m_suber_depth_= m_nh_.subscribe( m_topic_name_depth_subscribed_ , 10, &ClassMapFusion::depthCallback, this);
 
     m_ros_timer_ = m_nh_.createTimer( ros::Duration(0.1), &ClassMapFusion::mergeData, this );
@@ -139,10 +140,7 @@ ClassMapFusion::ClassMapFusion(const ros::NodeHandle nh_in_): m_nh_{nh_in_}
     m_depth_enabled_= false;
     m_received_map_ = false; 
 
-    // build_inflate_sample(inflation_.inflate_sample, inflation_.inflate_radius);
-    inflat_options.get_sample_by_radius(inflation_.inflate_sample, inflation_.inflate_radius);
-
-    std::cout << "ClassMapFusion  init done" << std::endl;
+    ROS_INFO_STREAM("ClassMapFusion init done.");
 }
 
 ClassMapFusion::~ClassMapFusion()
@@ -150,9 +148,11 @@ ClassMapFusion::~ClassMapFusion()
 }
 
 /**
- * 
+ * @brief This should be executed during the initialization. At this moment, these names are hardcoded
+ * in strings, but they should be loaded from configuration json files for easier configuration. 
 */
-void ClassMapFusion::loadParameters(){
+void ClassMapFusion::loadParameters()
+{
     m_topic_name_map_subscribed_ = "/map";
     m_topic_name_depth_subscribed_ = "/depth";
     m_topic_name_scan_subscribed_ = "/scan";
@@ -166,19 +166,19 @@ void ClassMapFusion::loadParameters(){
 }
 
 /**
- * 
+ * @brief Ros callback for the original gridmap. 
 */
-void ClassMapFusion::mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg){
+void ClassMapFusion::mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
+{
     m_map_mutex_.lock();
-    m_map_msg_.data = msg->data;
-    m_map_msg_.header = msg->header;
-    m_map_msg_.info = msg->info;
+    m_map_msg_ = *msg;
     m_received_map_ = true;
     m_map_mutex_.unlock();
 }
 
 /**
- * 
+ * @brief Ros callback for the lidar scan messages. It's just passed to a variable to store the data. Other 
+ * processings for this data are happening in mergeData(), not in this callback.
 */
 void ClassMapFusion::scanCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
@@ -192,7 +192,8 @@ void ClassMapFusion::scanCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 }
 
 /**
- * 
+ * @brief Ros callback for the depth camera data. At this moment, there is no depth camera message so 
+ * nothing is implemented here. The details are to be added in the futrue. 
 */
 void ClassMapFusion::depthCallback(const sensor_msgs::PointCloud::ConstPtr &msg)
 {
@@ -200,7 +201,8 @@ void ClassMapFusion::depthCallback(const sensor_msgs::PointCloud::ConstPtr &msg)
 }
 
 /**
- * 
+ * @brief This is the main function in this class. This would be called by the ros timer. It generates the 
+ * final grid map that contains the original gridmap, any other sensor data, and inflation. 
 */
 void ClassMapFusion::mergeData( const ros::TimerEvent &event )
 {
@@ -218,54 +220,9 @@ void ClassMapFusion::mergeData( const ros::TimerEvent &event )
     _new_map_to_pub.header = m_map_msg_.header;
     _new_map_to_pub.info = m_map_msg_.info;
 
-    // if use scan, then get lidar->map tf,     
-    // loop through each point in lidar, compute xy position, convert to gridmap posistion, 
-    // update the gridmap
-
-    if (m_enable_scan_){
-        get_lidar_pose_in_map_frame(); 
-
-        // std::cout << "lidar_to_base_tf_ " << std::endl;
-        // std::cout << lidar_to_base_tf_.getOrigin().x() << " " << lidar_to_base_tf_.getOrigin().y() << " " << lidar_to_base_tf_.getOrigin().z() << std::endl;
-        // std::cout << lidar_to_base_tf_.getRotation().x() << " " << lidar_to_base_tf_.getRotation().y() << " " << lidar_to_base_tf_.getRotation().z() << " " << lidar_to_base_tf_.getRotation().w() << std::endl;
-
-        double angle = m_scan_msg_.angle_min;
-
-        double angle_inc = m_scan_msg_.angle_increment; 
-
-        tf::Transform point_tf_in_lidar;
-        tf::Transform point_tf_in_map ;
-        double x, y, x_in_map, y_in_map;
-        int x_index, y_index, index_1D;
-        for( float range : m_scan_msg_.ranges )
-        {
-            try{
-                if( range > 20.0) {
-                    angle += angle_inc ;  
-                    continue;
-                }
-
-                x = range * sin( -angle + M_PI/2.0 );
-                y = range * cos( -angle + M_PI/2.0 );
-
-                point_tf_in_lidar.setOrigin(tf::Vector3(x,y,0));
-                point_tf_in_map = lidar_to_base_tf_ * point_tf_in_lidar;
-
-                x_in_map = point_tf_in_map.getOrigin().x();
-                y_in_map = point_tf_in_map.getOrigin().y();
-                
-                convertRealToGrid(x_in_map, y_in_map, x_index, y_index);
-                index_1D = convertGrid2dTo1d(x_index, y_index);
-                // if (_new_map_to_pub.data[index_1D] < 90) _new_map_to_pub.data[index_1D] = 100; 
-                // _new_map_to_pub.data[index_1D] = 100; 
-                inflateOneCell( _new_map_to_pub.data, x_index, y_index, _new_map_to_pub.info.width, _new_map_to_pub.info.height, inflation_.inflate_sample, inflation_.inflate_radius);
-            }
-            catch (tf::TransformException ex){
-                // ROS_ERROR("\nget_lidar_pose_in_map_frame: \n%s",ex.what());
-                // ros::Duration(0.5).sleep();
-            }
-            angle += angle_inc ; 
-        }
+    if (m_enable_scan_)
+    {
+        putLidarIntoGrids(_new_map_to_pub, m_scan_msg_);
     }
     else
     {
@@ -278,14 +235,7 @@ void ClassMapFusion::mergeData( const ros::TimerEvent &event )
                 _index_1D = convertGrid2dTo1d(x_ind, y_ind);
                 if (m_map_msg_.data.at(_index_1D) > 70)
                 {
-                    inflateOneCell(_new_map_to_pub.data, 
-                                   x_ind, 
-                                   y_ind, 
-                                   _new_map_to_pub.info.width, 
-                                   _new_map_to_pub.info.height, 
-                                   inflation_.inflate_sample, 
-                                   inflation_.inflate_radius
-                                   );
+                    inflateOneCell(&_new_map_to_pub, &m_inflation_samples, x_ind, y_ind);
                 }
             }
         }
@@ -302,20 +252,26 @@ void ClassMapFusion::mergeData( const ros::TimerEvent &event )
     ROS_DEBUG_STREAM_THROTTLE(30, "map fusion "<< int(_timer.getDuration()*1000.0) << " ms");
 }
 
-
-
-void ClassMapFusion::get_lidar_pose_in_map_frame(){
+/**
+ * @brief Call this function when need the relative pose between lidar frame and robot base frame. 
+*/
+void ClassMapFusion::getLidarPoseInMapFrame()
+{
     try{
-        tf_listener.lookupTransform( m_map_frame_, m_lidar_frame_, ros::Time(0), lidar_to_base_tf_);
+        m_tf_listener.lookupTransform(m_map_frame_, m_lidar_frame_, ros::Time(0), m_lidar_to_base_tf_);
     }
     catch (tf::TransformException ex){
-      ROS_ERROR("\nget_lidar_pose_in_map_frame: \n%s",ex.what());
+      ROS_ERROR_STREAM("getLidarPoseInMapFrame: " << ex.what());
       ros::Duration(0.2).sleep();
     }
 }
 
 /**
- * @brief 
+ * @brief Convert the given 2 dimensional coordinate into a 1 dimensional coordinate. Because the grid map
+ * is stored as a 1 dimensional vector.
+ * @param xgrid The x part of the 2D coordinate.
+ * @param ygrid The y part of the 2D coordinate.
+ * @return The 1 dimensional coordinate. 
 */
 inline int ClassMapFusion::convertGrid2dTo1d(const int xgrid, const int ygrid)
 {
@@ -323,82 +279,121 @@ inline int ClassMapFusion::convertGrid2dTo1d(const int xgrid, const int ygrid)
 }
 
 /**
- * @brief Convert pose x-y from meter to grid map cell index; xy should be pose in ref to frame_id of this map 
+ * @brief Convert pose x-y from meter to grid map cell index; values of x and y should be pose in reference
+ * to frame_id of the map msg. The poses values usually come from real world metric coordinate, but many logics
+ * happen in the virtual occupancy grid coordinate.
+ * @param x_meter The x part of the 2D metric coordinate.
+ * @param y_meter The y part of the 2D metric coordinate.
+ * @param r_x_index The x part of the 2D grid coordinate.
+ * @param r_x_index The y part of the 2D grid coordinate.
  */
-void ClassMapFusion::convertRealToGrid(const double x_meter, const double y_meter, int& x_index, int& y_index)
+void ClassMapFusion::convertRealToGrid(const double x_meter, const double y_meter, int &r_x_index, int &r_y_index)
 {
-    float _resolution = m_map_msg_.info.resolution; // m/cell 
+    float _resolution = m_map_msg_.info.resolution; // meter/grid 
     double _x_meter_to_origin = x_meter - m_map_msg_.info.origin.position.x;
     double _y_meter_to_origin = y_meter - m_map_msg_.info.origin.position.y;
-    x_index = _x_meter_to_origin / _resolution;
-    y_index = _y_meter_to_origin / _resolution;
+    r_x_index = _x_meter_to_origin / _resolution;
+    r_y_index = _y_meter_to_origin / _resolution;
 }
 
 /**
- * @brief Change the map data grids, around position (x,y) , using the inflation_sample_grids. 
+ * @brief Use grid (x,y) as the center, inflate the grids around it, using the occupancy matrix from the file 
+ * class_inflation_sample. 
+ * @param ptr_map_msg Pointer to the occupancy grid to be filled. 
+ * @param ptr_inflation Pointer to the inflation information manager object. 
+ * @param x The center of this inflation. Grid-wise.
+ * @param y The center of this inflation. Grid-wise.
  */
-void ClassMapFusion::inflateOneCell( std::vector<int8_t>& grids, 
-                                       const int x, 
-                                       const int y, 
-                                       const int map_width, 
-                                       const int map_height, 
-                                       const std::vector<std::vector<int8_t>>& inflate_sample_in , 
-                                       const int radius  )
+void ClassMapFusion::inflateOneCell(nav_msgs::OccupancyGrid *ptr_map_msg, 
+                                    ClassInflationSamples *ptr_inflation, 
+                                    const int center_x, 
+                                    const int center_y
+                                    )
 {
-    // prepare the index ranges 
-    int x_start_in_map, x_end_in_map, y_start_in_map, y_end_in_map;
-    int x_start_in_smpl, x_end_in_smpl, y_start_in_smpl, y_end_in_smpl;
+    int _radius = ptr_inflation->getRadius();
 
-    x_start_in_map = std::max( x-radius, 0 );
-    x_end_in_map   = std::min( x+radius+1, map_width );
-    x_start_in_smpl= std::max( radius-x, 0 );
-    x_end_in_smpl  = std::min( radius + map_width -1-x, radius*2+1 );
+    int x_start_in_map = std::max(center_x - _radius, 0);
+    int x_end_in_map   = std::min(center_x + _radius + 1, int(ptr_map_msg->info.width));
+    int x_start_in_sample= std::max(_radius - center_x, 0);
+    int x_end_in_sample  = std::min(_radius + int(ptr_map_msg->info.width) - 1 - center_x, _radius * 2 + 1);
 
-    y_start_in_map = std::max( y-radius, 0 );
-    y_end_in_map   = std::min( y+radius+1, map_height );
-    y_start_in_smpl= std::max( radius-y, 0 );
-    y_end_in_smpl  = std::min( radius + map_height -1-y, radius*2+1 );
+    int y_start_in_map = std::max(center_y - _radius, 0);
+    int y_end_in_map   = std::min(center_y + _radius + 1, int(ptr_map_msg->info.height));
+    int y_start_in_sample= std::max(_radius - center_y, 0);
+    int y_end_in_sample  = std::min(_radius + int(ptr_map_msg->info.height) - 1 - center_y, _radius * 2 + 1);
 
-    // std::cout << x << " " << y << " ; " << map_width << " " << map_height << " ; " << x_start_in_map << " ; " << x_end_in_map << std::endl; 
-
-    // // This validation section has bugs for the grids on the left and bottom edges of the map. So I comment it out 
-    // // for now. 
-    // // validate
-    // int width_in_map = x_end_in_map - x_start_in_map;
-    // int height_in_map= y_end_in_map - y_start_in_map;
-    // int width_in_smpl  = x_end_in_smpl - x_start_in_smpl;
-    // int height_in_smpl = y_end_in_smpl - y_start_in_smpl;
-    // if( width_in_map != width_in_smpl )
-    // {
-    //     std::cout << "inflation: width dont match. " << width_in_map << " " << width_in_smpl << std::endl;
-    //     std::cout << "x " << x << " y " << y << " radius " << radius << " map_width " << map_width 
-    //     << " map_height " << map_height << std::endl;
-    //     return;
-    // }
-    // if( height_in_map != height_in_smpl )
-    // {
-    //     std::cout << "inflation: height dont match." << height_in_map << " " << height_in_smpl << std::endl;
-    //     return;
-    // }
-    // // validate Done
-
-    // filling the map data vector. 
     int index_1D;
     int x_counter = 0;
     int y_counter = 0;
-    for( int y_ind = y_start_in_map; y_ind<y_end_in_map; y_ind++ ){
+    for( int y_ind = y_start_in_map; y_ind<y_end_in_map; y_ind++ )
+    {
         x_counter = 0;
-        for( int x_ind = x_start_in_map; x_ind<x_end_in_map; x_ind++ ){
+        for( int x_ind = x_start_in_map; x_ind<x_end_in_map; x_ind++ )
+        {
             index_1D = convertGrid2dTo1d(x_ind, y_ind);
-            if( inflate_sample_in[y_start_in_smpl+y_counter][x_start_in_smpl + x_counter] > 0 ){
-                grids[index_1D] = std::max( inflate_sample_in[y_start_in_smpl+y_counter][x_start_in_smpl + x_counter], grids[index_1D]);
+            int _temp_y = y_start_in_sample + y_counter;
+            int _temp_x = x_start_in_sample + x_counter;
+            if(ptr_inflation->m_inflate_sample_.at(_temp_y).at(_temp_x) > 0)
+            {
+                ptr_map_msg->data.at(index_1D) = std::max(ptr_inflation->m_inflate_sample_.at(_temp_y).at(_temp_x), 
+                                                          ptr_map_msg->data.at(index_1D));
             }
             x_counter ++ ;
         }
         y_counter ++ ;
     }
-
 }
+
+/**
+ * @brief Add the lidar scan data into the grid map. 
+ * @param r_grids Reference to the grid map data.
+ * @param r_scan Reference to the lidar scan data.
+*/
+void ClassMapFusion::putLidarIntoGrids(nav_msgs::OccupancyGrid &r_grids, sensor_msgs::LaserScan &r_scan)
+{
+    getLidarPoseInMapFrame(); 
+
+    double _angle = r_scan.angle_min;
+
+    double _angle_inc = r_scan.angle_increment; 
+
+    tf::Transform _point_tf_in_lidar, _point_tf_in_map;
+    
+    double _x, _y, _x_in_map, _y_in_map;
+    int _x_index, _y_index, _index_1D;
+    for( float range : r_scan.ranges )
+    {
+        try
+        {
+            if( range > 20.0) 
+            {
+                _angle += _angle_inc ;  
+                continue;
+            }
+            _x = range * std::sin( -_angle + M_PI/2.0 );
+            _y = range * std::cos( -_angle + M_PI/2.0 );
+
+            _point_tf_in_lidar.setOrigin(tf::Vector3(_x, _y, 0));
+            _point_tf_in_map = m_lidar_to_base_tf_ * _point_tf_in_lidar;
+
+            _x_in_map = _point_tf_in_map.getOrigin().x();
+            _y_in_map = _point_tf_in_map.getOrigin().y();
+            
+            convertRealToGrid(_x_in_map, _y_in_map, _x_index, _y_index);
+            _index_1D = convertGrid2dTo1d(_x_index, _y_index);
+            inflateOneCell(&r_grids, &m_inflation_samples, _x_index, _y_index);
+        }
+        catch (tf::TransformException ex)
+        {
+            ROS_ERROR_STREAM("getLidarPoseInMapFrame: " << ex.what());
+            ros::Duration(0.5).sleep();
+        }
+        _angle += _angle_inc ; 
+    }
+}
+
+
+
 
 # endif 
 

@@ -30,81 +30,145 @@
 class ClassInflationSamples
 {
 private:
-    int8_t v0;
-    int8_t cr;
-    int8_t v1;
-    int8_t v2;
-    int8_t v3;
-    int8_t v4;
-    int8_t v5;
+    const int8_t cr = 0; // Occupancy value for the clear grid. 
+    const int8_t v0 = 100; // Occupancy value for the highest occ score.
+    const int8_t v1 = 95; // Occupancy value for the 2nd highest occ score.
+    const int8_t v2 = 90; // Occupancy value for the 3rd highest occ score.
+    const int8_t v3 = 85; // Occupancy value for the 4th highest occ score.
+    const int8_t v4 = 80; // Occupancy value for the 5th highest occ score.
+    const int8_t v5 = 75; // Occupancy value for the 6th highest occ score.
+
+    
+
+    int m_radius_val_;
+
+    bool m_radius_is_set_;
+
 public:
     ClassInflationSamples();
     ~ClassInflationSamples();
 
-    void get_sample_by_radius(std::vector< std::vector<int8_t> >& inflate_sample_target, const int radius);
+    // void prepareSampleByRadius(std::vector< std::vector<int8_t> >& inflate_sample_target, const int radius);
+    void prepareSampleByRadius();
+
+    std::vector<std::vector<int8_t>> getInflationSample();
+
+    std::vector< std::vector<int8_t> > m_inflate_sample_;
+
+    void setRadius(const int rad);
+
+    int getRadius();
 };
 
 ClassInflationSamples::ClassInflationSamples()
 {
-    v0 = 100;
-    cr = 0; 
-    v1 = 95;
-    v2 = 90;
-    v3 = 85;
-    v4 = 80;
-    v5 = 75;
+    m_radius_is_set_ = false;
+    // cr = 0; 
+    // v0 = 100;
+    // v1 = 95;
+    // v2 = 90;
+    // v3 = 85;
+    // v4 = 80;
+    // v5 = 75;
 }
 
 ClassInflationSamples::~ClassInflationSamples()
 {
 }
 
-void ClassInflationSamples::get_sample_by_radius(std::vector< std::vector<int8_t> >& inflate_sample_target, 
-                                                 const int radius){
-    if( radius == 1){
-        inflate_sample_target.push_back( {v2, v1, v2} );
-        inflate_sample_target.push_back( {v1, v0, v1} );
-        inflate_sample_target.push_back( {v2, v1, v2} );
+/**
+ * 
+*/
+void ClassInflationSamples::setRadius(const int rad)
+{
+    if (rad < 1)
+    {
+        ROS_ERROR_STREAM("setRadius() invalid radius:" << rad);
+        return;
     }
-    else if( radius == 2){
-        inflate_sample_target.push_back( {cr, v3, v2, v3, cr} );
-        inflate_sample_target.push_back( {v3, v1, v1, v1, v3} );
-        inflate_sample_target.push_back( {v2, v1, v0, v1, v2} );
-        inflate_sample_target.push_back( {v3, v1, v1, v1, v3} );
-        inflate_sample_target.push_back( {cr, v3, v2, v3, cr} );
+    m_radius_val_ = rad;
+    m_radius_is_set_ = true;
+}
+
+/**
+ * @brief Get value of the radius. 
+ * @return The radius.
+*/
+int ClassInflationSamples::getRadius()
+{
+    return m_radius_val_;
+}
+
+/**
+ * @brief Call this function to get the inflation. 
+ * @return The inflation sample. 
+*/
+std::vector<std::vector<int8_t>> ClassInflationSamples::getInflationSample()
+{
+    return m_inflate_sample_;
+}
+
+/**
+ * @brief Generate the inflation sample, and save in a member variable.
+*/
+void ClassInflationSamples::prepareSampleByRadius()
+{
+    if (! m_radius_is_set_)
+    {
+        ROS_WARN_STREAM("Make sure radius is set first.");
+        return;
     }
-    else if( radius == 3){
-        inflate_sample_target.push_back( {cr,cr,v3,v3,v3,cr,cr} );
-        inflate_sample_target.push_back( {cr,v2,v2,v2,v2,v2,cr} );
-        inflate_sample_target.push_back( {v3,v2,v1,v1,v1,v2,v3} );
-        inflate_sample_target.push_back( {v3,v2,v1,v0,v1,v2,v3} );
-        inflate_sample_target.push_back( {v3,v2,v1,v1,v1,v2,v3} );
-        inflate_sample_target.push_back( {cr,v2,v2,v2,v2,v2,cr} );
-        inflate_sample_target.push_back( {cr,cr,v3,v3,v3,cr,cr} );
+
+    m_inflate_sample_.clear();
+
+    if( m_radius_val_ == 1){
+        m_inflate_sample_.push_back( {v2, v1, v2} );
+        m_inflate_sample_.push_back( {v1, v0, v1} );
+        m_inflate_sample_.push_back( {v2, v1, v2} );
     }
-    else if( radius == 4){
-        inflate_sample_target.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
-        inflate_sample_target.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
-        inflate_sample_target.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
-        inflate_sample_target.push_back( {v4,v3,v2,v1,v1,v1,v2,v3,v4} );
-        inflate_sample_target.push_back( {v4,v3,v2,v1,v0,v1,v2,v3,v4} );
-        inflate_sample_target.push_back( {v4,v3,v2,v1,v1,v1,v2,v3,v4} );
-        inflate_sample_target.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
-        inflate_sample_target.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
-        inflate_sample_target.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
+    else if( m_radius_val_ == 2){
+        m_inflate_sample_.push_back( {cr, v3, v2, v3, cr} );
+        m_inflate_sample_.push_back( {v3, v1, v1, v1, v3} );
+        m_inflate_sample_.push_back( {v2, v1, v0, v1, v2} );
+        m_inflate_sample_.push_back( {v3, v1, v1, v1, v3} );
+        m_inflate_sample_.push_back( {cr, v3, v2, v3, cr} );
     }
-    else if( radius >= 5){
-        inflate_sample_target.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
-        inflate_sample_target.push_back( {cr,cr,cr,v4,v4,v4,v4,v4,cr,cr,cr} );
-        inflate_sample_target.push_back( {cr,cr,v4,v4,v3,v3,v3,v4,v4,cr,cr} );
-        inflate_sample_target.push_back( {cr,v4,v3,v2,v2,v2,v2,v2,v3,v4,cr} );
-        inflate_sample_target.push_back( {v5,v4,v3,v2,v1,v1,v1,v2,v3,v4,v5} );
-        inflate_sample_target.push_back( {v5,v4,v3,v2,v1,v0,v1,v2,v3,v4,v5} );
-        inflate_sample_target.push_back( {v5,v4,v3,v2,v1,v1,v1,v2,v3,v4,v5} );
-        inflate_sample_target.push_back( {cr,v4,v3,v2,v2,v2,v2,v2,v3,v4,cr} );
-        inflate_sample_target.push_back( {cr,cr,v5,v4,v3,v3,v3,v4,v5,cr,cr} );
-        inflate_sample_target.push_back( {cr,cr,cr,v4,v4,v4,v4,v4,cr,cr,cr} );
-        inflate_sample_target.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
+    else if( m_radius_val_ == 3){
+        m_inflate_sample_.push_back( {cr,cr,v3,v3,v3,cr,cr} );
+        m_inflate_sample_.push_back( {cr,v2,v2,v2,v2,v2,cr} );
+        m_inflate_sample_.push_back( {v3,v2,v1,v1,v1,v2,v3} );
+        m_inflate_sample_.push_back( {v3,v2,v1,v0,v1,v2,v3} );
+        m_inflate_sample_.push_back( {v3,v2,v1,v1,v1,v2,v3} );
+        m_inflate_sample_.push_back( {cr,v2,v2,v2,v2,v2,cr} );
+        m_inflate_sample_.push_back( {cr,cr,v3,v3,v3,cr,cr} );
+    }
+    else if( m_radius_val_ == 4){
+        m_inflate_sample_.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
+        m_inflate_sample_.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
+        m_inflate_sample_.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
+        m_inflate_sample_.push_back( {v4,v3,v2,v1,v1,v1,v2,v3,v4} );
+        m_inflate_sample_.push_back( {v4,v3,v2,v1,v0,v1,v2,v3,v4} );
+        m_inflate_sample_.push_back( {v4,v3,v2,v1,v1,v1,v2,v3,v4} );
+        m_inflate_sample_.push_back( {cr,v3,v2,v2,v2,v2,v2,v3,cr} );
+        m_inflate_sample_.push_back( {cr,cr,v4,v3,v3,v3,v4,cr,cr} );
+        m_inflate_sample_.push_back( {cr,cr,cr,v3,v3,v3,cr,cr,cr} );
+    }
+    else if( m_radius_val_ == 5){
+        m_inflate_sample_.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
+        m_inflate_sample_.push_back( {cr,cr,cr,v5,v4,v4,v4,v5,cr,cr,cr} );
+        m_inflate_sample_.push_back( {cr,cr,v5,v4,v3,v3,v3,v4,v5,cr,cr} );
+        m_inflate_sample_.push_back( {cr,v5,v3,v2,v2,v2,v2,v2,v3,v5,cr} );
+        m_inflate_sample_.push_back( {v5,v4,v3,v2,v1,v1,v1,v2,v3,v4,v5} );
+        m_inflate_sample_.push_back( {v5,v4,v3,v2,v1,v0,v1,v2,v3,v4,v5} );
+        m_inflate_sample_.push_back( {v5,v4,v3,v2,v1,v1,v1,v2,v3,v4,v5} );
+        m_inflate_sample_.push_back( {cr,v5,v3,v2,v2,v2,v2,v2,v3,v5,cr} );
+        m_inflate_sample_.push_back( {cr,cr,v5,v4,v3,v3,v3,v4,v5,cr,cr} );
+        m_inflate_sample_.push_back( {cr,cr,cr,v5,v4,v4,v4,v5,cr,cr,cr} );
+        m_inflate_sample_.push_back( {cr,cr,cr,cr,v5,v5,v5,cr,cr,cr,cr} );
+    }
+    else
+    {
+        ROS_ERROR_STREAM("Invalid inflation size:" << m_radius_val_);
     }
 }
 

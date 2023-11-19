@@ -71,44 +71,47 @@ $(function() {
 <div class="title">class_map_fusion.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;ros/ros.h&quot;</code><br />
+<div class="textblock"><code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;atomic&gt;</code><br />
+<code>#include &lt;future&gt;</code><br />
+<code>#include &lt;thread&gt;</code><br />
+<code>#include &lt;mutex&gt;</code><br />
+<code>#include &lt;boost/property_tree/ptree.hpp&gt;</code><br />
+<code>#include &lt;boost/property_tree/json_parser.hpp&gt;</code><br />
+<code>#include &quot;ros/ros.h&quot;</code><br />
 <code>#include &quot;sensor_msgs/LaserScan.h&quot;</code><br />
 <code>#include &quot;nav_msgs/OccupancyGrid.h&quot;</code><br />
 <code>#include &quot;nav_msgs/MapMetaData.h&quot;</code><br />
 <code>#include &quot;nav_msgs/Odometry.h&quot;</code><br />
 <code>#include &quot;tf/transform_listener.h&quot;</code><br />
-<code>#include &lt;algorithm&gt;</code><br />
-<code>#include &lt;atomic&gt;</code><br />
-<code>#include &lt;future&gt;</code><br />
-<code>#include &lt;thread&gt;</code><br />
-<code>#include &lt;chrono&gt;</code><br />
-<code>#include &lt;mutex&gt;</code><br />
-<code>#include &lt;boost/property_tree/ptree.hpp&gt;</code><br />
-<code>#include &lt;boost/property_tree/json_parser.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="class__inflation__samples_8h_source.html">class_inflation_samples.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="hawa__timer__class_8h_source.html">../utils/hawa_timer_class.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="hawa__tools_8h_source.html">../utils/hawa_tools.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for class_map_fusion.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="class__map__fusion_8h__incl.png" border="0" usemap="#include_2map__fusion_2class__map__fusion_8h" alt=""/></div>
 <map name="include_2map__fusion_2class__map__fusion_8h" id="include_2map__fusion_2class__map__fusion_8h">
-<area shape="rect" title=" " alt="" coords="1218,5,1373,47"/>
-<area shape="rect" title=" " alt="" coords="5,102,84,129"/>
-<area shape="rect" title=" " alt="" coords="109,102,298,129"/>
-<area shape="rect" title=" " alt="" coords="322,102,525,129"/>
-<area shape="rect" title=" " alt="" coords="549,102,745,129"/>
-<area shape="rect" title=" " alt="" coords="769,102,936,129"/>
-<area shape="rect" title=" " alt="" coords="961,102,1129,129"/>
-<area shape="rect" title=" " alt="" coords="1153,102,1238,129"/>
-<area shape="rect" title=" " alt="" coords="1262,102,1329,129"/>
-<area shape="rect" title=" " alt="" coords="1353,102,1414,129"/>
-<area shape="rect" title=" " alt="" coords="1438,102,1502,129"/>
-<area shape="rect" title=" " alt="" coords="1526,102,1593,129"/>
-<area shape="rect" title=" " alt="" coords="1617,102,1681,129"/>
-<area shape="rect" title=" " alt="" coords="1705,95,1856,136"/>
-<area shape="rect" title=" " alt="" coords="1880,95,2031,136"/>
-<area shape="rect" href="class__inflation__samples_8h.html" title=" " alt="" coords="2055,102,2245,129"/>
-<area shape="rect" title=" " alt="" coords="2071,184,2133,211"/>
-<area shape="rect" title=" " alt="" coords="2158,184,2238,211"/>
+<area shape="rect" title=" " alt="" coords="857,5,1012,47"/>
+<area shape="rect" title=" " alt="" coords="5,102,91,129"/>
+<area shape="rect" title=" " alt="" coords="115,102,181,129"/>
+<area shape="rect" title=" " alt="" coords="205,102,267,129"/>
+<area shape="rect" title=" " alt="" coords="291,102,355,129"/>
+<area shape="rect" title=" " alt="" coords="379,102,443,129"/>
+<area shape="rect" title=" " alt="" coords="467,95,618,136"/>
+<area shape="rect" title=" " alt="" coords="642,95,793,136"/>
+<area shape="rect" title=" " alt="" coords="817,102,895,129"/>
+<area shape="rect" title=" " alt="" coords="920,102,1109,129"/>
+<area shape="rect" title=" " alt="" coords="1133,102,1336,129"/>
+<area shape="rect" title=" " alt="" coords="1361,102,1557,129"/>
+<area shape="rect" title=" " alt="" coords="1581,102,1747,129"/>
+<area shape="rect" title=" " alt="" coords="1772,102,1940,129"/>
+<area shape="rect" href="class__inflation__samples_8h.html" title=" " alt="" coords="1965,102,2155,129"/>
+<area shape="rect" href="hawa__timer__class_8h.html" title=" " alt="" coords="2179,95,2322,136"/>
+<area shape="rect" href="hawa__tools_8h.html" title=" " alt="" coords="2251,184,2359,211"/>
+<area shape="rect" title=" " alt="" coords="1981,184,2043,211"/>
+<area shape="rect" title=" " alt="" coords="2068,184,2148,211"/>
+<area shape="rect" title=" " alt="" coords="2272,259,2339,285"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -126,6 +129,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classClassMapFusion.html">ClassMapFusion</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This class receives the raw gridmap and other range sensors, then add the sensor data into the gridmap and publish the result into a new topic.  <a href="classClassMapFusion.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->

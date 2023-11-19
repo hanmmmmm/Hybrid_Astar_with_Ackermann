@@ -6,11 +6,12 @@
 
 
 
-Collaboration diagram for Class\+Inflation\+Samples\+:\nopagebreak
+Collaboration diagram for Class\+Inflation\+Samples\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=232pt]{classClassInflationSamples__coll__graph}
+\includegraphics[width=235pt]{classClassInflationSamples__coll__graph}
 \end{center}
 \end{figure}
 \doxysubsection*{Public Member Functions}
@@ -20,7 +21,18 @@ Collaboration diagram for Class\+Inflation\+Samples\+:\nopagebreak
 \item 
 \mbox{\hyperlink{classClassInflationSamples_a0616dc97ff6933ee21a397c5c5ef71f9}{$\sim$\+Class\+Inflation\+Samples}} ()
 \item 
-void \mbox{\hyperlink{classClassInflationSamples_aa204cc296f9791817b6c871c9efa22d9}{get\+\_\+sample\+\_\+by\+\_\+radius}} (std\+::vector$<$ std\+::vector$<$ int8\+\_\+t $>$ $>$ \&inflate\+\_\+sample\+\_\+target, const int radius)
+void \mbox{\hyperlink{classClassInflationSamples_aba70e465cbcbbf84452ed5941b09112f}{prepare\+Sample\+By\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Generate the inflation sample, and save in a member variable. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ int8\+\_\+t $>$ $>$ \mbox{\hyperlink{classClassInflationSamples_ad3cbac289f673c569fdfa451ce46c30d}{get\+Inflation\+Sample}} ()
+\begin{DoxyCompactList}\small\item\em Call this function to get the inflation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classClassInflationSamples_acf38cf62be6d58d5a80f6638bb3a93bb}{set\+Radius}} (const int rad)
+\item 
+int \mbox{\hyperlink{classClassInflationSamples_a10fcba03650cc508069024dcd35cd2d4}{get\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get value of the radius. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ std\+::vector$<$ int8\+\_\+t $>$ $>$ \mbox{\hyperlink{classClassInflationSamples_a0d8b25fc59aa82391c23701fb424eaba}{m\+\_\+inflate\+\_\+sample\+\_\+}}
 \end{DoxyCompactItemize}
 
 
@@ -40,11 +52,56 @@ void \mbox{\hyperlink{classClassInflationSamples_aa204cc296f9791817b6c871c9efa22
 
 
 \doxysubsection{Member Function Documentation}
-\mbox{\Hypertarget{classClassInflationSamples_aa204cc296f9791817b6c871c9efa22d9}\label{classClassInflationSamples_aa204cc296f9791817b6c871c9efa22d9}} 
-\index{ClassInflationSamples@{ClassInflationSamples}!get\_sample\_by\_radius@{get\_sample\_by\_radius}}
-\index{get\_sample\_by\_radius@{get\_sample\_by\_radius}!ClassInflationSamples@{ClassInflationSamples}}
-\doxysubsubsection{\texorpdfstring{get\_sample\_by\_radius()}{get\_sample\_by\_radius()}}
-{\footnotesize\ttfamily void Class\+Inflation\+Samples\+::get\+\_\+sample\+\_\+by\+\_\+radius (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::vector$<$ int8\+\_\+t $>$ $>$ \&}]{inflate\+\_\+sample\+\_\+target,  }\item[{const int}]{radius }\end{DoxyParamCaption})}
+\mbox{\Hypertarget{classClassInflationSamples_ad3cbac289f673c569fdfa451ce46c30d}\label{classClassInflationSamples_ad3cbac289f673c569fdfa451ce46c30d}} 
+\index{ClassInflationSamples@{ClassInflationSamples}!getInflationSample@{getInflationSample}}
+\index{getInflationSample@{getInflationSample}!ClassInflationSamples@{ClassInflationSamples}}
+\doxysubsubsection{\texorpdfstring{getInflationSample()}{getInflationSample()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ int8\+\_\+t $>$ $>$ Class\+Inflation\+Samples\+::get\+Inflation\+Sample (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call this function to get the inflation. 
+
+\begin{DoxyReturn}{Returns}
+The inflation sample. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassInflationSamples_a10fcba03650cc508069024dcd35cd2d4}\label{classClassInflationSamples_a10fcba03650cc508069024dcd35cd2d4}} 
+\index{ClassInflationSamples@{ClassInflationSamples}!getRadius@{getRadius}}
+\index{getRadius@{getRadius}!ClassInflationSamples@{ClassInflationSamples}}
+\doxysubsubsection{\texorpdfstring{getRadius()}{getRadius()}}
+{\footnotesize\ttfamily int Class\+Inflation\+Samples\+::get\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get value of the radius. 
+
+\begin{DoxyReturn}{Returns}
+The radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classClassInflationSamples_aba70e465cbcbbf84452ed5941b09112f}\label{classClassInflationSamples_aba70e465cbcbbf84452ed5941b09112f}} 
+\index{ClassInflationSamples@{ClassInflationSamples}!prepareSampleByRadius@{prepareSampleByRadius}}
+\index{prepareSampleByRadius@{prepareSampleByRadius}!ClassInflationSamples@{ClassInflationSamples}}
+\doxysubsubsection{\texorpdfstring{prepareSampleByRadius()}{prepareSampleByRadius()}}
+{\footnotesize\ttfamily void Class\+Inflation\+Samples\+::prepare\+Sample\+By\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Generate the inflation sample, and save in a member variable. 
+
+\mbox{\Hypertarget{classClassInflationSamples_acf38cf62be6d58d5a80f6638bb3a93bb}\label{classClassInflationSamples_acf38cf62be6d58d5a80f6638bb3a93bb}} 
+\index{ClassInflationSamples@{ClassInflationSamples}!setRadius@{setRadius}}
+\index{setRadius@{setRadius}!ClassInflationSamples@{ClassInflationSamples}}
+\doxysubsubsection{\texorpdfstring{setRadius()}{setRadius()}}
+{\footnotesize\ttfamily void Class\+Inflation\+Samples\+::set\+Radius (\begin{DoxyParamCaption}\item[{const int}]{rad }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\Hypertarget{classClassInflationSamples_a0d8b25fc59aa82391c23701fb424eaba}\label{classClassInflationSamples_a0d8b25fc59aa82391c23701fb424eaba}} 
+\index{ClassInflationSamples@{ClassInflationSamples}!m\_inflate\_sample\_@{m\_inflate\_sample\_}}
+\index{m\_inflate\_sample\_@{m\_inflate\_sample\_}!ClassInflationSamples@{ClassInflationSamples}}
+\doxysubsubsection{\texorpdfstring{m\_inflate\_sample\_}{m\_inflate\_sample\_}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$int8\+\_\+t$>$ $>$ Class\+Inflation\+Samples\+::m\+\_\+inflate\+\_\+sample\+\_\+}
 
 
 

@@ -1,21 +1,23 @@
 \hypertarget{class__map__fusion_8h}{}\doxysection{include/map\+\_\+fusion/class\+\_\+map\+\_\+fusion.h File Reference}
 \label{class__map__fusion_8h}\index{include/map\_fusion/class\_map\_fusion.h@{include/map\_fusion/class\_map\_fusion.h}}
+{\ttfamily \#include $<$algorithm$>$}\newline
+{\ttfamily \#include $<$atomic$>$}\newline
+{\ttfamily \#include $<$future$>$}\newline
+{\ttfamily \#include $<$thread$>$}\newline
+{\ttfamily \#include $<$mutex$>$}\newline
+{\ttfamily \#include $<$boost/property\+\_\+tree/ptree.\+hpp$>$}\newline
+{\ttfamily \#include $<$boost/property\+\_\+tree/json\+\_\+parser.\+hpp$>$}\newline
 {\ttfamily \#include \char`\"{}ros/ros.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}sensor\+\_\+msgs/\+Laser\+Scan.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}nav\+\_\+msgs/\+Occupancy\+Grid.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}nav\+\_\+msgs/\+Map\+Meta\+Data.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}nav\+\_\+msgs/\+Odometry.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}tf/transform\+\_\+listener.\+h\char`\"{}}\newline
-{\ttfamily \#include $<$algorithm$>$}\newline
-{\ttfamily \#include $<$atomic$>$}\newline
-{\ttfamily \#include $<$future$>$}\newline
-{\ttfamily \#include $<$thread$>$}\newline
-{\ttfamily \#include $<$chrono$>$}\newline
-{\ttfamily \#include $<$mutex$>$}\newline
-{\ttfamily \#include $<$boost/property\+\_\+tree/ptree.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/property\+\_\+tree/json\+\_\+parser.\+hpp$>$}\newline
 {\ttfamily \#include \char`\"{}class\+\_\+inflation\+\_\+samples.\+h\char`\"{}}\newline
-Include dependency graph for class\+\_\+map\+\_\+fusion.\+h\+:\nopagebreak
+{\ttfamily \#include \char`\"{}../utils/hawa\+\_\+timer\+\_\+class.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../utils/hawa\+\_\+tools.\+h\char`\"{}}\newline
+Include dependency graph for class\+\_\+map\+\_\+fusion.\+h\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -33,4 +35,4 @@ This graph shows which files directly or indirectly include this file\+:\nopageb
 \begin{DoxyCompactItemize}
 \item 
 class \mbox{\hyperlink{classClassMapFusion}{Class\+Map\+Fusion}}
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em This class receives the raw gridmap and other range sensors, then add the sensor data into the gridmap and publish the result into a new topic. \end{DoxyCompactList}\end{DoxyCompactItemize}
