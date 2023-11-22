@@ -21,9 +21,15 @@
 // SOFTWARE.
 
 /**
- * This file is 
+ * @file reedshepp_path.h
+ * @author Mingjie
+ * @brief This class is a container to store all the RS curve results.
+ * @version 0.1
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
-
 
 #ifndef CLASS_HAWA_REEDSHEPP_PATHS__
 #define CLASS_HAWA_REEDSHEPP_PATHS__

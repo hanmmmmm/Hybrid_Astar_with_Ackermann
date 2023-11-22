@@ -1,5 +1,24 @@
-#ifndef CLASS_PATH_VALIDATOR
-#define CLASS_PATH_VALIDATOR
+// MIT License
+
+// Copyright (c) 2023 Mingjie
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 /**
  * @file class_path_validator.h
@@ -12,13 +31,20 @@
  *
  */
 
+/**
+ * @note This feature is not used and it is still in developemnt. 2023-11-22.
+*/
+
+#ifndef CLASS_PATH_VALIDATOR
+#define CLASS_PATH_VALIDATOR
+
 #include <iostream>
 #include <deque>
 #include <array>
 #include <math.h>
 #include <vector>
 
-#include "../car_pathplan/class_pose.h"
+// #include "../car_pathplan/class_pose.h"
 
 using std::array;
 using std::deque;

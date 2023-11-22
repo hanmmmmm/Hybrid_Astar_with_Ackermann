@@ -21,11 +21,25 @@
 // SOFTWARE.
 
 
+/**
+ * @file class_inflation_samples.h
+ * @author Mingjie
+ * @brief This is a class providing the gridmap inflation information. 
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
+
 #ifndef HAWA_CLASS_GRIDMAP_INFLATION_SAMPLES
 #define HAWA_CLASS_GRIDMAP_INFLATION_SAMPLES
 
 #include <vector>
 #include <iostream>
+
+#include "ros/console.h"
 
 /**
  * @brief This class contains the data for the inflation used in grid map. 

@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(hawa_control)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
-
-
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -14,7 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
-
 
 catkin_package(
 #  INCLUDE_DIRS include
@@ -35,4 +30,3 @@ add_executable(purepursuit_node
 target_link_libraries( purepursuit_node
   ${catkin_LIBRARIES}
 )
-

@@ -22,8 +22,17 @@
 
 
 /**
+ * @file class_map_fusion.h
+ * @author Mingjie
+ * @brief This class receives the raw gridmap and other range sensors, then add the sensor data into the 
+ * gridmap and publish the result into a new topic. 
+ * @version 0.2
+ * @date 2023-11-15
  * 
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 
 
 #ifndef HAWA_CLASS_MAP_FUSION_NODE_H

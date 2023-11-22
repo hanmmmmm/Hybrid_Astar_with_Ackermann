@@ -14,6 +14,25 @@ from std_msgs.msg import Float32MultiArray
 import termios
 import tty
 
+'''
+This file is a process for maunally driving the simulated ackermann robot in this ros package, by keyboard. 
+
+run this directly in a terminal:
+python3 keyboard_to_ackermannDriveStamped.py
+
+Then press the keyboard keys to move the robot:
+i = forward
+, = backward
+u = forward left turn
+o = forward right turn
+m = backward left turn
+. = backward right turn
+k = stop the robot (optional because the robot will automatically stop when no command received)
+spacebar = terminate this process
+
+Note: Ctrl+C cannot terminate this process. 
+'''
+
 
 key_timeout = 0.5 
 key_timestamp = 0.0

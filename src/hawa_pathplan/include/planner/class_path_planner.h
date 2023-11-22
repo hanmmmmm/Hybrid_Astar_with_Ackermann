@@ -20,12 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * 
-*/
 
-#ifndef CLASS_PATH_PLANNER
-#define CLASS_PATH_PLANNER
+/**
+ * @file class_path_planner.h
+ * @author Mingjie
+ * @brief This is the ros node that is the highest level of the path planning module in this system.  
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
+
+#ifndef HAWA_CLASS_PATH_PLANNER
+#define HAWA_CLASS_PATH_PLANNER
 
 #include <iostream>
 #include <vector>
@@ -43,8 +52,6 @@
 #include "tf/transform_listener.h"
 #include "tf2/LinearMath/Quaternion.h"
 
-// #include "hawa_msgs/car_states.h"
-
 #include "../hybrid_a_star_module/class_hybrid_astar.h"
 #include "../utils/hawa_conversion_tools.h"
 #include "../utils/hawa_tools.h"
@@ -52,17 +59,13 @@
 #include "../utils/hawa_timestamp.h"
 
 
-// NOTE:
-// The poses of start(robot), goal, and paths are converted from /map frame to map-grid-space;
-// converted_tf = tf_in_map_frame - map_msg_origin;
-
 // TODO:
 // add a function to check if the current path is still valid:
 // - robot position xy is close to it
 // - robot heading is close to the path
 // - path is clear from obstacles
 // - 
-// if it's still valid, then no need to search new path. 
+// if it is no longer valid, then it will search new path. 
 
 
 
@@ -232,7 +235,7 @@ void ClassPathPlanner::pathPlan( const ros::TimerEvent &event )
     m_navmsgs_path_msg_.poses.clear();
     geometry_msgs::PoseStamped one_pose;
 
-    for( auto point : path.get_path() ){
+    for( auto point : path.getPath() ){
         // std::cout << "in for" << std::endl;
         one_pose.pose.position.x = point[0] + m_map_msg_.info.origin.position.x;
         one_pose.pose.position.y = point[1] + m_map_msg_.info.origin.position.y;

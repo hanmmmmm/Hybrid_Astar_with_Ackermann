@@ -18,12 +18,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
+// SOFTWARE
 /**
- * This file is 
+ * @file rs_LSR.h
+ * @author Mingjie
+ * @brief Solve the LSR type curves. 
+ * @version 0.1
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
-
 
 #ifndef HAWA_REEDS_SHEPP_LSR_H
 #define HAWA_REEDS_SHEPP_LSR_H

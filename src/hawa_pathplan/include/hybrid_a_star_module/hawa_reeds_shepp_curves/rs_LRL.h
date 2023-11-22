@@ -21,14 +21,18 @@
 // SOFTWARE.
 
 /**
- * This file is 
+ * @file rs_LRL.h
+ * @author Mingjie
+ * @brief Solve the LRL type curves. 
+ * @version 0.1
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
-
-
 
 #ifndef HAWA_REEDS_SHEPP_LRL_H
 #define HAWA_REEDS_SHEPP_LRL_H
-
 
 #include <math.h>
 
@@ -38,7 +42,8 @@
 
 
 /**
- * 
+ * @brief Call this before run any solveXXX function below, so the important values will be 
+ * calculated first.
 */
 StructDubinsCurveCCCvalcollection prepareCCCLRL(StructPoseReal goal_pose, 
                                                 StructPoseReal start_pose, 

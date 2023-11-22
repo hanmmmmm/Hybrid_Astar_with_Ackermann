@@ -20,21 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 /**
- * This file contains several functions and classes that would be regulerly used 
- * in this project, but also they are just general tools instead of specific algorithm
- * things. 
-*/
+ * @file hawa_timestamp.h
+ * @author Mingjie
+ * @brief This class provides time stamp managment.  
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 
 #ifndef HAWA_TIMESTAMP_CLASS_H
 #define HAWA_TIMESTAMP_CLASS_H
 
-
 #include "hawa_tools.h"
 
 /**
- * 
+ * @brief This class provides time stamp managment. 
 */
 class ClassHawaTimeStamp
 {

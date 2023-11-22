@@ -21,8 +21,15 @@
 // SOFTWARE.
 
 /**
+ * @file hybrid_astar_tools.h
+ * @author Mingjie
+ * @brief This file contains several functions and structs that are frequently used.  
+ * @version 0.2
+ * @date 2023-11-15
  * 
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #ifndef HYBRID_ASTAR_TOOLS_H
 #define HYBRID_ASTAR_TOOLS_H
@@ -32,6 +39,9 @@
 #include "../utils/hawa_data_containers.h"
 
 
+/**
+ * @brief Wrapped conter.
+*/
 class ClassHawaCounter
 {
 private:
@@ -89,19 +99,22 @@ struct TimingAndCounter
     }
 };
 
-
+/**
+ * @brief The threshold values that will be used for classifiing the grid types. 
+*/
 struct MapOccThreshold
 {
     int8_t plan;
     int8_t vali;        
 };
 
-
-/// @brief This struct handles the logic for triggering the RS curve searching, during the 
-/// the hybrid astar exploration.  The value of interval would be modified to the 
-/// actual desired value. Briefly, everytime when counter is an interger multiplication of 
-/// the interval, then the hybrid astar should try to see if any RS curve connecting to the 
-/// goal pose. 
+/**
+ * @brief This struct handles the logic for triggering the RS curve searching, during the 
+ * the hybrid astar exploration.  The value of interval would be modified to the 
+ * actual desired value. Briefly, everytime when counter is an interger multiplication of 
+ * the interval, then the hybrid astar should try to see if any RS curve connecting to the 
+ * goal pose. 
+*/
 struct StructCounterForRSSearch
 {
     int counter = 0;
@@ -193,8 +206,10 @@ enum AStarGridType
     Closed
 };
 
-/// @brief The 6 types of motions used in HybridAstar searching.  F is forward, R is reverse. 
-/// S is straight motion, L is steer to left side. R is steer to right side.
+/**
+ * @brief The 6 types of motions used in HybridAstar searching.  F is forward, R is reverse. 
+ * S is straight motion, L is steer to left side. R is steer to right side.
+*/
 enum EnumHAMotionType
 {
     F_S, 
@@ -273,7 +288,7 @@ double estimate_steering_cost(const int last_steer, const int new_steer)
     }
 }
 
-double estimate_changing_motion_type_cost(const EnumHAMotionType last_motion, const EnumHAMotionType this_motion)
+double estimateChangingMotionTypeCost(const EnumHAMotionType last_motion, const EnumHAMotionType this_motion)
 {
     const double _no_change = 1.0;
     const double _small_steer = 1.1;

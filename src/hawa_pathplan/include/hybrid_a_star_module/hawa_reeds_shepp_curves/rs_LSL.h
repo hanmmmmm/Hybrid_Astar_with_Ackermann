@@ -21,7 +21,14 @@
 // SOFTWARE.
 
 /**
- * This file is 
+ * @file rs_LSL.h
+ * @author Mingjie
+ * @brief Solve the LSL type curves. 
+ * @version 0.1
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
 
 

@@ -21,7 +21,14 @@
 // SOFTWARE.
 
 /**
- * This file is a class for handling all operations on gridmap.
+ * @file class_gridmap_handler.h
+ * @author Mingjie
+ * @brief This class is for handling all operations on gridmap.
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
 
 #ifndef CLASS_GRIDMAP_HANDLER
@@ -32,21 +39,12 @@
 #include <unordered_map>
 #include <map>
 #include <math.h>
-
 #include <algorithm>
 #include <set>
-#include <chrono>
+
+#include "ros/console.h"
 
 #include "../utils/hawa_data_containers.h"
-
-using std::array;
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
-
-using std::chrono::high_resolution_clock;
 
 /**
  * @brief The class for storing gridmap and perform actions about it.
@@ -55,16 +53,16 @@ using std::chrono::high_resolution_clock;
 class ClassGridMapHandler
 {
 private:
-    vector<int8_t> *grid_map_1D_ptr_;
+    std::vector<int8_t> *m_ptr_grid_map_1D_;
 
-    int grid_map_width_, grid_map_height_;
-    bool valid_width_is_set_, valid_height_is_set_;
+    int m_grid_map_width_, m_grid_map_height_;
+    bool m_FLAG_valid_width_is_set_, m_FLAG_valid_height_is_set_;
 
-    int8_t planning_obstacle_threshold_value_;
-    int8_t validate_obstacle_threshold_value_;
+    int8_t m_planning_obstacle_threshold_value_;
+    int8_t m_validate_obstacle_threshold_value_;
 
-    double K_ratio_fine_to_grid_xy_;  // convert meter to grid_index
-    double K_ratio_fine_to_grid_yaw_; // convert radian to grid_index
+    double m_ratio_fine_to_grid_xy_;  // convert meter to grid_index
+    double m_ratio_fine_to_grid_yaw_; // convert radian to grid_index
 
 public:
     ClassGridMapHandler();
@@ -85,24 +83,31 @@ public:
 
     int m_number_of_angle_layers_;
 
-    int convert_twoD_to_oneD(const int x, const int y);
-    int convert_3D_to_oneD(const int x, const int y,  const int yaw);
-    bool convert_fine_pose_to_grid(double fine_x, double fine_y, double fine_yaw, int &grid_x, int &grid_y, int &grid_yaw);
-    bool convert_fine_pose_to_grid(array<double, 3> fine_xyyaw, int &grid_x, int &grid_y, int &grid_yaw);
-    bool convert_fine_pose_to_grid(double fine_x, double fine_y, int &grid_x, int &grid_y);
-    bool convert_grid_pose_to_fine(int grid_x, int grid_y, double &fine_x, double &fine_y);
-    bool convert_fine_pose_to_grid(const StructPoseReal realpose, StructPoseGrid& gridpose);
-    bool check_grid_within_map(int x, int y);
-    bool check_pose_within_map(double x, double y);
-    bool check_grid_clear(int x, int y, EnumMode m);
+    int convert2DTo1D(const int x, const int y);
+    int convert3DTo1D(const int x, const int y,  const int yaw);
+
+    bool convertFinePoseToGrid(double fine_x, double fine_y, double fine_yaw, 
+                                   int &r_grid_x, int &r_grid_y, int &r_grid_yaw);
+    bool convertFinePoseToGrid(std::array<double, 3> fine_xyyaw, 
+                                   int &r_grid_x, int &r_grid_y, int &r_grid_yaw);
+    bool convertFinePoseToGrid(double fine_x, double fine_y, 
+                                   int &r_grid_x, int &r_grid_y);
+    bool convertGridPoseToFine(int grid_x, int grid_y, 
+                                   double &r_fine_x, double &r_fine_y);
+    bool convertFinePoseToGrid(const StructPoseReal realpose, StructPoseGrid& r_gridpose);
+    
+    bool checkGridWithinMap(int x, int y);
+    bool checkPoseWithinMap(double x, double y);
+    bool checkGridClear(int x, int y, EnumMode mode);
     // bool check_pose_clear(double x, double y, EnumMode m);
-    bool check_line_clear__by_grid(int x1, int y1, int x2, int y2, EnumMode m, EnumCollosionCheckType co);
-    bool check_line_clear__by_meter(double x1, double y1, double x2, double y2, EnumMode m, EnumCollosionCheckType co);
-    bool set_grid_width_height(int width, int height);
-    bool set_planning_obstacle_threshold(int8_t thd);
-    bool set_validate_obstacle_threshold(int8_t thd);
-    bool set_grid_map_ptr(vector<int8_t> * ptr_);
-    bool set_grid_meter_ratio(double xy, double angle);
+    bool checkLineClearByGrid(int x1, int y1, int x2, int y2, EnumMode mode, EnumCollosionCheckType coll);
+    bool checkLineClearByReal(double x1, double y1, double x2, double y2, EnumMode mode, EnumCollosionCheckType coll);
+    
+    bool setGridWidthHeight(int width, int height);
+    bool setPlanningObstacleThreshold(int8_t thd);
+    bool setValidateObstacleThreshold(int8_t thd);
+    bool setGridMapPtr(std::vector<int8_t> * ptr_);
+    bool setGridMeterRatio(double xy, double angle);
 
     int getMapLength();
 };
@@ -113,76 +118,78 @@ public:
  */
 ClassGridMapHandler::ClassGridMapHandler()
 {
-    valid_width_is_set_ = false;
-    valid_height_is_set_ = false;
+    m_FLAG_valid_width_is_set_ = false;
+    m_FLAG_valid_height_is_set_ = false;
 
-    K_ratio_fine_to_grid_xy_ = 0.1;
-    K_ratio_fine_to_grid_yaw_ = M_PI / 9.0;
+    m_ratio_fine_to_grid_xy_ = 0.1;
+    m_ratio_fine_to_grid_yaw_ = M_PI / 9.0;
 
-    m_number_of_angle_layers_ = int(M_PI*2.0/K_ratio_fine_to_grid_yaw_)+1;
+    m_number_of_angle_layers_ = int(M_PI*2.0/m_ratio_fine_to_grid_yaw_)+1;
 }
 
 /**
  * @brief Destroy the Class Grid Map Handler:: Class Grid Map Handler object
- *
  */
 ClassGridMapHandler::~ClassGridMapHandler()
 {
+    delete m_ptr_grid_map_1D_;
 }
 
 /**
- * @brief 
- * 
- * @param ptr_ 
+ * @brief Assign the map data by giving the pointer. 
+ * @param ptr_map Pointer to the 1d vector. 
  */
-bool ClassGridMapHandler::set_grid_map_ptr(vector<int8_t> * ptr_)
+bool ClassGridMapHandler::setGridMapPtr(std::vector<int8_t> * ptr_map)
 {
-    if(ptr_->size() > 1)
+    if(ptr_map->size() > 1)
     {
-        grid_map_1D_ptr_ = ptr_;
+        m_ptr_grid_map_1D_ = ptr_map;
         return true;
     }
     else{
         return false;
     }
-    
 }
 
+/**
+ * @brief Get the total number of grids in the map.
+ * @return The size.
+*/
 int ClassGridMapHandler::getMapLength()
 {
-    return grid_map_1D_ptr_->size();
+    return m_ptr_grid_map_1D_->size();
 }
 
 
 /**
- * @brief Because the map is saved in 1D vector, its width and height need to saved.
- *
- * @param width
- * @param height
+ * @brief Because the map is saved in 1D vector, its width and height are saved separately..
+ * @param width The width of the gridmap.
+ * @param height The height of the gridmap.
+ * @return False if any value out of regular ranges. True if nothing wrong.
  */
-bool ClassGridMapHandler::set_grid_width_height(int width, int height)
+bool ClassGridMapHandler::setGridWidthHeight(int width, int height)
 {
     if (width > 1 && width < 123456)
     {
-        grid_map_width_ = width;
-        valid_width_is_set_ = true;
+        m_grid_map_width_ = width;
+        m_FLAG_valid_width_is_set_ = true;
     }
     else
     {
-        valid_width_is_set_ = false;
-        cerr << "Invalid width is assigned: " << width << endl;
+        m_FLAG_valid_width_is_set_ = false;
+        ROS_WARN_STREAM_THROTTLE(20, "Invalid width is assigned: " << width);
     }
     if (height > 1 && height < 123456)
     {
-        grid_map_height_ = height;
-        valid_height_is_set_ = true;
+        m_grid_map_height_ = height;
+        m_FLAG_valid_height_is_set_ = true;
     }
     else
     {
-        valid_height_is_set_ = false;
-        cerr << "Invalid height is assigned: " << height << endl;
+        m_FLAG_valid_height_is_set_ = false;
+        ROS_WARN_STREAM_THROTTLE(20, "Invalid height is assigned: " << height);
     }
-    if( valid_height_is_set_ && valid_width_is_set_)
+    if( m_FLAG_valid_height_is_set_ && m_FLAG_valid_width_is_set_)
     {
         return true;
     }
@@ -193,93 +200,85 @@ bool ClassGridMapHandler::set_grid_width_height(int width, int height)
 }
 
 /**
- * @brief 
- * 
- * @param xy 
- * @param angle 
- * @return true 
- * @return false 
+ * @brief Set the ratio between the metric dimension and grid dimension.
+ * @param xy The ratio in x and y directions. 
+ * @param angle The ratio used by converting the angles/yaw.
+ * @return Return is not used.
  */
-bool ClassGridMapHandler::set_grid_meter_ratio(double xy, double angle)
+bool ClassGridMapHandler::setGridMeterRatio(double xy, double angle)
 {
-    K_ratio_fine_to_grid_xy_ = xy;
-    K_ratio_fine_to_grid_yaw_= angle;
-    m_number_of_angle_layers_ = int(M_PI*2.0/K_ratio_fine_to_grid_yaw_)+1;
+    m_ratio_fine_to_grid_xy_ = xy;
+    m_ratio_fine_to_grid_yaw_= angle;
+    m_number_of_angle_layers_ = int(M_PI*2.0/m_ratio_fine_to_grid_yaw_)+1;
     return true;
 }
 
 
 /**
- * @brief   set the value of obstacle_threshold for validating mode.
- * @param thd   the threshold you want. Range:(0,100). Higher = Stricter.
+ * @brief Set the value of obstacle_threshold for validating mode.
+ * @param thd The threshold you want. Range:(0,100). Higher = Stricter.
  */
-bool ClassGridMapHandler::set_validate_obstacle_threshold(int8_t thd)
+bool ClassGridMapHandler::setValidateObstacleThreshold(int8_t thd)
 {
     if (thd < 0)
     {
         thd = 0;
-        cerr << "function: <ClassGridMapHandler::set_validate_obstacle_threshold>\nGiven value smaller than 0. Set as 0." << endl;
+        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value smaller than 0");
         return false;
     }
     else if (thd > 100)
     {
         thd = 100;
-        cerr << "function: <ClassGridMapHandler::set_validate_obstacle_threshold>\nGiven value larger than 100. Set as 100." << endl;
+        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value larger than 100");
         return false;
     }
-    validate_obstacle_threshold_value_ = thd;
+    m_validate_obstacle_threshold_value_ = thd;
     return true;
 }
 
 /**
- * @brief    set the value of obstacle_threshold for plan mode.
- * @param thd   the threshold you want. Range:(0,100). Higher = Stricter.
+ * @brief Set the value of obstacle_threshold for plan mode.
+ * @param thd The threshold you want. Range:(0,100). Higher = Stricter.
  */
-bool ClassGridMapHandler::set_planning_obstacle_threshold(int8_t thd)
+bool ClassGridMapHandler::setPlanningObstacleThreshold(int8_t thd)
 {
     if (thd < 0)
     {
         thd = 0;
-        cerr << "function: <ClassGridMapHandler::set_planning_obstacle_threshold>\nGiven value smaller than 0. Set as 0." << endl;
+        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value smaller than 0");
         return false;
     }
     else if (thd > 100)
     {
         thd = 100;
-        cerr << "function: <ClassGridMapHandler::set_planning_obstacle_threshold>\nGiven value larger than 100. Set as 100." << endl;
+        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value larger than 100");
         return false;
     }
-    planning_obstacle_threshold_value_ = thd;
+    m_planning_obstacle_threshold_value_ = thd;
     return true;
 }
 
 /**
- * @brief
- * check if a grid is clear or it's obstacle.
- * @param x , int. grid index.
- * @param y , int. grid index.
- * @param m , EnumMode. The threshold value is different in plan mode and validate mode.
+ * @brief check if a grid is clear or it's obstacle.
+ * @param x grid index.
+ * @param y grid index.
+ * @param mode EnumMode. The threshold value is different in plan mode and validate mode.
  * @return true , if it's clear.
  * @return false , if it's obstacle or error happened.
  */
-bool ClassGridMapHandler::check_grid_clear(int x, int y, EnumMode m)
+bool ClassGridMapHandler::checkGridClear(int x, int y, EnumMode mode)
 {
-    int8_t threshold;
-    if (m == EnumMode::plan)
-        threshold = planning_obstacle_threshold_value_;
-    if (m == EnumMode::validate)
-        threshold = validate_obstacle_threshold_value_;
+    int8_t _threshold;
+    if (mode == EnumMode::plan)
+        _threshold = m_planning_obstacle_threshold_value_;
+    if (mode == EnumMode::validate)
+        _threshold = m_validate_obstacle_threshold_value_;
 
-    int index_1d = convert_twoD_to_oneD(x, y);
+    int _index_1d = convert2DTo1D(x, y);
 
-    // if ( std::abs(rs_path->path_steps[pointi][0] - rs_path->path_steps[pointi-1][0]) +
-    //         std::abs(rs_path->path_steps[pointi][1] - rs_path->path_steps[pointi-1][1])  > 0.4  ){
-    //         continue;
-    //         }
-
-    if (0 <= index_1d && index_1d < (grid_map_1D_ptr_->size()))
+    if (0 <= _index_1d && _index_1d < (m_ptr_grid_map_1D_->size()))
     {
-        if ((*grid_map_1D_ptr_)[index_1d] > threshold)
+        if ((*m_ptr_grid_map_1D_).at(_index_1d) > _threshold)
         {
             return false;
         }
@@ -287,221 +286,215 @@ bool ClassGridMapHandler::check_grid_clear(int x, int y, EnumMode m)
     }
     else
     {
-        cerr << "function <ClassGridMapHandler::check_grid_clear>\nindex_1d out of map size." << endl;
-        try
-        {
-            cerr << index_1d << " in " << grid_map_1D_ptr_->size() << " xy:" << x << " " << y << endl;
-        }
-        catch (...)
-        {
-            cout << "try failed." << endl;
-        }
+        ROS_WARN_STREAM_THROTTLE(30, "function <ClassGridMapHandler::checkGridClear>\nindex_1d out of map size.");
         return false;
     }
 }
 
-// /**
-//  * @brief
-//  * check if a pose if clear from obstacle collision.
-//  * @param x , meter.
-//  * @param y , meter.
-//  * @param m , mode: plan, validate.
-//  * @return true
-//  * @return false
-//  */
-// bool ClassGridMapHandler::check_pose_clear(double x, double y, EnumMode m)
-// {
-//     int grid_x, grid_y;
-//     convert_fine_pose_to_grid(x, y, grid_x, grid_y);
-//     return check_grid_clear(grid_x, grid_y, m);
-// }
-
 /**
- * @brief
- *
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @param m
- * @return true
- * @return false
+ * @brief Check if a line is clear from any obstacle collision. 
+ * @param x1 X of end point 1.
+ * @param y1 Y of end point 1.
+ * @param x2 X of end point 2.
+ * @param y2 Y of end point 2.
+ * @param mode Decide which mode it should use. 
+ * @param coll Decide which type of checking should use.
+ * @return true if this line does not collide with any thing.
  */
-bool ClassGridMapHandler::check_line_clear__by_grid(int x1, int y1, int x2, int y2, EnumMode m, EnumCollosionCheckType co)
+bool ClassGridMapHandler::checkLineClearByGrid(int x1, int y1, 
+                                               int x2, int y2, 
+                                               EnumMode mode, EnumCollosionCheckType coll)
 {
-    if (co == EnumCollosionCheckType::end_points_only)
+    if (coll == EnumCollosionCheckType::end_points_only)
     {
-        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
+        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
     }
-    else if (co == EnumCollosionCheckType::all_grids)
+    else if (coll == EnumCollosionCheckType::all_grids)
     {
         // use bresenham to find the grids in the middle, and check each of them.
-        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
+        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
     }
-    else if (co == EnumCollosionCheckType::spaced)
+    else if (coll == EnumCollosionCheckType::spaced)
     {
         // similar to above, but check only some grids.
-        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
+        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
     }
     else
     {
-        return check_grid_clear(x1, y1, m) && check_grid_clear(x2, y2, m);
+        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
     }
 }
 
 /**
- * @brief
- *
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @param m
- * @return true
- * @return false
+ * @brief Check if a line is clear from any obstacle collision. 
+ * @param x1 X of end point 1.
+ * @param y1 Y of end point 1.
+ * @param x2 X of end point 2.
+ * @param y2 Y of end point 2.
+ * @param mode Decide which mode it should use. 
+ * @param coll Decide which type of checking should use.
+ * @return true if this line does not collide with any thing.
  */
-bool ClassGridMapHandler::check_line_clear__by_meter(double x1, double y1, double x2, double y2, EnumMode m, EnumCollosionCheckType co)
+bool ClassGridMapHandler::checkLineClearByReal(double x1, double y1, 
+                                               double x2, double y2, 
+                                               EnumMode mode, EnumCollosionCheckType coll)
 {
-    int x1_grid, y1_grid, x2_grid, y2_grid;
-    convert_fine_pose_to_grid(x1, y1, x1_grid, y1_grid);
-    convert_fine_pose_to_grid(x2, y2, x2_grid, y2_grid);
-    return check_line_clear__by_grid(x1_grid, y1_grid, x2_grid, y2_grid, m, co);
+    int _x1_grid, _y1_grid, _x2_grid, _y2_grid;
+    convertFinePoseToGrid(x1, y1, _x1_grid, _y1_grid);
+    convertFinePoseToGrid(x2, y2, _x2_grid, _y2_grid);
+    return checkLineClearByGrid(_x1_grid, _y1_grid, _x2_grid, _y2_grid, mode, coll);
 }
 
 /**
- * @brief
- * convert pose (x,y,yaw) in meter & radian to grid.
- * @return true , if the values look okay.
- * @return false , if the values look unreasonably large/small.
+ * @brief convert metric pose (x,y,yaw) to grid.
+ * @param fine_x The metric x.
+ * @param fine_y The metric y.
+ * @param fine_yaw The metric yaw.
+ * @param r_grid_x Reference to the gridwise x.
+ * @param r_grid_y Reference to the gridwise y.
+ * @param r_grid_yaw Reference to the gridwise yaw.
+ * @return true, if the values look okay. false, if the values look unreasonably large/small.
  */
-bool ClassGridMapHandler::convert_fine_pose_to_grid(double fine_x, double fine_y, double fine_yaw, int &grid_x, int &grid_y, int &grid_yaw)
+bool ClassGridMapHandler::convertFinePoseToGrid(double fine_x, double fine_y, double fine_yaw, 
+                                                int &r_grid_x, int &r_grid_y, int &r_grid_yaw)
 {
-    if (K_ratio_fine_to_grid_xy_ > 0.001 && K_ratio_fine_to_grid_yaw_ > 0.001)
+    if (m_ratio_fine_to_grid_xy_ > 0.001 && m_ratio_fine_to_grid_yaw_ > 0.001)
     {
-        grid_x = int(fine_x / K_ratio_fine_to_grid_xy_);
-        grid_y = int(fine_y / K_ratio_fine_to_grid_xy_);
-        grid_yaw = int(fine_yaw / K_ratio_fine_to_grid_yaw_);
+        r_grid_x = int(fine_x / m_ratio_fine_to_grid_xy_);
+        r_grid_y = int(fine_y / m_ratio_fine_to_grid_xy_);
+        r_grid_yaw = int(fine_yaw / m_ratio_fine_to_grid_yaw_);
         return true;
     }
     else
     {
-        cout << "K_ratio_fine_to_grid_ seems too small to be reasonable: " << K_ratio_fine_to_grid_xy_ << " , " << K_ratio_fine_to_grid_yaw_ << endl;
+        ROS_WARN_STREAM_ONCE("K_ratio_fine_to_grid_ seems too small " 
+                            <<  m_ratio_fine_to_grid_xy_ << " , " << m_ratio_fine_to_grid_yaw_);
         return false;
     }
 }
 
 /**
- * @brief
- * convert pose (x,y,yaw) in meter & radian to grid.
- * @return true , if the values look okay.
- * @return false , if the values look unreasonably large/small.
+ * @brief convert metric pose (x,y,yaw) to grid.
+ * @param fine_xyyaw The metric pose. The type is std array.
+ * @param r_grid_x Reference to the gridwise x.
+ * @param r_grid_y Reference to the gridwise y.
+ * @param r_grid_yaw Reference to the gridwise yaw.
  */
-bool ClassGridMapHandler::convert_fine_pose_to_grid(array<double, 3> fine_xyyaw, int &grid_x, int &grid_y, int &grid_yaw)
+bool ClassGridMapHandler::convertFinePoseToGrid(std::array<double, 3> fine_xyyaw, 
+                                                int &r_grid_x, int &r_grid_y, int &r_grid_yaw)
 {
-    return convert_fine_pose_to_grid(fine_xyyaw[0], fine_xyyaw[1], fine_xyyaw[2], grid_x, grid_y, grid_yaw);
+    return convertFinePoseToGrid(fine_xyyaw[0], fine_xyyaw[1], fine_xyyaw[2], r_grid_x, r_grid_y, r_grid_yaw);
 }
 
 /**
- * @brief 
- * 
- * @param realpose 
- * @param gridpose 
- * @return true 
- * @return false 
+ * @brief convert metric pose (x,y,yaw) to grid wise coordinate. The input and output are custom defined
+ * types. 
+ * @param realpose The metric pose.
+ * @param gridpose The gridwise pose.
  */
-bool ClassGridMapHandler::convert_fine_pose_to_grid(const StructPoseReal realpose, StructPoseGrid& gridpose)
+bool ClassGridMapHandler::convertFinePoseToGrid(const StructPoseReal realpose, StructPoseGrid& r_gridpose)
 {
-    // cout << K_ratio_fine_to_grid_xy_ << endl;
+    // cout << m_ratio_fine_to_grid_xy_ << endl;
 
-    if (K_ratio_fine_to_grid_xy_ > 0.001 && K_ratio_fine_to_grid_yaw_ > 0.001)
-    {
-        gridpose.x = int(realpose.x / K_ratio_fine_to_grid_xy_);
-        gridpose.y = int(realpose.y / K_ratio_fine_to_grid_xy_);
-        gridpose.yaw = int(realpose.yaw / K_ratio_fine_to_grid_yaw_);
-        return true;
-    }
-    else
-    {
-        cout << "K_ratio_fine_to_grid_ seems too small to be reasonable: " << K_ratio_fine_to_grid_xy_ << " , " << K_ratio_fine_to_grid_yaw_ << endl;
-        return false;
-    }
+    return convertFinePoseToGrid(realpose.x, realpose.y, realpose.yaw, r_gridpose.x, r_gridpose.y, r_gridpose.yaw);
+
+    // if (m_ratio_fine_to_grid_xy_ > 0.001 && m_ratio_fine_to_grid_yaw_ > 0.001)
+    // {
+    //     gridpose.x = int(realpose.x / m_ratio_fine_to_grid_xy_);
+    //     gridpose.y = int(realpose.y / m_ratio_fine_to_grid_xy_);
+    //     gridpose.yaw = int(realpose.yaw / m_ratio_fine_to_grid_yaw_);
+    //     return true;
+    // }
+    // else
+    // {
+    //     ROS_WARN_STREAM_ONCE("")
+    //     cout << "K_ratio_fine_to_grid_ seems too small to be reasonable: " << m_ratio_fine_to_grid_xy_ << " , " << m_ratio_fine_to_grid_yaw_ << endl;
+    //     return false;
+    // }
 }
 
 /**
- * @brief
- * convert pose (x,y,yaw) in meter & radian to grid.
- * @return true , if the values look okay.
- * @return false , if the values look unreasonably large/small.
+ * @brief convert pose (x,y,yaw) in meter & radian to grid wise coordinate. This version assumes that the yaw
+ * is 0.
+ * @param fine_x Metric x coordinate.
+ * @param fine_y Metric y coordinate.
+ * @param r_grid_x Grid wise x coordinate.
+ * @param r_grid_y Grid wise x coordinate.
+ * @return true, if the values look okay. false, if the values look unreasonably large/small.
  */
-bool ClassGridMapHandler::convert_fine_pose_to_grid(double fine_x, double fine_y, int &grid_x, int &grid_y)
+bool ClassGridMapHandler::convertFinePoseToGrid(double fine_x, double fine_y, int &r_grid_x, int &r_grid_y)
 {
-    int dummy;
-    return convert_fine_pose_to_grid(fine_x, fine_y, 0, grid_x, grid_y, dummy);
+    int _dummy;
+    return convertFinePoseToGrid(fine_x, fine_y, 0, r_grid_x, r_grid_y, _dummy);
 }
 
 /**
- * @brief check if a pose in inside of grid map. The pose is converted to grid actually.
- *
- * @param x
- * @param y
- * @return true
- * @return false
+ * @brief check if a pose in inside of grid map. The pose is converted to grid-wise actually.
+ * @param x The real world metric x coordinate.
+ * @param y The real world metric y coordinate.
+ * @return true, if inside or on the edges. false, if outside.
  */
-inline bool ClassGridMapHandler::check_pose_within_map(double x, double y)
+inline bool ClassGridMapHandler::checkPoseWithinMap(double x, double y)
 {
-    int grid_x, grid_y;
-    convert_fine_pose_to_grid(x, y, grid_x, grid_y);
-    return check_grid_within_map(grid_x, grid_y);
+    int _grid_x, _grid_y;
+    convertFinePoseToGrid(x, y, _grid_x, _grid_y);
+    return checkGridWithinMap(_grid_x, _grid_y);
 }
 
-
-inline bool ClassGridMapHandler::convert_grid_pose_to_fine(int grid_x, int grid_y, double &fine_x, double &fine_y)
+/**
+ * @brief Convert the given grid pose to metric fine pose. 
+ * @param grid_x grid wise x.
+ * @param grid_y grid wise y.
+ * @param r_fine_x reference to the metric x.
+ * @param r_fine_y reference to the metric y.
+ * @return The return is not used for now. 
+*/
+inline bool ClassGridMapHandler::convertGridPoseToFine(const int grid_x, const int grid_y, 
+                                                       double &r_fine_x, double &r_fine_y)
 {
-    fine_x = grid_x * K_ratio_fine_to_grid_xy_;
-    fine_y = grid_y * K_ratio_fine_to_grid_xy_;
-
+    r_fine_x = grid_x * m_ratio_fine_to_grid_xy_;
+    r_fine_y = grid_y * m_ratio_fine_to_grid_xy_;
     return true;
 }
 
 /**
- * @brief
- * The grid is 2D in logic, but the grid_map is saved in 1D vector.
+ * @brief The grid is 2D in logic, but the grid_map is saved in 1D vector.
  * So need this function to convert 2D grid (x,y) into 1D index.
- * @param x
- * @param y
- * @return int
+ * @param x The x in coordinate.
+ * @param y The y in coordinate.
+ * @return The index in 1D. 
  */
-inline int ClassGridMapHandler::convert_twoD_to_oneD(const int x, const int y)
+inline int ClassGridMapHandler::convert2DTo1D(const int x, const int y)
 {
-    return y * grid_map_width_ + x;
+    return y * m_grid_map_width_ + x;
 }
 
 /**
- * @brief
- * The grid is 2D in logic, but the grid_map is saved in 1D vector.
- * So need this function to convert 2D grid (x,y) into 1D index.
- * @param x
- * @param y
- * @return int
+ * @brief The grid is 3D in logic, but the grid_map is saved in 1D vector.
+ * So need this function to convert 3D grid (x,y,yaw) into 1D index.
+ * @param x The x in coordinate.
+ * @param y The y in coordinate.
+ * @param yaw The index of yaw in coordinate.
+ * @return The index in 1D. 
  */
-inline int ClassGridMapHandler::convert_3D_to_oneD(const int x, const int y,  const int yaw)
+inline int ClassGridMapHandler::convert3DTo1D(const int x, const int y,  const int yaw)
 {
-    return yaw * grid_map_1D_ptr_->size() + y * grid_map_width_ + x;
+    return yaw * m_ptr_grid_map_1D_->size() + y * m_grid_map_width_ + x;
 }
 
 /**
- * @brief   check if a grid in inside of grid map
- * @param x     int
- * @param y     int
- * @return true , if inside or on the edges.
- * @return false , if outside.
+ * @brief Check if the given grid in inside of grid map.
+ * @param x The x in coordinate.
+ * @param y The y in coordinate.
+ * @return true , if inside or on the edges. false , if outside.
  */
-inline bool ClassGridMapHandler::check_grid_within_map(int x, int y)
+inline bool ClassGridMapHandler::checkGridWithinMap(int x, int y)
 {
-    if ( x < 0 ){
+    if ( x < 0 )
+    {
         return false;
     }
-    else if (x >= grid_map_width_)
+    else if (x >= m_grid_map_width_)
     {
         return false;
     }
@@ -509,14 +502,14 @@ inline bool ClassGridMapHandler::check_grid_within_map(int x, int y)
     {
         return false;
     }
-    else if (y >= grid_map_height_)
+    else if (y >= m_grid_map_height_)
     {
         return false;
     }
     return true;
-    // if (x >= 0 && x < grid_map_width_)
+    // if (x >= 0 && x < m_grid_map_width_)
     // {
-    //     if (y >= 0 && y < grid_map_height_)
+    //     if (y >= 0 && y < m_grid_map_height_)
     //     {
     //         return true;
     //     }

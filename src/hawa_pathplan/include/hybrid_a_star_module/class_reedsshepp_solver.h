@@ -21,9 +21,22 @@
 // SOFTWARE.
 
 /**
- * This file is 
+ * @file class_reedsshepp_solver.h
+ * @author Mingjie
+ * @brief This class is the entry to the RS module.
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
 
+
+/**
+ * @note Only the CSC and CCC curves are completed. All the rest types were working but were made for the previous
+ * version of code before refactoring. So they still need to be refactored in order to match with the current 
+ * version. 
+*/
 
 #ifndef CLASS_HAWA_REEDSSHEPP_FINDER_H
 #define CLASS_HAWA_REEDSSHEPP_FINDER_H
@@ -50,9 +63,6 @@
 #include "hawa_reeds_shepp_curves/rs_LRL.h"
 #include "hawa_reeds_shepp_curves/rs_RLR.h"
 
-
-
-
 /*
 This is my implementation of Reeds-Sheep curve. 
 Most parts are following the paper. 
@@ -64,7 +74,6 @@ The result is a vector of my custom path type, defined in another header file.
 Each 'path' contains the type-word, unitless length, sampled waypoints (x,y,yaw), valid (bool).
 Sorted in length increasing order. 
 */
-
 
 class ClassReedsSheppSolver
 {
@@ -91,9 +100,9 @@ public:
 
     void search( );
 
-    void get_path( std::array<double,3> start_pose, std::array<double,3> goal_pose , std::string path_type, std::vector<double>& path_angle, bool& valid);
+    // void get_path( std::array<double,3> start_pose, std::array<double,3> goal_pose , std::string path_type, std::vector<double>& path_angle, bool& valid);
 
-    std::array<double, 2> calc_fix_frame_dxdy(const double angle_change, const double pose_yaw );
+    std::array<double, 2> calcFixFrameDxDy(const double angle_change, const double pose_yaw );
 
 };
 
@@ -122,7 +131,10 @@ void ClassReedsSheppSolver::setup(  StructPoseReal start_pose, StructPoseReal go
     }
 }
 
-
+/**
+ * @brief The main function to run. It will try to solve every allowed curve combination. Any option listed
+ * in this function can be disabled by commenting it below.   
+*/
 void ClassReedsSheppSolver::search(  )
 {
     // CSC
@@ -227,7 +239,7 @@ void ClassReedsSheppSolver::search(  )
     add_sort_path(&(m_all_curves_.RmLmRm), m_vector_path_results_);
 
 
-    // TODO:
+    // THe remaining will be refactored in the future:
 
     // LpRupLumRm( ); // use (x,y,yaw)  orginal 
     // LmRumLupRp( ); // use (-x,y,-yaw) when m <=> p 
@@ -1145,7 +1157,7 @@ double ClassReedsSheppSolver::calc_weighted_length(std::vector<double> list_in)
 }
 
 
-std::array<double, 2> ClassReedsSheppSolver::calc_fix_frame_dxdy(const double angle_change, const double pose_yaw )
+std::array<double, 2> ClassReedsSheppSolver::calcFixFrameDxDy(const double angle_change, const double pose_yaw )
 {
     double _body_frame_dx = m_sampling_properites_.turning_radius * sin(angle_change);
     double _body_frame_dy = -m_sampling_properites_.turning_radius 

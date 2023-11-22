@@ -22,28 +22,46 @@
 
 
 /**
- * @file hawa_tools.h
+ * @file hawa_sim_tools.h
  * @author Mingjie
- * @brief This file contains a function that would be used regularly. 
+ * @brief Some commonly used functions in this project.
  * @version 0.2
- * @date 2023-11-15
+ * @date 2023-11-13
  * 
  * @copyright Copyright (c) 2023
  * 
  */
 
-#ifndef HAWA_TOOLS_H
-#define HAWA_TOOLS_H
+#ifndef HAWA_SIM_TOOLS_H
+#define HAWA_SIM_TOOLS_H
 
 #include <chrono>
 
+using std::chrono::high_resolution_clock;
+
+/**
+ * @brief Modulate the given angle into the range of [0, 2pi]
+ * @param a The given angle.
+ * @return The processed angle.
+*/
+double mod2pi( double a)
+{
+    double angle = a;
+    while (angle > 2*M_PI){
+        angle -= 2*M_PI;
+    }
+    while (angle < 0){
+        angle += 2*M_PI;
+    }
+    return angle;
+}
+
 /**
  * @brief return time in seconds, epoch time. 
- * @return time, double type.
  */
-double helperGetTime()
+double getTimeSecond()
 {
-    return std::chrono::high_resolution_clock::now().time_since_epoch().count()/1000000000.0; 
+    return high_resolution_clock::now().time_since_epoch().count()/1000000000.0; 
 }
 
 

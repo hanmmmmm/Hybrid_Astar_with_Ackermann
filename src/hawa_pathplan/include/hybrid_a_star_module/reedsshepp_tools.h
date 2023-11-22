@@ -21,7 +21,14 @@
 // SOFTWARE.
 
 /**
- * This file is 
+ * @file reedsshepp_tools.h
+ * @author Mingjie
+ * @brief This file contains several functions and structs that are frequently used.  
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
 
 
@@ -33,7 +40,9 @@
 #include "../utils/hawa_conversion_tools.h"
 #include "hawa_reeds_shepp_curves/reedshepp_path.h"
 
-
+/**
+ * @brief Contains the four values calculated in the RS curve formulas. 
+*/
 struct StructReedsSheppFormulaResult
 {
     double t = 0.0;
@@ -44,7 +53,19 @@ struct StructReedsSheppFormulaResult
 };
 
 /**
- * 
+ * @brief Similar to the StructReedsSheppFormulaResult above, but this is specifically for the 
+ * CCC type curves. Because I was using dubins formula in this project. 
+*/
+struct StructDubinsCurveCCCvalcollection
+{
+    double u;
+    double t;
+    double v;
+    bool valid;
+};
+
+/**
+ * @brief Container for the RS curve. 
 */
 struct StructRSPathResult
 {
@@ -96,27 +117,37 @@ struct StructSamplingProperties
 };
 
 
-struct StructDubinsCurveCCCvalcollection
-{
-    double u;
-    double t;
-    double v;
-    bool valid;
-};
 
 
-
-/**
- * 
-*/
+/**  
+ * @brief Convert Cartesian coordinates to polar coordinates.  
+ *  
+ * Convert the given Cartesian coordinates (x, y) to polar coordinates (radius_ro, theta).  
+ *  
+ * @param x The x value of the Cartesian coordinates.  
+ * @param y The y value of the Cartesian coordinates.  
+ * @param radius_ro The radius value of the polar coordinates, an output parameter to be filled.  
+ * @param theta The angle value of the polar coordinates, an output parameter to be filled.  
+ */
 void convertCartesianToPolar(const double x, const double y, double &radius_ro, double &theta)
 {
     radius_ro = std::sqrt(x*x + y*y);
     theta = std::atan2(y, x);
 }
 
-
-
+/**  
+ * @brief Calculate the values of tau and omega  
+ *  
+ * Calculate the values of tau and omega based on the given u, v, xi, eta, and phi values.  
+ *  
+ * @param u The value of u  
+ * @param v The value of v  
+ * @param xi The value of xi  
+ * @param eta The value of eta  
+ * @param phi The value of phi  
+ * @param tau The calculated value of tau, output parameter to be filled  
+ * @param omega The calculated value of omega, output parameter to be filled  
+ */
 void tauOmega(const double u, const double v, const double xi, const double eta, const double phi,
                                double &tau, double &omega)
 {
@@ -136,35 +167,36 @@ void tauOmega(const double u, const double v, const double xi, const double eta,
     omega = mod2pi(tau - u + v - phi);
 }
 
-
-
-
-
-
 /**
- * 
+ * @brief Sample some pose points from the given curve. This is sepcifically for the curves of 
+ * turning to the left.
+ * @param target_angle_change The angle (radian) that will happen in this curve.
+ * @param robot_yaw Reference to the robot yaw value. This value will be modified.
+ * @param robotx Reference to the robot x value. This value will be modified.
+ * @param roboty Reference to the robot y value. This value will be modified. 
+ * @param ptr_path_result Pointer to this path. 
+ * @param ptr_properties Pointer to the parameters used during sampling. 
 */
 void sampleOnLeftCurve( const double target_angle_change, 
                         double& robot_yaw, double& robotx, double& roboty, 
                         StructRSPathResult* ptr_path_result,
-                        StructSamplingProperties* r_properties)
+                        StructSamplingProperties* ptr_properties)
 {
     double init_yaw = robot_yaw;
     double init_x = robotx;
     double init_y = roboty;
     double theta_change = 0;
-    // double speed = 0.0;
     double ang_step_size_local = 0.0;
-    if( target_angle_change >= 0.0 ){
-        // speed = r_properties->linear_step_size;
-        ang_step_size_local = r_properties->angular_step_size;
+    if( target_angle_change >= 0.0 )
+    {
+        ang_step_size_local = ptr_properties->angular_step_size;
     }
     else {
-        // speed = -1.0 * r_properties->linear_step_size;
-        ang_step_size_local = -1.0 * r_properties->angular_step_size;
+        ang_step_size_local = -1.0 * ptr_properties->angular_step_size;
     }
 
-    while ( std::abs( theta_change )  < std::abs( target_angle_change ) ){
+    while ( std::abs( theta_change )  < std::abs( target_angle_change ) )
+    {
         if ( std::abs( target_angle_change ) - std::abs( theta_change ) < std::abs( ang_step_size_local ) )
         {
             ang_step_size_local = std::abs( target_angle_change ) - std::abs( theta_change );
@@ -174,9 +206,9 @@ void sampleOnLeftCurve( const double target_angle_change,
             }
         }
 
-        double _body_frame_dx = r_properties->turning_radius * std::sin(ang_step_size_local);
-        double _body_frame_dy = r_properties->turning_radius 
-                                    - r_properties->turning_radius * std::cos(ang_step_size_local);
+        double _body_frame_dx = ptr_properties->turning_radius * std::sin(ang_step_size_local);
+        double _body_frame_dy = ptr_properties->turning_radius 
+                                    - ptr_properties->turning_radius * std::cos(ang_step_size_local);
 
         double _fix_frame_dx = _body_frame_dx * cos(robot_yaw) - _body_frame_dy * cos(M_PI/2.0 - robot_yaw);
         double _fix_frame_dy = _body_frame_dx * cos(M_PI/2.0 - robot_yaw) + _body_frame_dy * cos(robot_yaw);
@@ -186,13 +218,11 @@ void sampleOnLeftCurve( const double target_angle_change,
         theta_change += ang_step_size_local;
         robot_yaw += ang_step_size_local ;
         
-        // std::array<double,3> pose = {robotx, roboty, robot_yaw};
-        // ptr_path_result->path_steps.push_back(pose);
         ptr_path_result->path_steps.push_back(std::array<double,3>{robotx, roboty, robot_yaw});
     }
 
-    double _body_frame_dx = r_properties->turning_radius * sin(target_angle_change);
-    double _body_frame_dy = r_properties->turning_radius - r_properties->turning_radius * cos(target_angle_change);
+    double _body_frame_dx = ptr_properties->turning_radius * sin(target_angle_change);
+    double _body_frame_dy = ptr_properties->turning_radius - ptr_properties->turning_radius * cos(target_angle_change);
     double _fix_frame_dx = _body_frame_dx * cos(init_yaw) - _body_frame_dy * cos(M_PI/2.0 - init_yaw);
     double _fix_frame_dy = _body_frame_dx * cos(M_PI/2.0 - init_yaw) + _body_frame_dy * cos(init_yaw);
 
@@ -201,29 +231,33 @@ void sampleOnLeftCurve( const double target_angle_change,
     robot_yaw = mod2pi(init_yaw + target_angle_change);
 }
 
-
-
-
+/**
+ * @brief Sample some pose points from the given curve. This is sepcifically for the curves of 
+ * turning to the right.
+ * @param target_angle_change The angle (radian) that will happen in this curve.
+ * @param robot_yaw Reference to the robot yaw value. This value will be modified.
+ * @param robotx Reference to the robot x value. This value will be modified.
+ * @param roboty Reference to the robot y value. This value will be modified. 
+ * @param ptr_path_result Pointer to this path. 
+ * @param ptr_properties Pointer to the parameters used during sampling. 
+*/
 void sampleOnRightCurve(const double target_angle_change, 
                         double& robot_yaw, double& robotx, double& roboty, 
                         StructRSPathResult* ptr_path_result,
-                        StructSamplingProperties* r_properties)
+                        StructSamplingProperties* ptr_properties)
 {
     double init_yaw = robot_yaw;
     double init_x = robotx;
     double init_y = roboty;
     double theta_change = 0;
-    // double speed = 0.0;
     double ang_step_size_local = 0.0;
     if( target_angle_change >= 0.0 )
     {
-        // speed = v_l;
-        ang_step_size_local = -1.0 * r_properties->angular_step_size;
+        ang_step_size_local = -1.0 * ptr_properties->angular_step_size;
     }
     else 
     {
-        // speed = -1.0 * v_l;
-        ang_step_size_local = r_properties->angular_step_size;
+        ang_step_size_local = ptr_properties->angular_step_size;
     }
     while ( std::abs( theta_change )  < std::abs( target_angle_change ) )
     {
@@ -236,9 +270,9 @@ void sampleOnRightCurve(const double target_angle_change,
             }
         }
 
-        double _body_frame_dx = r_properties->turning_radius * std::sin(-ang_step_size_local);
-        double _body_frame_dy = -r_properties->turning_radius 
-                                    + r_properties->turning_radius * std::cos(-ang_step_size_local);
+        double _body_frame_dx = ptr_properties->turning_radius * std::sin(-ang_step_size_local);
+        double _body_frame_dy = -ptr_properties->turning_radius 
+                                    + ptr_properties->turning_radius * std::cos(-ang_step_size_local);
         
         double _fix_frame_dx = _body_frame_dx * std::cos(robot_yaw) - _body_frame_dy * std::cos(M_PI/2.0 - robot_yaw);
         double _fix_frame_dy = _body_frame_dx * std::cos(M_PI/2.0 - robot_yaw) + _body_frame_dy * std::cos(robot_yaw);
@@ -249,13 +283,11 @@ void sampleOnRightCurve(const double target_angle_change,
         theta_change += ang_step_size_local;
         robot_yaw += ang_step_size_local ;
 
-        // std::array<double,3> pose = {robotx, roboty, robot_yaw};
-        // result_container.path_steps.push_back(pose);
         ptr_path_result->path_steps.push_back(std::array<double,3>{robotx, roboty, robot_yaw});
     }
     
-    double _body_frame_dx = r_properties->turning_radius * std::sin(target_angle_change);
-    double _body_frame_dy = -r_properties->turning_radius + r_properties->turning_radius * cos(target_angle_change);
+    double _body_frame_dx = ptr_properties->turning_radius * std::sin(target_angle_change);
+    double _body_frame_dy = -ptr_properties->turning_radius + ptr_properties->turning_radius * cos(target_angle_change);
     double _fix_frame_dx = _body_frame_dx * std::cos(init_yaw) - _body_frame_dy * std::cos(M_PI/2.0 - init_yaw);
     double _fix_frame_dy = _body_frame_dx * std::cos(M_PI/2.0 - init_yaw) + _body_frame_dy * std::cos(init_yaw);
 
@@ -265,25 +297,35 @@ void sampleOnRightCurve(const double target_angle_change,
 
 }
 
-
-
+/**
+ * @brief Sample some pose points from the given curve. This is sepcifically for the stright section
+ * in the path.
+ * @param target_angle_change The distance (meter) that will happen in this section.
+ * @param robot_yaw The robot yaw value.
+ * @param robotx Reference to the robot x value. This value will be modified.
+ * @param roboty Reference to the robot y value. This value will be modified. 
+ * @param ptr_path_result Pointer to this path. 
+ * @param ptr_properties Pointer to the parameters used during sampling. 
+*/
 void sampleOnStraightLine(const double target_angle_change, 
                           double robot_yaw, double& robotx, double& roboty, 
                           StructRSPathResult* ptr_path_result,
-                          StructSamplingProperties* r_properties)
+                          StructSamplingProperties* ptr_properties)
 {
     double init_x = robotx;
     double init_y = roboty;
     double theta_change = 0;
     double linear_step_size_local = 0.0;
-    if( target_angle_change >= 0.0 ){
-        linear_step_size_local = r_properties->linear_step_size;
+    if( target_angle_change >= 0.0 )
+    {
+        linear_step_size_local = ptr_properties->linear_step_size;
     }
-    else {
-        linear_step_size_local = -1.0 * r_properties->linear_step_size;
+    else 
+    {
+        linear_step_size_local = -1.0 * ptr_properties->linear_step_size;
     }
 
-    double _target_distance = target_angle_change * r_properties->turning_radius;
+    double _target_distance = target_angle_change * ptr_properties->turning_radius;
     bool _finish = false;
 
     while ( std::abs( theta_change )  < std::abs( _target_distance ) )
@@ -304,43 +346,20 @@ void sampleOnStraightLine(const double target_angle_change,
         roboty = roboty + dy;
         theta_change += linear_step_size_local;
         
-        // std::array<double,3> pose = {robotx, roboty, robot_yaw};
-        // result_container.path_steps.push_back(pose);
         ptr_path_result->path_steps.push_back(std::array<double,3>{robotx, roboty, robot_yaw});
-
         if (_finish)
             break;
-        
     }
-    robotx = init_x + target_angle_change * r_properties->turning_radius * std::cos( robot_yaw );
-    roboty = init_y + target_angle_change * r_properties->turning_radius * std::sin( robot_yaw );
+    robotx = init_x + target_angle_change * ptr_properties->turning_radius * std::cos( robot_yaw );
+    roboty = init_y + target_angle_change * ptr_properties->turning_radius * std::sin( robot_yaw );
 }
 
-
-
-// // void ReedsSheppClass::add_sort_path( ClassReedSheppPath::pathResult& path )
-// void add_sort_path(const StructRSPathResult& r_path, std::vector<StructRSPathResult>& r_path_collection )
-// {
-//     if( r_path_collection.size() <= 0){
-//         r_path_collection.push_back(r_path);
-//     }
-//     else{
-//         double length = r_path.path_length_unitless;
-//         int count = 0;
-//         for(auto p : r_path_collection){
-//             if( p.path_length_unitless > length ){
-//                 break;
-//             }
-//             else{
-//                 count ++;
-//             }
-//         }
-//         r_path_collection.insert(  r_path_collection.begin()+count, r_path);
-//     }
-// }
-
-
-
+/**
+ * @brief For each RS curve, after the calculation is done, add it by this function so all the valid
+ * curves will be sorted by their lengths. The shortest one will be the front. 
+ * @param ptr_path pointer to this path.
+ * @param r_path_collection The container to be filled. It contains all the curves.
+*/
 void add_sort_path(StructRSPathResult* ptr_path, std::vector<StructRSPathResult>& r_path_collection )
 {
     if (! ptr_path->valid)
@@ -348,14 +367,16 @@ void add_sort_path(StructRSPathResult* ptr_path, std::vector<StructRSPathResult>
         return;
     }
 
-    if( r_path_collection.size() <= 0){
+    if( r_path_collection.size() <= 0)
+    {
         r_path_collection.push_back(*ptr_path);
         return;
     }
     
     int _count = 0;
     for(auto p : r_path_collection){
-        if( p.path_length_unitless > ptr_path->path_length_unitless ){
+        if( p.path_length_unitless > ptr_path->path_length_unitless )
+        {
             break;
         }
         else{

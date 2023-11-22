@@ -21,11 +21,18 @@
 // SOFTWARE.
 
 /**
- * This file is the implementation of the Hybrid Astar searching algorithm on
+ * @file class_hybrid_astar.h
+ * @author Mingjie
+ * @brief This file is the implementation of the Hybrid Astar searching algorithm on
  * an occupancy grid map. This implementation contains only the incremental
  * searching (the part that's like original a-star) and the ReedsShepp curve
  * searching.  This does not have the parts like Voronoi field and numerical
  * optimization.
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
 
 #ifndef HAWA_HYBRID_ASTAR_H
@@ -43,11 +50,6 @@
 
 #include "nav_msgs/OccupancyGrid.h"
 #include "nav_msgs/MapMetaData.h"
-
-// #include "Reeds_Shepp_curve/reedsshepp.h"
-
-// #include "../car_pathplan/class_gridmap_handler.h"
-// #include "../car_pathplan/class_custom_path.h"
 
 #include "class_reedsshepp_solver.h"
 
@@ -73,7 +75,7 @@ private:
 
     std::vector<GridInfo> m_gridinfo_vector_;
 
-    std::priority_queue<NodeinfoForPQ, vector<NodeinfoForPQ>, CostCompareMethod> m_opennodes_pq_;
+    std::priority_queue<NodeinfoForPQ, std::vector<NodeinfoForPQ>, CostCompareMethod> m_opennodes_pq_;
 
     StructImportantPoses m_important_poses_;
 
@@ -184,15 +186,15 @@ bool ClassHybridAStar::loadParameters()
  */
 bool ClassHybridAStar::setMap(nav_msgs::OccupancyGrid *ptr_map_data)
 {
-    if (!m_gridmap_handler_.set_grid_map_ptr(&(ptr_map_data->data)))
+    if (!m_gridmap_handler_.setGridMapPtr(&(ptr_map_data->data)))
         return false;
-    if (!m_gridmap_handler_.set_grid_width_height(ptr_map_data->info.width, ptr_map_data->info.height))
+    if (!m_gridmap_handler_.setGridWidthHeight(ptr_map_data->info.width, ptr_map_data->info.height))
         return false;
-    if (!m_gridmap_handler_.set_planning_obstacle_threshold(m_map_occ_threshold_.plan))
+    if (!m_gridmap_handler_.setPlanningObstacleThreshold(m_map_occ_threshold_.plan))
         return false;
-    if (!m_gridmap_handler_.set_validate_obstacle_threshold(m_map_occ_threshold_.vali))
+    if (!m_gridmap_handler_.setValidateObstacleThreshold(m_map_occ_threshold_.vali))
         return false;
-    if (!m_gridmap_handler_.set_grid_meter_ratio(ptr_map_data->info.resolution, m_parameters_.yaw_angle_bin_size))
+    if (!m_gridmap_handler_.setGridMeterRatio(ptr_map_data->info.resolution, m_parameters_.yaw_angle_bin_size))
         return false;
     return true;
 }
@@ -208,21 +210,24 @@ bool ClassHybridAStar::setStartGoalPoses(StructPoseReal startpose, StructPoseRea
     m_important_poses_.start_pose = startpose;
     m_important_poses_.goal_pose = goalpose;
 
-    m_gridmap_handler_.convert_fine_pose_to_grid(m_important_poses_.start_pose, m_important_poses_.start_grid);
-    m_gridmap_handler_.convert_fine_pose_to_grid(m_important_poses_.goal_pose, m_important_poses_.goal_grid);
+    m_gridmap_handler_.convertFinePoseToGrid(m_important_poses_.start_pose, m_important_poses_.start_grid);
+    m_gridmap_handler_.convertFinePoseToGrid(m_important_poses_.goal_pose, m_important_poses_.goal_grid);
 
     ROS_DEBUG_STREAM(std::setprecision(2) << std::fixed << "hybrid astar start state:\n"
-                                          << m_important_poses_.start_pose.x << " " << m_important_poses_.start_pose.y << " "
+                                          << m_important_poses_.start_pose.x << " " 
+                                          << m_important_poses_.start_pose.y << " "
                                           << m_important_poses_.start_pose.yaw << "\n"
                                           << m_important_poses_.start_grid.x << " "
-                                          << m_important_poses_.start_grid.y << " " << m_important_poses_.start_grid.yaw);
+                                          << m_important_poses_.start_grid.y << " " 
+                                          << m_important_poses_.start_grid.yaw);
 
     ROS_DEBUG_STREAM(std::setprecision(2) << std::fixed << "hybrid astar goal state:\n"
-                                          << m_important_poses_.goal_pose.x << " " << m_important_poses_.goal_pose.y << " "
+                                          << m_important_poses_.goal_pose.x << " " 
+                                          << m_important_poses_.goal_pose.y << " "
                                           << m_important_poses_.goal_pose.yaw << "\n"
                                           << m_important_poses_.goal_grid.x << " "
-                                          << m_important_poses_.goal_grid.y << " " << m_important_poses_.goal_grid.yaw);
-
+                                          << m_important_poses_.goal_grid.y << " " 
+                                          << m_important_poses_.goal_grid.yaw);
     return true;
 }
 
@@ -326,9 +331,9 @@ bool ClassHybridAStar::tryFindReedsSheppCurve(const StructPoseGrid &r_curr_grid)
 
     try
     {
-        int _curr_grid_index_1d = m_gridmap_handler_.convert_3D_to_oneD(r_curr_grid.x, r_curr_grid.y, r_curr_grid.yaw);
-        std::array<double, 3> _rs_start_pose_array = m_gridinfo_vector_.at(_curr_grid_index_1d).real_pose.to_array3();
-        std::array<double, 3> _rs_goal_pose_array = m_important_poses_.goal_pose.to_array3();
+        int _curr_grid_index_1d = m_gridmap_handler_.convert3DTo1D(r_curr_grid.x, r_curr_grid.y, r_curr_grid.yaw);
+        std::array<double, 3> _rs_start_pose_array = m_gridinfo_vector_.at(_curr_grid_index_1d).real_pose.toArray3();
+        std::array<double, 3> _rs_goal_pose_array = m_important_poses_.goal_pose.toArray3();
 
         StructPoseReal _rs_start_pose(_rs_start_pose_array.at(0), _rs_start_pose_array.at(1), _rs_start_pose_array.at(2));
         StructPoseReal _rs_goal_pose(_rs_goal_pose_array.at(0), _rs_goal_pose_array.at(1), _rs_goal_pose_array.at(2));
@@ -338,7 +343,8 @@ bool ClassHybridAStar::tryFindReedsSheppCurve(const StructPoseGrid &r_curr_grid)
     }
     catch (const std::exception &e)
     {
-        ROS_WARN_STREAM_NAMED("ClassHybridAStar::tryFindReedsSheppCurve", "m_RS_curve_finder_ try_catch exception:" << e.what());
+        ROS_WARN_STREAM_NAMED("ClassHybridAStar::tryFindReedsSheppCurve", 
+                              "m_RS_curve_finder_ try_catch exception:" << e.what());
     }
 
     _timer.endTiming();
@@ -401,11 +407,11 @@ bool ClassHybridAStar::checkRSSearchResult()
                 _nb_real.y = step[1];
                 _nb_real.yaw = mod2pi(step[2]);
 
-                m_gridmap_handler_.convert_fine_pose_to_grid(_nb_real, _nb_grid);
+                m_gridmap_handler_.convertFinePoseToGrid(_nb_real, _nb_grid);
 
-                if (m_gridmap_handler_.check_grid_within_map(_nb_grid.x, _nb_grid.y))
+                if (m_gridmap_handler_.checkGridWithinMap(_nb_grid.x, _nb_grid.y))
                 {
-                    bool step_is_clear = m_gridmap_handler_.check_grid_clear(_nb_grid.x,
+                    bool step_is_clear = m_gridmap_handler_.checkGridClear(_nb_grid.x,
                                                                              _nb_grid.y,
                                                                              ClassGridMapHandler::EnumMode::plan);
                     if (!step_is_clear)
@@ -436,7 +442,7 @@ void ClassHybridAStar::prepareForExplore(bool *doable, GridInfo *grid_to_explore
 {
     NodeinfoForPQ _curr_node = m_opennodes_pq_.top();
 
-    int _curr_node_grid_1d = m_gridmap_handler_.convert_3D_to_oneD(_curr_node.self_grid.x,
+    int _curr_node_grid_1d = m_gridmap_handler_.convert3DTo1D(_curr_node.self_grid.x,
                                                                    _curr_node.self_grid.y,
                                                                    _curr_node.self_grid.yaw);
     if (m_gridinfo_vector_.at(_curr_node_grid_1d).grid_type != AStarGridType::Open)
@@ -500,23 +506,23 @@ void ClassHybridAStar::exploreOneNode()
         // _neigbr_grid.steer_type = count;
         _neigbr_grid.motion_type = mm.motion_type;
 
-        m_gridmap_handler_.convert_fine_pose_to_grid(_neigbr_grid.real_pose, _neigbr_grid.self_grid);
+        m_gridmap_handler_.convertFinePoseToGrid(_neigbr_grid.real_pose, _neigbr_grid.self_grid);
 
-        bool _outside_of_map = !m_gridmap_handler_.check_grid_within_map(_neigbr_grid.self_grid.x,
-                                                                         _neigbr_grid.self_grid.y);
-        bool _grid_inaccessible = !m_gridmap_handler_.check_grid_clear(_neigbr_grid.self_grid.x,
-                                                                       _neigbr_grid.self_grid.y,
-                                                                       ClassGridMapHandler::EnumMode::plan);
+        bool _outside_of_map = !m_gridmap_handler_.checkGridWithinMap(_neigbr_grid.self_grid.x,
+                                                                      _neigbr_grid.self_grid.y);
+        bool _grid_inaccessible = !m_gridmap_handler_.checkGridClear(_neigbr_grid.self_grid.x,
+                                                                     _neigbr_grid.self_grid.y,
+                                                                     ClassGridMapHandler::EnumMode::plan);
         if (_outside_of_map || _grid_inaccessible)
         {
             continue;
         }
 
-        int _neighbor_grid_index_1d = m_gridmap_handler_.convert_3D_to_oneD(_neigbr_grid.self_grid.x,
-                                                                            _neigbr_grid.self_grid.y,
-                                                                            _neigbr_grid.self_grid.yaw);
-        double _new_g_cost = _current_grid.gcost + mm.edge_cost * estimate_changing_motion_type_cost(_current_grid.motion_type,
-                                                                                                     mm.motion_type);
+        int _neighbor_grid_index_1d = m_gridmap_handler_.convert3DTo1D(_neigbr_grid.self_grid.x,
+                                                                       _neigbr_grid.self_grid.y,
+                                                                       _neigbr_grid.self_grid.yaw);
+        double _new_g_cost = _current_grid.gcost + 
+                            mm.edge_cost * estimateChangingMotionTypeCost(_current_grid.motion_type, mm.motion_type);
         double _new_f_cost = _new_g_cost + computeHCostEuclidean(_neigbr_grid.real_pose, m_important_poses_.goal_pose);
 
         bool _is_new = m_gridinfo_vector_.at(_neighbor_grid_index_1d).grid_type == AStarGridType::NewGrid;
@@ -560,8 +566,8 @@ void ClassHybridAStar::getFinalHybridAstarPath(ClassCustomPathContainer &r_path)
 
     while (temp_step != m_important_poses_.start_grid)
     {
-        int _temp_step_index_1d = m_gridmap_handler_.convert_3D_to_oneD(temp_step.x, temp_step.y, temp_step.yaw);
-        std::array<double, 3> _temp_step_pose = m_gridinfo_vector_[_temp_step_index_1d].real_pose.to_array3();
+        int _temp_step_index_1d = m_gridmap_handler_.convert3DTo1D(temp_step.x, temp_step.y, temp_step.yaw);
+        std::array<double, 3> _temp_step_pose = m_gridinfo_vector_[_temp_step_index_1d].real_pose.toArray3();
 
         r_path.pushfront(_temp_step_pose);
         temp_step = m_gridinfo_vector_[_temp_step_index_1d].parent_grid;
@@ -571,14 +577,15 @@ void ClassHybridAStar::getFinalHybridAstarPath(ClassCustomPathContainer &r_path)
             break;
         }
     }
-    int _temp_step_index_1d = m_gridmap_handler_.convert_3D_to_oneD(temp_step.x, temp_step.y, temp_step.yaw);
-    r_path.pushfront(m_gridinfo_vector_[_temp_step_index_1d].real_pose.to_array3()); // this one should be the starting point.
+    int _temp_step_index_1d = m_gridmap_handler_.convert3DTo1D(temp_step.x, temp_step.y, temp_step.yaw);
+    // this one should be the starting point.
+    r_path.pushfront(m_gridinfo_vector_[_temp_step_index_1d].real_pose.toArray3()); 
 
     if (!(m_flags_.trapped || m_flags_.timeout))
     {
         for (auto point : m_path_RS_section_)
         {
-            r_path.pushback(point.to_array3());
+            r_path.pushback(point.toArray3());
         }
     }
 
@@ -594,14 +601,14 @@ bool ClassHybridAStar::checkStartAndGoalAccessible()
 {
     bool _temp = true;
 
-    if (!m_gridmap_handler_.check_grid_clear(m_important_poses_.start_grid.x,
+    if (!m_gridmap_handler_.checkGridClear(m_important_poses_.start_grid.x,
                                              m_important_poses_.start_grid.y,
                                              ClassGridMapHandler::EnumMode::plan))
     {
         ROS_WARN_STREAM("!! Start grid is in obstacle.");
         _temp = false;
     }
-    if (!m_gridmap_handler_.check_grid_clear(m_important_poses_.goal_grid.x,
+    if (!m_gridmap_handler_.checkGridClear(m_important_poses_.goal_grid.x,
                                              m_important_poses_.goal_grid.y,
                                              ClassGridMapHandler::EnumMode::plan))
     {
@@ -619,7 +626,7 @@ bool ClassHybridAStar::checkStartAndGoalAccessible()
  */
 void ClassHybridAStar::setupTheFirstGrid()
 {
-    int _start_grid_index_1d = m_gridmap_handler_.convert_3D_to_oneD(m_important_poses_.start_grid.x,
+    int _start_grid_index_1d = m_gridmap_handler_.convert3DTo1D(m_important_poses_.start_grid.x,
                                                                      m_important_poses_.start_grid.y,
                                                                      m_important_poses_.start_grid.yaw);
     m_gridinfo_vector_.at(_start_grid_index_1d).fcost = 0;

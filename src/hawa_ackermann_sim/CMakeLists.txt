@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   tf
   tf2
-  # hawa_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system)

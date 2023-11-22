@@ -7,6 +7,32 @@ from geometry_msgs.msg import Twist
 from ackermann_msgs.msg import AckermannDriveStamped
 from std_msgs.msg import Float32MultiArray
 
+
+'''
+This file is a process for maunally driving the simulated ackermann robot in this ros package. 
+By using usb game console controller (joystick). 
+
+The package pygame is used for the connection and input capturing.
+
+run this directly in a terminal:
+python3 joystick_to_ackermannDriveStamped.py
+
+The control logic is similar to most games. Use a joystick to move forward/backward/steer.
+And a button (triangle/square) is used for enabling/disabling the output in this process. 
+And another joystick can control a custom movable obstacle. Both the motion and size are controllable.
+The info of the obstacle are published to the map fusion node, and this node will add it into the 
+occupancy grids. 
+
+The mapping between the physical buttons and the commands will be varing. I have used two different 
+budget controllers from Amazon, and I had to used different buttons for the same command. 
+
+In general, this process takes more effort to setup 1,install pygame; 2,findout the mapping of the buttons.
+But the hand feels better with joystick than keyboard.
+
+'''
+
+
+
 FLAG_speed_cmd_output_enable = False
 TIMESTAMP_output_enable_changed = 0.0 
 

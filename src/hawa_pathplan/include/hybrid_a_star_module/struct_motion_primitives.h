@@ -21,8 +21,16 @@
 // SOFTWARE.
 
 /**
+ * @file struct_motion_primitives.h
+ * @author Mingjie
+ * @brief This struct manages the motion model primitives used in the hybrid astar exploration 
+ * stage. 
+ * @version 0.2
+ * @date 2023-11-15
  * 
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #ifndef STRUCT_MOTION_PRIMITIVES_H
 #define STRUCT_MOTION_PRIMITIVES_H
