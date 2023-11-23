@@ -7,7 +7,7 @@ It also has a basic simulator for an ackermann robot (using bicycle model). This
 My implementation of Hybrid A* has the incremental searching and Reeds Shepp curve searching. This generates acceptable reaults but it certainly can be improved more:
 - avoid some very short path segments that are too hard to steer
 - avoid apex points that are too close to obstacles
-- add numerical optimiztion module to so that the curve  
+- add numerical optimiztion module to so that the curve will be adjusted to match the dynamics of the robot. E.g. acceleration and steer rate. 
 
 Every code in this project was developed by myself using standard C++ and ROS tools. 
 
@@ -54,5 +54,5 @@ Use this code in case you want to move the robot manually.
 ### TODO:
 - Finish refactoring the remaining parts in the reeds shepp curves code. (Currently only CSC and CCC types are used)
 - Move the remaining parameters into json configuration files.
-- Finish the path validation feature so that the planner module can reponses to dynamic obstacles and environment.
+- Finish the path validation feature so that the planner module can reponse to dynamic obstacles and environment.
 - The points mentioned in the Hybrid A* section at the beginning. 
