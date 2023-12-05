@@ -44,6 +44,10 @@ https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0cf466
 
 ![image]( https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif)
 
+<a id="demogif1" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif">
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
+</a>
+
 
 ----
 
