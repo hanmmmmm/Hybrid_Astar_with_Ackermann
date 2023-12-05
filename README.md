@@ -58,13 +58,12 @@ https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0c
 </a>
 -->
 
-<!--
 <a id="demogif3" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
     <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
--->
 
-<img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5" alt="gif 3" title="case 3" width="600"/>
+
+<!-- <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5" alt="gif 3" title="case 3" width="600"/> -->
 
 <!--
 ![p1](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5)
