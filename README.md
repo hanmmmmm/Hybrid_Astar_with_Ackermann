@@ -42,10 +42,18 @@ https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/1bf8b5ec
 https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0cf466-5b9a-4048-82b7-246840751ca8
 -->
 
-![image]( https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif)
+<!--![image]( https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif)-->
 
 <a id="demogif1" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif">
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
+</a>
+
+<a id="demogif2" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif">
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
+</a>
+
+<a id="demogif3" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
 
 
