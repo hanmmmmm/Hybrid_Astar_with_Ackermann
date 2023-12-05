@@ -23,12 +23,13 @@ It was developed and tested in **ROS Noetic** on original Ubuntu 20 Desktop and 
 
 The launch file above will start **RVIZ**. In RVIZ, from the buttons on the top, use **2D Nav Goal** button to set the target position. 
 
-The red path is the whole path. The green part is the segment that the robot is following at the moment. The red dot on
+The whole path is rendered in red color. The green part is the current segment that the robot is following at the moment. The big red dot (in front of robot) on
 the path is the target point selected by the purepursuit controller. 
 
 
 ### demo clips:
 
+(If they are not properly displayed here on the web, they can be found and downloaded from the folder of demo_images.)
 
 <!--https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/4ce2bd41-bde0-40b6-8ffd-014cb2a9bcab
 
