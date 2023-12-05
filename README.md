@@ -30,44 +30,46 @@ the path is the target point selected by the purepursuit controller.
 ### demo clips:
 
 
-<!--https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/4ce2bd41-bde0-40b6-8ffd-014cb2a9bcab
+<!--https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/4ce2bd41-bde0-40b6-8ffd-014cb2a9bcab
 
 
-https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/eb60ac7e-02db-48ab-8b33-a22223d483ac
+https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/eb60ac7e-02db-48ab-8b33-a22223d483ac
 
 
-https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/1bf8b5ec-82de-4ee3-9591-4bf0c4789b31
+https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/1bf8b5ec-82de-4ee3-9591-4bf0c4789b31
 
 
-https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0cf466-5b9a-4048-82b7-246840751ca8
+https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0cf466-5b9a-4048-82b7-246840751ca8
 -->
 
-<!--![image]( https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif)-->
+<!--![image]( https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif)-->
 
 <!--
-<a id="demogif1" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif">
-    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
+<a id="demogif1" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif">
+    <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
 </a>
 
-<a id="demogif2" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif">
-    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
+<a id="demogif2" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif">
+    <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
 </a>
 
-<a id="demogif3" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
-    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
+<a id="demogif3" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
+    <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
 -->
 
-<a id="demogif3" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
-    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
+<!--
+<a id="demogif3" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
+    <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
+-->
 
-<img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5" alt="gif 3" title="case 3" width="600"/>
+<img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5" alt="gif 3" title="case 3" width="600"/>
 
 <!--
-![p1](https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5)
-![p2](https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/f9e0c32d-889f-493f-b04e-29dbca94573a)
-![p4](https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/9e07ed57-c49f-42ae-aa8a-17492401ca55)
+![p1](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5)
+![p2](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/f9e0c32d-889f-493f-b04e-29dbca94573a)
+![p4](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/9e07ed57-c49f-42ae-aa8a-17492401ca55)
 -->
 
 ----
