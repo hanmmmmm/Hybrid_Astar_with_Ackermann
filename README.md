@@ -79,4 +79,6 @@ Use this code in case you want to move the robot manually.
 - Finish refactoring the remaining parts in the reeds shepp curves code. (Currently only CSC and CCC types are used)
 - Move the remaining parameters into json configuration files.
 - Finish the path validation feature so that the planner module can reponse to dynamic obstacles and environment.
-- The points mentioned in the Hybrid A* section at the beginning. 
+- Improving the scoring method in RS curves so that it will prioritize the curves with less reversing motions. The current solution only considers the total length.
+- Add feature: while searching for path, hold multiple valid paths before terminating, so that it can have several options choose from.
+- And the points mentioned in the Hybrid A* section at the beginning. 
