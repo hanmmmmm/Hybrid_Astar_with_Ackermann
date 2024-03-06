@@ -39,8 +39,8 @@ the path is the target point selected by the pure-pursuit controller.
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
 </a>
 
-<a id="demogif3" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
-    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
+<a id="demogif4" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p4.gif">
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p4.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
 
 ----
