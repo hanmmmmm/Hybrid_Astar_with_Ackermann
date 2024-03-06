@@ -2,16 +2,16 @@
 
 This project is my implementation of a navigation package, including the Hybrid A* planner and pure pursuit controller. 
 
-It also has a basic simulator for an ackermann robot (using bicycle model). This simulator has only the calculation parts. The visulization happens in RVIZ. 
+It also has a basic simulator for an Ackermann robot (using the bicycle model). This simulator has only the calculation parts. The visualization happens in RVIZ. 
 
-My implementation of Hybrid A* has the incremental searching and Reeds Shepp curve searching. This generates acceptable reaults but it certainly can be improved more:
+My implementation of Hybrid A* has the incremental searching and Reeds-Shepp curve searching. This generates acceptable results but it certainly can be improved more:
 - avoid some very short path segments that are too hard to steer
 - avoid apex points that are too close to obstacles
-- add numerical optimiztion module to so that the curve will be adjusted to match the dynamics of the robot. E.g. acceleration and steer rate. 
+- add a numerical optimization module so that the curve will be adjusted to match the dynamics of the robot. E.g. acceleration and steer rate. 
 
 Every code in this project was developed by myself using standard C++ and ROS tools. 
 
-It was developed and tested in **ROS Noetic** on original Ubuntu 20 Desktop and WSL in Win11. 
+It was developed and tested in **ROS Noetic** on the original Ubuntu 20 Desktop and WSL in Win11. 
 
 -----------
 
@@ -23,8 +23,8 @@ It was developed and tested in **ROS Noetic** on original Ubuntu 20 Desktop and 
 
 The launch file above will start **RVIZ**. In RVIZ, from the buttons on the top, use **2D Nav Goal** button to set the target position. 
 
-The whole path is rendered in red color. The green part is the current segment that the robot is following at the moment. The big red dot (in front of robot) on
-the path is the target point selected by the purepursuit controller. 
+The whole path is rendered in red color. The green part is the current segment that the robot is following at the moment. The big red dot (in front of the robot) on
+the path is the target point selected by the pure-pursuit controller. 
 
 
 ### demo clips:
@@ -69,16 +69,16 @@ https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0c
 
 ----
 
-### drive the simulation by keyboard:
+### Drive the simulation by keyboard:
     python3 src/hawa_ackermann_sim/src/keyboard_to_ackermannDriveStamped.py
 
 Use this code in case you want to move the robot manually.
 
 ----
 ### TODO:
-- Finish refactoring the remaining parts in the reeds shepp curves code. (Currently only CSC and CCC types are used)
-- Move the remaining parameters into json configuration files.
-- Finish the path validation feature so that the planner module can reponse to dynamic obstacles and environment.
-- Improving the scoring method in RS curves so that it will prioritize the curves with less reversing motions. The current solution only considers the total length.
-- Add feature: while searching for path, hold multiple valid paths before terminating, so that it can have several options choose from.
+- Finish refactoring the remaining parts in the reeds shepp curves code. (Currently, only CSC and CCC types are used)
+- Move the remaining parameters into JSON configuration files.
+- Finish the path validation feature so that the planner module can respond to dynamic obstacles and environment.
+- Improving the scoring method in RS curves so that it will prioritize the curves with fewer reversing motions. The current solution only considers the total length.
+- Add feature: while searching for the path, hold multiple valid paths before terminating, so that it can have several options to choose from.
 - And the points mentioned in the Hybrid A* section at the beginning. 
