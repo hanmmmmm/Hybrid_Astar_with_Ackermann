@@ -31,20 +31,9 @@ the path is the target point selected by the pure-pursuit controller.
 
 (If they are not properly displayed here on the web, they can be found and downloaded from the folder of demo_images.)
 
-<!--https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/4ce2bd41-bde0-40b6-8ffd-014cb2a9bcab
-
-
-https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/eb60ac7e-02db-48ab-8b33-a22223d483ac
-
-
-https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/1bf8b5ec-82de-4ee3-9591-4bf0c4789b31
-
-
-https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/3a0cf466-5b9a-4048-82b7-246840751ca8
--->
-
-<!--![image]( https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif)-->
-
+<a id="search" href="https://github.com/hanmmmmm/robot-path-planning/blob/main/DFS/dfs.gif">
+    <img src="https://github.com/hanmmmmm/robot-path-planning/blob/main/DFS/dfs.gif" alt="BFS showcase gif" title="DFS search" width="500"/>
+</a>
 
 <a id="demogif1" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif">
     <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
