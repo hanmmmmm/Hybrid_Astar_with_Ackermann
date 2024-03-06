@@ -31,20 +31,16 @@ the path is the target point selected by the pure-pursuit controller.
 
 (If they are not properly displayed here on the web, they can be found and downloaded from the folder of demo_images.)
 
-<a id="search" href="https://github.com/hanmmmmm/robot-path-planning/blob/main/DFS/dfs.gif">
-    <img src="https://github.com/hanmmmmm/robot-path-planning/blob/main/DFS/dfs.gif" alt="BFS showcase gif" title="DFS search" width="500"/>
-</a>
-
 <a id="demogif1" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif">
-    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="500"/>
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
 </a>
 
-<a id="demogif2" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif">
-    <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
+<a id="demogif2" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif">
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
 </a>
 
-<a id="demogif3" href="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
-    <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
+<a id="demogif3" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif">
+    <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
 
 
