@@ -43,15 +43,6 @@ the path is the target point selected by the pure-pursuit controller.
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p3.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
 
-
-<!-- <img src="https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5" alt="gif 3" title="case 3" width="600"/> -->
-
-<!--
-![p1](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/853f1b1a-396f-4698-a910-576b7fe15fe5)
-![p2](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/f9e0c32d-889f-493f-b04e-29dbca94573a)
-![p4](https://githubfast.com/hanmmmmm/Hybrid_Astar_with_Ackermann/assets/35117797/9e07ed57-c49f-42ae-aa8a-17492401ca55)
--->
-
 ----
 
 ### Drive the simulation by keyboard:
