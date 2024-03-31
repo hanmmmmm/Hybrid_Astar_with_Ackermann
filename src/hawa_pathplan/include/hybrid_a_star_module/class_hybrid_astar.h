@@ -41,15 +41,19 @@
 #include <iostream>
 #include <math.h>
 #include <algorithm>
-#include <ros/package.h>
+
+// #include <ros/package.h>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include <ros/console.h>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include "nav_msgs/OccupancyGrid.h"
-#include "nav_msgs/MapMetaData.h"
+// #include <ros/console.h>
+#include "rclcpp/rclcpp.hpp"
+
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "nav_msgs/msg/map_meta_data.hpp"
 
 #include "class_reedsshepp_solver.h"
 
@@ -111,7 +115,7 @@ public:
 
     bool loadParameters();
 
-    bool setMap(nav_msgs::OccupancyGrid *ptr_map_data);
+    bool setMap(nav_msgs::msg::OccupancyGrid *ptr_map_data);
 
     bool setStartGoalPoses(StructPoseReal startpose, StructPoseReal goalpose);
 
@@ -147,7 +151,8 @@ ClassHybridAStar::~ClassHybridAStar()
  */
 bool ClassHybridAStar::loadParameters()
 {
-    std::string _path = ros::package::getPath("hawa_pathplan");
+    // std::string _path = ros::package::getPath("hawa_pathplan");
+    std::string _path = ament_index_cpp::get_package_share_directory("hawa_pathplan");
 
     std::cout << "pkg path: >" << _path << "< " << std::endl;
 
@@ -184,7 +189,7 @@ bool ClassHybridAStar::loadParameters()
  * @param ptr_map_data pointer of the OccupancyGrid msg.
  * @return True if setup is complete. False if something failed.
  */
-bool ClassHybridAStar::setMap(nav_msgs::OccupancyGrid *ptr_map_data)
+bool ClassHybridAStar::setMap(nav_msgs::msg::OccupancyGrid *ptr_map_data)
 {
     if (!m_gridmap_handler_.setGridMapPtr(&(ptr_map_data->data)))
         return false;
@@ -213,21 +218,21 @@ bool ClassHybridAStar::setStartGoalPoses(StructPoseReal startpose, StructPoseRea
     m_gridmap_handler_.convertFinePoseToGrid(m_important_poses_.start_pose, m_important_poses_.start_grid);
     m_gridmap_handler_.convertFinePoseToGrid(m_important_poses_.goal_pose, m_important_poses_.goal_grid);
 
-    ROS_DEBUG_STREAM(std::setprecision(2) << std::fixed << "hybrid astar start state:\n"
+    std::cout << std::setprecision(2) << std::fixed << "hybrid astar start state:\n"
                                           << m_important_poses_.start_pose.x << " " 
                                           << m_important_poses_.start_pose.y << " "
                                           << m_important_poses_.start_pose.yaw << "\n"
                                           << m_important_poses_.start_grid.x << " "
                                           << m_important_poses_.start_grid.y << " " 
-                                          << m_important_poses_.start_grid.yaw);
+                                          << m_important_poses_.start_grid.yaw << std::endl;
 
-    ROS_DEBUG_STREAM(std::setprecision(2) << std::fixed << "hybrid astar goal state:\n"
+    std::cout << std::setprecision(2) << std::fixed << "hybrid astar goal state:\n"
                                           << m_important_poses_.goal_pose.x << " " 
                                           << m_important_poses_.goal_pose.y << " "
                                           << m_important_poses_.goal_pose.yaw << "\n"
                                           << m_important_poses_.goal_grid.x << " "
                                           << m_important_poses_.goal_grid.y << " " 
-                                          << m_important_poses_.goal_grid.yaw);
+                                          << m_important_poses_.goal_grid.yaw << std::endl;
     return true;
 }
 
@@ -260,7 +265,7 @@ bool ClassHybridAStar::setup(const int timeout_ms)
 
     setupTheFirstGrid();
 
-    ROS_INFO_STREAM("ClassHybridAStar::setup() Done.");
+    std::cout << "ClassHybridAStar::setup() Done." << std::endl;
 
     return true;
 }
@@ -272,7 +277,7 @@ bool ClassHybridAStar::setup(const int timeout_ms)
  */
 bool ClassHybridAStar::search()
 {
-    ROS_INFO_STREAM("ClassHybridAStar::search() start.");
+    std::cout << "ClassHybridAStar::search() start." << std::endl;
 
     ClassHawaTimer _timer;
     _timer.startNow();
@@ -284,7 +289,7 @@ bool ClassHybridAStar::search()
         if (m_opennodes_pq_.size() == 0)
         {
             m_flags_.trapped = true;
-            ROS_WARN_STREAM("ClassHybridAStar trapped. Tried " << _search_iteration_count << " times");
+            std::cerr << "ClassHybridAStar trapped. Tried " << _search_iteration_count << " times" << std::endl;
             return false; // there is no more OPEN node to search
         }
 
@@ -294,13 +299,14 @@ bool ClassHybridAStar::search()
 
         if (m_flags_.found_rs_solution)
         {
-            ROS_INFO_STREAM("search success, found_rs_solution, tried " << _search_iteration_count << " times");
+            std::cout << "search success, found_rs_solution, tried " << _search_iteration_count << " times" << std::endl;
             break;
         }
 
         if (int(_timer.getDurationNonStop() * 1000.0) >= m_parameters_.time_out_ms)
         {
-            ROS_WARN_STREAM("ClassHybridAStar search timeout, failed, tried " << _search_iteration_count << " times");
+            // ROS_WARN_STREAM("ClassHybridAStar search timeout, failed, tried " << _search_iteration_count << " times");
+            std::cerr << "ClassHybridAStar search timeout, failed, tried " << _search_iteration_count << " times" << std::endl;
             m_flags_.timeout = true;
             return false;
         }
@@ -308,10 +314,13 @@ bool ClassHybridAStar::search()
 
     _timer.endTiming();
 
-    ROS_INFO_STREAM("ClassHybridAStar::search() Found the goal." << int(_timer.getDuration() * 1000.0) << "ms. Tried " << _search_iteration_count << " iterations. RS_search "
-                                                                 << m_timer_and_counter_.count__rs_search_.getVal() << " times.");
+    // ROS_INFO_STREAM("ClassHybridAStar::search() Found the goal." << int(_timer.getDuration() * 1000.0) << "ms. Tried " << _search_iteration_count << " iterations. RS_search "
+    //                                                              << m_timer_and_counter_.count__rs_search_.getVal() << " times.");
+    std::cout << "ClassHybridAStar::search() Found the goal." << int(_timer.getDuration() * 1000.0) << "ms. Tried " << _search_iteration_count << " iterations. RS_search "
+              << m_timer_and_counter_.count__rs_search_.getVal() << " times." << std::endl;
 
-    ROS_DEBUG_STREAM("ClassHybridAStar::search() finish.");
+    // ROS_DEBUG_STREAM("ClassHybridAStar::search() finish.");
+    std::cout << "ClassHybridAStar::search() finish." << std::endl;
 
     return true;
 }
@@ -343,8 +352,9 @@ bool ClassHybridAStar::tryFindReedsSheppCurve(const StructPoseGrid &r_curr_grid)
     }
     catch (const std::exception &e)
     {
-        ROS_WARN_STREAM_NAMED("ClassHybridAStar::tryFindReedsSheppCurve", 
-                              "m_RS_curve_finder_ try_catch exception:" << e.what());
+        // ROS_WARN_STREAM_NAMED("ClassHybridAStar::tryFindReedsSheppCurve", 
+        //                       "m_RS_curve_finder_ try_catch exception:" << e.what());
+        std::cerr << "ClassHybridAStar::tryFindReedsSheppCurve m_RS_curve_finder_ try_catch exception:" << e.what() << std::endl;
     }
 
     _timer.endTiming();
@@ -423,7 +433,8 @@ bool ClassHybridAStar::checkRSSearchResult()
             }
             catch (const std::exception &e)
             {
-                ROS_WARN_STREAM_NAMED("ClassHybridAStar::checkRSSearchResult()", "" << e.what());
+                // ROS_WARN_STREAM_NAMED("ClassHybridAStar::checkRSSearchResult()", "" << e.what());
+                std::cerr << "ClassHybridAStar::checkRSSearchResult() exception:" << e.what() << std::endl;
             }
         }
         _found_it = _this_path_is_usable;
@@ -555,7 +566,8 @@ void ClassHybridAStar::exploreOneNode()
  */
 void ClassHybridAStar::getFinalHybridAstarPath(ClassCustomPathContainer &r_path)
 {
-    ROS_DEBUG_STREAM("ClassHybridAStar::getFinalHybridAstarPath() start.");
+    // ROS_DEBUG_STREAM("ClassHybridAStar::getFinalHybridAstarPath() start.");
+    std::cout << "ClassHybridAStar::getFinalHybridAstarPath() start." << std::endl;
     r_path.clear_points();
 
     StructPoseGrid temp_step = m_important_poses_.grid_last_incremental_step;
@@ -589,7 +601,8 @@ void ClassHybridAStar::getFinalHybridAstarPath(ClassCustomPathContainer &r_path)
         }
     }
 
-    ROS_DEBUG_STREAM("ClassHybridAStar::getFinalHybridAstarPath() Done.");
+    // ROS_DEBUG_STREAM("ClassHybridAStar::getFinalHybridAstarPath() Done.");
+    std::cerr << "ClassHybridAStar::getFinalHybridAstarPath() Done." << std::endl;
 }
 
 /**
@@ -605,14 +618,16 @@ bool ClassHybridAStar::checkStartAndGoalAccessible()
                                              m_important_poses_.start_grid.y,
                                              ClassGridMapHandler::EnumMode::plan))
     {
-        ROS_WARN_STREAM("!! Start grid is in obstacle.");
+        // ROS_WARN_STREAM("!! Start grid is in obstacle.");
+        std::cerr << "!! Start grid is in obstacle." << std::endl;
         _temp = false;
     }
     if (!m_gridmap_handler_.checkGridClear(m_important_poses_.goal_grid.x,
                                              m_important_poses_.goal_grid.y,
                                              ClassGridMapHandler::EnumMode::plan))
     {
-        ROS_WARN_STREAM("!! Goal grid is in obstacle.");
+        // ROS_WARN_STREAM("!! Goal grid is in obstacle.");
+        std::cerr << "!! Goal grid is in obstacle." << std::endl;
         _temp = false;
     }
 

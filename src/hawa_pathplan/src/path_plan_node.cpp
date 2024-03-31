@@ -24,7 +24,7 @@
  * This file is the entry point of the path planner module.
 */
 
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 
 #include "../include/planner/class_path_planner.h"
 
@@ -33,18 +33,26 @@
 */
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "path_plan_node");
+    rclcpp::init(argc, argv);
 
-    ros::NodeHandle n;
+    rclcpp::spin(std::make_shared<ClassPathPlanner>());
 
-    ClassPathPlanner planner( n );
-
-    ros::AsyncSpinner s(4);
-    s.start();
-
-    ros::waitForShutdown();
+    rclcpp::shutdown();
 
     return 0;
+
+    // ros::init(argc, argv, "path_plan_node");
+
+    // ros::NodeHandle n;
+
+    // ClassPathPlanner planner( n );
+
+    // ros::AsyncSpinner s(4);
+    // s.start();
+
+    // ros::waitForShutdown();
+
+    // return 0;
 }
 
 

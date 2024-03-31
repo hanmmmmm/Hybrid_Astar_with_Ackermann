@@ -129,8 +129,7 @@ struct StructCounterForRSSearch
     {
         if (expected_interval <= 0)
         {
-            ROS_FATAL_STREAM_NAMED("StructCounterForRSSearch::setInterval", 
-                                   "input value too small:" << expected_interval);
+            std::cerr << "StructCounterForRSSearch::setInterval  input value too small:" << expected_interval << std::endl;
         }
         interval = expected_interval;
     }
@@ -369,7 +368,7 @@ double estimateChangingMotionTypeCost(const EnumHAMotionType last_motion, const 
     else if ((last_motion == EnumHAMotionType::R_R) && (this_motion == EnumHAMotionType::F_R))
         return _change_direction;
 
-    ROS_WARN_STREAM("estimate_changing_motion_type_cost(): Unknown condition:"<< last_motion << " " << this_motion);
+    std::cerr << "estimate_changing_motion_type_cost(): Unknown condition:"<< last_motion << " " << this_motion;
 
     return 1.0;
 }

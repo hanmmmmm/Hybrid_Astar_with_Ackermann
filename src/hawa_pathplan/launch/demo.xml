@@ -1,0 +1,10 @@
+<launch>
+  <node pkg="rviz2" exec="rviz2" name="rviz2" namespace=""/>
+
+  <node pkg="hawa_ackermann_sim" exec="akm_sim_node" name="akm_sim" namespace=""/>
+  <node pkg="hawa_control" exec="node_purepursuit" name="node_purepursuit" namespace=""/>
+  <node pkg="hawa_pathplan" exec="map_fusion_node" name="map_fusion_node" namespace=""/>
+  <node pkg="hawa_pathplan" exec="path_plan_node" name="path_plan_node" namespace=""/>
+  <!-- <node pkg="hawa_pathplan" exec="gridmap_publish.py" name="gridmap_publish" namespace=""/> -->
+
+</launch>

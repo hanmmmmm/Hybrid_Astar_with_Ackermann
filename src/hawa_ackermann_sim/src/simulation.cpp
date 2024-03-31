@@ -21,25 +21,37 @@
 // SOFTWARE.
 
 
-#include "../include/hawa_ackermann_sim/class_node_ackermann_simulation.h"
+#include "hawa_ackermann_sim/class_node_ackermann_simulation.h"
 
-#include "ros/ros.h"
+// #include "ros/ros.h"
+
+#include "rclcpp/rclcpp.hpp"
 
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "akm_sim_node");
+    rclcpp::init(argc, argv);
 
-    ros::NodeHandle n;
+    rclcpp::spin(std::make_shared<ClassNodeAckermannSim>());
 
-    ClassNodeAckermannSim simer( n );
-
-    ros::AsyncSpinner s(2);
-    s.start();
-
-    ros::waitForShutdown();
+    rclcpp::shutdown();
 
     return 0;
+
+
+    // ros::init(argc, argv, "akm_sim_node");
+
+    // ros::NodeHandle n;
+
+    // ClassNodeAckermannSim simer( n );
+
+    // ros::AsyncSpinner s(2);
+    // s.start();
+
+    // ros::waitForShutdown();
+
+    // return 0;
+
 }
 
 

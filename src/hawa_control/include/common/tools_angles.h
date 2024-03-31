@@ -29,9 +29,10 @@
 #define TOOLS_ANGLES
 
 #include <array>
-#include "tf/transform_listener.h"
+// #include "tf/transform_listener.h"
+#include "tf2_ros/transform_listener.h"
 #include "tf2/LinearMath/Quaternion.h"
-#include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/msg/quaternion.hpp"
 
 /**
  * @brief Make sure the angle value is between 0 and 2Pi.
@@ -93,9 +94,9 @@ bool checkIfPointOnLeftOfLine(double ax, double ay, double bx, double by, double
 */
 double quaternionToEularYaw(const double q_x, const double q_y, const double q_z, const double q_w)
 {
-    tf::Quaternion q( q_x, q_y, q_z, q_w );
-    tfScalar yaw, pitch, roll;
-    tf::Matrix3x3 mat(q);
+    tf2::Quaternion q( q_x, q_y, q_z, q_w );
+    double yaw, pitch, roll;
+    tf2::Matrix3x3 mat(q);
     mat.getEulerYPR(yaw, pitch, roll);
     return yaw;
 }
@@ -105,10 +106,10 @@ double quaternionToEularYaw(const double q_x, const double q_y, const double q_z
  * @param q_in the quaternion.
  * @return the value of the yaw. 
 */
-double quaternionToEularYaw(const tf::Quaternion q_in)
+double quaternionToEularYaw(const tf2::Quaternion q_in)
 {
-    tfScalar yaw, pitch, roll;
-    tf::Matrix3x3 mat(q_in);
+    double yaw, pitch, roll;
+    tf2::Matrix3x3 mat(q_in);
     mat.getEulerYPR(yaw, pitch, roll);
     return yaw;
 }
@@ -118,11 +119,11 @@ double quaternionToEularYaw(const tf::Quaternion q_in)
  * @param q_in the quaternion.
  * @return the value of the yaw. 
 */
-double quaternionToEularYaw(const geometry_msgs::Quaternion q_in)
+double quaternionToEularYaw(const geometry_msgs::msg::Quaternion q_in)
 {
-    tf::Quaternion q( q_in.x, q_in.y, q_in.z, q_in.w );
-    tfScalar yaw, pitch, roll;
-    tf::Matrix3x3 mat(q);
+    tf2::Quaternion q( q_in.x, q_in.y, q_in.z, q_in.w );
+    double yaw, pitch, roll;
+    tf2::Matrix3x3 mat(q);
     mat.getEulerYPR(yaw, pitch, roll);
     return mod2pi(yaw);
 }

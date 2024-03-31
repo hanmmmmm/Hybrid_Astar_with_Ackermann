@@ -39,7 +39,7 @@
 #include <vector>
 #include <iostream>
 
-#include "ros/console.h"
+// #include "ros/console.h"
 
 /**
  * @brief This class contains the data for the inflation used in grid map. 
@@ -93,7 +93,9 @@ void ClassInflationSamples::setRadius(const int rad)
 {
     if (rad < 1)
     {
-        ROS_ERROR_STREAM("setRadius() invalid radius:" << rad);
+        std::stringstream ss;
+        ss << "setRadius() invalid radius:" << rad;
+        // RCLCPP_INFO(rclcpp::get_logger("ClassInflationSamples"), ss.str());
         return;
     }
     m_radius_val_ = rad;
@@ -125,7 +127,7 @@ void ClassInflationSamples::prepareSampleByRadius()
 {
     if (! m_radius_is_set_)
     {
-        ROS_WARN_STREAM("Make sure radius is set first.");
+        // ROS_WARN_STREAM("Make sure radius is set first.");
         return;
     }
 
@@ -183,7 +185,7 @@ void ClassInflationSamples::prepareSampleByRadius()
     }
     else
     {
-        ROS_ERROR_STREAM("Invalid inflation size:" << m_radius_val_);
+        // ROS_ERROR_STREAM("Invalid inflation size:" << m_radius_val_);
     }
 }
 

@@ -43,8 +43,8 @@
 #include <array>
 #include <math.h>
 
-#include "geometry_msgs/PointStamped.h"
-#include "geometry_msgs/Point.h"
+#include "geometry_msgs/msg/point_stamped.hpp"
+#include "geometry_msgs/msg/point.hpp"
 
 #include "../common/class_elemental_path2d_segment.h"
 #include "../common/class_elemental_pose2d.h"
@@ -61,9 +61,9 @@ class ClassPurePursuit
 private:
     StructParameters m_parameters_;
 
-    std::vector<std::array<geometry_msgs::Point, 2>> m_vector_target_points_;
+    std::vector<std::array<geometry_msgs::msg::Point, 2>> m_vector_target_points_;
 
-    geometry_msgs::PointStamped m_actual_target_points_;
+    geometry_msgs::msg::PointStamped m_actual_target_points_;
 
     StructPose m_robot_pose_;
 
@@ -88,12 +88,12 @@ public:
 
     void findTargetPoint(bool& r_success);
 
-    void getTargetPoint(geometry_msgs::PointStamped& r_target);
+    void getTargetPoint(geometry_msgs::msg::PointStamped& r_target);
 
     void solveForSpeedCommand(bool& r_success, double& r_steer_rad);
 
-    void findPreciseTargetPoint(std::array<geometry_msgs::Point, 2> two_pathpoints, 
-                                geometry_msgs::PointStamped& r_result_point);
+    void findPreciseTargetPoint(std::array<geometry_msgs::msg::Point, 2> two_pathpoints, 
+                                geometry_msgs::msg::PointStamped& r_result_point);
 
 };
 
@@ -198,7 +198,7 @@ void ClassPurePursuit::findTargetPoint(bool& r_success)
     int _num_points = m_the_segment_.m_path_extended_.size();
     if(_num_points <= 2)
     {
-        ROS_WARN_STREAM_THROTTLE(10 , "findTargetPoint()  Path too short: " << _num_points);
+        // ROS_WARN_STREAM_THROTTLE(10 , "findTargetPoint()  Path too short: " << _num_points);
         r_success = false;
         return;
     }
@@ -216,22 +216,22 @@ void ClassPurePursuit::findTargetPoint(bool& r_success)
         if( (_dist_1 < m_parameters_.look_ahead_distance_meter_) 
             && (_dist_2 > m_parameters_.look_ahead_distance_meter_) )
         {
-            geometry_msgs::Point _p1;
+            geometry_msgs::msg::Point _p1;
             _p1.x = _pose_1.x;
             _p1.y = _pose_1.y;
             
-            geometry_msgs::Point _p2;
+            geometry_msgs::msg::Point _p2;
             _p2.x = _pose_2.x;
             _p2.y = _pose_2.y;
 
-            m_vector_target_points_.push_back(std::array<geometry_msgs::Point, 2> {_p1, _p2});
+            m_vector_target_points_.push_back(std::array<geometry_msgs::msg::Point, 2> {_p1, _p2});
         }
 
     }
 
     if(m_vector_target_points_.size() == 0)
     {
-        ROS_DEBUG_STREAM_THROTTLE(10, "No Target point found.");
+        // ROS_DEBUG_STREAM_THROTTLE(10, "No Target point found.");
         /*
         TODO:
         expand searching area and try again.
@@ -239,15 +239,17 @@ void ClassPurePursuit::findTargetPoint(bool& r_success)
     }
     else if(m_vector_target_points_.size() >= 2)
     {
-        ROS_DEBUG_STREAM_THROTTLE(10, "Found >= 2 Target points.");
+        // ROS_DEBUG_STREAM_THROTTLE(10, "Found >= 2 Target points.");
         /*
         TODO:
         select the best one.
         */
+       findPreciseTargetPoint(m_vector_target_points_[0], m_actual_target_points_);
+        return;
     }
     else if(m_vector_target_points_.size() == 1)
     {
-        ROS_DEBUG_STREAM_THROTTLE(10, "Found 1 Target point.");
+        // ROS_DEBUG_STREAM_THROTTLE(10, "Found 1 Target point.");
         r_success = true;
         findPreciseTargetPoint(m_vector_target_points_[0], m_actual_target_points_);
         return;
@@ -259,7 +261,7 @@ void ClassPurePursuit::findTargetPoint(bool& r_success)
  * @brief For calling from external only. To get the value of the target_point at the moment.
  * @param r_target : result.  geometry_msgs::PointStamped
 */
-void ClassPurePursuit::getTargetPoint(geometry_msgs::PointStamped& r_target)
+void ClassPurePursuit::getTargetPoint(geometry_msgs::msg::PointStamped& r_target)
 {
     r_target = m_actual_target_points_;
 }
@@ -321,12 +323,12 @@ void ClassPurePursuit::solveForSpeedCommand(bool& r_success, double& r_steer_rad
  * @param two_pathpoints : the two points mentioned in brief.
  * @param r_result_point : the precise point to be found.
 */
-void ClassPurePursuit::findPreciseTargetPoint(std::array<geometry_msgs::Point, 2> two_pathpoints, 
-                                              geometry_msgs::PointStamped& r_result_point)
+void ClassPurePursuit::findPreciseTargetPoint(std::array<geometry_msgs::msg::Point, 2> two_pathpoints, 
+                                              geometry_msgs::msg::PointStamped& r_result_point)
 {
-    geometry_msgs::Point p1 = two_pathpoints[0];
-    geometry_msgs::Point p2 = two_pathpoints[1];
-    geometry_msgs::Point pm;  // the point between p1 and p2. 
+    geometry_msgs::msg::Point p1 = two_pathpoints[0];
+    geometry_msgs::msg::Point p2 = two_pathpoints[1];
+    geometry_msgs::msg::Point pm;  // the point between p1 and p2. 
 
     double _critical_distance_meter = 0.01; 
 
@@ -358,7 +360,7 @@ void ClassPurePursuit::findPreciseTargetPoint(std::array<geometry_msgs::Point, 2
             }
         }
     }
-    ROS_DEBUG_STREAM_THROTTLE(4, "Reached max TargetPoint search iterations.");
+    // ROS_DEBUG_STREAM_THROTTLE(4, "Reached max TargetPoint search iterations.");
     r_result_point.point.x = pm.x;
     r_result_point.point.y = pm.y;
 }

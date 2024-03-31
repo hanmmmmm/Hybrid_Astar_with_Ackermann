@@ -40,40 +40,47 @@
 #include <string>
 #include <mutex>
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+// #include <boost/property_tree/ptree.hpp>
+// #include <boost/property_tree/json_parser.hpp>
 
-#include "ros/ros.h"
-#include "tf/transform_broadcaster.h"
+// #include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
+// #include "tf/transform_broadcaster.h"
+#include "tf2_ros/transform_broadcaster.h"
 #include "tf2/LinearMath/Quaternion.h"
-#include "ackermann_msgs/AckermannDriveStamped.h"
-#include "nav_msgs/Odometry.h"
+// #include "ackermann_msgs/AckermannDriveStamped.h"
+#include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
+// #include "nav_msgs/Odometry.h"
+#include "nav_msgs/msg/odometry.hpp"
 
-#include "visualization_msgs/Marker.h"
+#include "visualization_msgs/msg/marker.hpp"
 #include "class_car_body_box_marker.h"
 #include "hawa_sim_tools.h"
 #include "class_akm_sim_dynamic_states.h"
 
 
-class ClassNodeAckermannSim
+using namespace std::chrono_literals;
+using std::placeholders::_1;
+
+class ClassNodeAckermannSim : public rclcpp::Node
 {
 private:
-    ros::NodeHandle m_nodehandle_;
-    tf::TransformBroadcaster m_tf_bcr_;
 
-    ros::Subscriber m_akm_drive_suber_ ;
-    ros::Publisher m_odometry_puber_;
-    ros::Publisher m_car_body_line_puber_;
-    ros::Timer  m_periodic_timer_;
+    std::unique_ptr<tf2_ros::TransformBroadcaster> m_tf_bcr_;
+    
+    rclcpp::Subscription<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr m_akm_drive_suber_;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr m_odometry_puber_;
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr m_car_body_line_puber_;
+    rclcpp::TimerBase::SharedPtr m_periodic_timer_;
 
     std::string m_robot_frame_;
     std::string m_akm_drive_subscribed_topic_name_; 
     std::string m_odometry_published_topic_name_;  
     std::string m_car_body_line_published_topic_name_; 
 
-    ackermann_msgs::AckermannDriveStamped m_akm_drive_msg_;
+    ackermann_msgs::msg::AckermannDriveStamped m_akm_drive_msg_;
     double m_akm_drive_msg_stamp_system_;
-    nav_msgs::Odometry m_odometry_msg_;
+    nav_msgs::msg::Odometry m_odometry_msg_;
 
     ClassCarBox2D m_car_box_;
 
@@ -84,35 +91,92 @@ private:
     bool FLAG_pub_tf__map2odom_;
     
 private:
-    void akmDriveCallback(const ackermann_msgs::AckermannDriveStampedConstPtr &msg);
-    void mainUpdate( const ros::TimerEvent &event );
+    void akmDriveCallback(const ackermann_msgs::msg::AckermannDriveStamped &msg);
+    void mainUpdate( );
     void loadParameters();
-    
+
 public:
-    ClassNodeAckermannSim(const ros::NodeHandle nh_in_);
+    ClassNodeAckermannSim();
     ~ClassNodeAckermannSim();
 };
 
 
-ClassNodeAckermannSim::ClassNodeAckermannSim(const ros::NodeHandle nh_in_): m_nodehandle_{nh_in_}
+// class ClassNodeAckermannSim
+// {
+// private:
+//     ros::NodeHandle m_nodehandle_;
+//     tf::TransformBroadcaster m_tf_bcr_;
+
+//     ros::Subscriber m_akm_drive_suber_ ;
+//     ros::Publisher m_odometry_puber_;
+//     ros::Publisher m_car_body_line_puber_;
+//     ros::Timer  m_periodic_timer_;
+
+//     std::string m_robot_frame_;
+//     std::string m_akm_drive_subscribed_topic_name_; 
+//     std::string m_odometry_published_topic_name_;  
+//     std::string m_car_body_line_published_topic_name_; 
+
+//     ackermann_msgs::AckermannDriveStamped m_akm_drive_msg_;
+//     double m_akm_drive_msg_stamp_system_;
+//     nav_msgs::Odometry m_odometry_msg_;
+
+//     ClassCarBox2D m_car_box_;
+
+// private:
+//     DynamicsStates m_dyna_states_;
+//     double m_timestamp_last_update_;
+//     double m_main_loop_timer_interval_second_;
+//     bool FLAG_pub_tf__map2odom_;
+    
+// private:
+//     void akmDriveCallback(const ackermann_msgs::AckermannDriveStampedConstPtr &msg);
+//     void mainUpdate( const ros::TimerEvent &event );
+//     void loadParameters();
+    
+// public:
+//     ClassNodeAckermannSim(const ros::NodeHandle nh_in_);
+//     ~ClassNodeAckermannSim();
+// };
+
+
+ClassNodeAckermannSim::ClassNodeAckermannSim(): Node("AckermannSim")
 {
     loadParameters(); 
 
     m_akm_drive_msg_stamp_system_ = 0.0;
 
-    m_akm_drive_suber_ = m_nodehandle_.subscribe(m_akm_drive_subscribed_topic_name_, 
-                                                 1, &ClassNodeAckermannSim::akmDriveCallback, this);
-    
-    m_odometry_puber_ = m_nodehandle_.advertise<nav_msgs::Odometry>(
-                                                    m_odometry_published_topic_name_, 1, this);
-    
-    m_car_body_line_puber_ = m_nodehandle_.advertise<visualization_msgs::Marker>(
-                                                    m_car_body_line_published_topic_name_, 1, this);
+    m_tf_bcr_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-    m_periodic_timer_ = m_nodehandle_.createTimer(ros::Duration(m_main_loop_timer_interval_second_), 
-                                                  &ClassNodeAckermannSim::mainUpdate, this );
+    m_akm_drive_suber_ = this->create_subscription<ackermann_msgs::msg::AckermannDriveStamped>(
+        m_akm_drive_subscribed_topic_name_, 10, std::bind(&ClassNodeAckermannSim::akmDriveCallback, this, _1)
+    );
 
-    ROS_INFO_STREAM("ClassNodeAckermannSim inti Done");
+    m_odometry_puber_ = this->create_publisher<nav_msgs::msg::Odometry>(
+        m_odometry_published_topic_name_, 10
+    );
+
+    m_car_body_line_puber_ = this->create_publisher<visualization_msgs::msg::Marker>(
+        m_car_body_line_published_topic_name_, 10
+    );
+
+    m_periodic_timer_ = this->create_wall_timer(20ms, std::bind(&ClassNodeAckermannSim::mainUpdate, this));
+
+    RCLCPP_INFO(this->get_logger(), "ClassNodeAckermannSim inti Done");
+
+    // m_akm_drive_suber_ = m_nodehandle_.subscribe(m_akm_drive_subscribed_topic_name_, 
+    //                                              1, &ClassNodeAckermannSim::akmDriveCallback, this);
+    
+    // m_odometry_puber_ = m_nodehandle_.advertise<nav_msgs::Odometry>(
+    //                                                 m_odometry_published_topic_name_, 1, this);
+    
+    // m_car_body_line_puber_ = m_nodehandle_.advertise<visualization_msgs::Marker>(
+    //                                                 m_car_body_line_published_topic_name_, 1, this);
+
+    // m_periodic_timer_ = m_nodehandle_.createTimer(ros::Duration(m_main_loop_timer_interval_second_), 
+    //                                               &ClassNodeAckermannSim::mainUpdate, this );
+
+    // ROS_INFO_STREAM("ClassNodeAckermannSim inti Done");
 }
 
 ClassNodeAckermannSim::~ClassNodeAckermannSim()
@@ -140,17 +204,18 @@ void ClassNodeAckermannSim::loadParameters()
 /**
  * @brief Callback function to the ackermann drive message input.
 */
-void ClassNodeAckermannSim::akmDriveCallback(const ackermann_msgs::AckermannDriveStampedConstPtr &msg)
+void ClassNodeAckermannSim::akmDriveCallback(const ackermann_msgs::msg::AckermannDriveStamped &msg)
 {
-    m_akm_drive_msg_.header = msg->header;
-    m_akm_drive_msg_.drive = msg->drive;
+    RCLCPP_INFO(this->get_logger(), "akmDriveCallback()");
+    m_akm_drive_msg_.header = msg.header;
+    m_akm_drive_msg_.drive = msg.drive;
     m_akm_drive_msg_stamp_system_ = getTimeSecond();
 }
 
 /**
  * @brief The main function in class. To be called by the ros timer event. 
 */
-void ClassNodeAckermannSim::mainUpdate(const ros::TimerEvent &event)
+void ClassNodeAckermannSim::mainUpdate()
 {
     double _time_now_second = getTimeSecond();
 
@@ -174,46 +239,93 @@ void ClassNodeAckermannSim::mainUpdate(const ros::TimerEvent &event)
 
     m_timestamp_last_update_ = _time_now_second;
 
-    tf::Transform _transform;
-    tf::Quaternion _tf_qua;
+    geometry_msgs::msg::TransformStamped _transform;
+
+    // tf::Transform _transform;
+    // tf::Quaternion _tf_qua;
+
+    
+
+    _transform.header.stamp = this->get_clock()->now();
+   
 
     if (FLAG_pub_tf__map2odom_)
     {
-        _transform.setOrigin( tf::Vector3(0, 0, 0) );
-        _tf_qua.setRPY(0, 0, 0);
-        _transform.setRotation(_tf_qua);
-        m_tf_bcr_.sendTransform(tf::StampedTransform(_transform, ros::Time::now(), "map", "odom"));
+        _transform.header.frame_id = "map";
+        _transform.child_frame_id = "odom";
+        _transform.transform.translation.x = 0;
+        _transform.transform.translation.y = 0;
+        _transform.transform.translation.z = 0;
+        _transform.transform.rotation.x = 0;
+        _transform.transform.rotation.y = 0;
+        _transform.transform.rotation.z = 0;
+        _transform.transform.rotation.w = 1;
+        m_tf_bcr_->sendTransform(_transform);
+        // _transform.setOrigin( tf::Vector3(0, 0, 0) );
+        // _tf_qua.setRPY(0, 0, 0);
+        // _transform.setRotation(_tf_qua);
+        // m_tf_bcr_.sendTransform(tf::StampedTransform(_transform, ros::Time::now(), "map", "odom"));
     }
     
-    _transform.setOrigin( tf::Vector3(m_dyna_states_.m_x_meter_, m_dyna_states_.m_y_meter_, 0.0) );
-    _tf_qua.setRPY(0, 0, m_dyna_states_.m_yaw_rad_);
-    _transform.setRotation(_tf_qua);
-    m_tf_bcr_.sendTransform(tf::StampedTransform(_transform, ros::Time::now(), "odom", "base_link"));
+    _transform.header.frame_id = "odom";
+    _transform.child_frame_id = "base_link";
+    _transform.transform.translation.x = m_dyna_states_.m_x_meter_;
+    _transform.transform.translation.y = m_dyna_states_.m_y_meter_;
+    _transform.transform.translation.z = 0;
 
-    // publish a link that represents the front wheel (the one steering left and right)
-    _transform.setOrigin( tf::Vector3(m_dyna_states_.m_axle_distance_, 0.0, 0.0) );
-    _tf_qua.setRPY(0, 0, m_dyna_states_.m_steer_rad_actual_);
-    _transform.setRotation(_tf_qua);
-    m_tf_bcr_.sendTransform(tf::StampedTransform(_transform, ros::Time::now(), "base_link", "steer_link"));
+    tf2::Quaternion q;
+    q.setRPY(0, 0, m_dyna_states_.m_yaw_rad_);
+    _transform.transform.rotation.x = q.x();
+    _transform.transform.rotation.y = q.y();
+    _transform.transform.rotation.z = q.z();
+    _transform.transform.rotation.w = q.w();
+    m_tf_bcr_->sendTransform(_transform);
 
-    visualization_msgs::Marker _body_line_marker = m_car_box_.getMarkerMsg();
-    m_car_body_line_puber_.publish(_body_line_marker);
+    _transform.header.frame_id = "base_link";
+    _transform.child_frame_id = "steer_link";
+    _transform.transform.translation.x = m_dyna_states_.m_axle_distance_;
+    _transform.transform.translation.y = 0;
+    _transform.transform.translation.z = 0;
 
-    m_odometry_msg_.header.stamp = ros::Time::now();
+    q.setRPY(0, 0, m_dyna_states_.m_steer_rad_actual_);
+    _transform.transform.rotation.x = q.x();
+    _transform.transform.rotation.y = q.y();
+    _transform.transform.rotation.z = q.z();
+    _transform.transform.rotation.w = q.w();
+    m_tf_bcr_->sendTransform(_transform);
+
+    // _transform.setOrigin( tf::Vector3(m_dyna_states_.m_x_meter_, m_dyna_states_.m_y_meter_, 0.0) );
+    // _tf_qua.setRPY(0, 0, m_dyna_states_.m_yaw_rad_);
+    // _transform.setRotation(_tf_qua);
+    // m_tf_bcr_.sendTransform(tf::StampedTransform(_transform, ros::Time::now(), "odom", "base_link"));
+
+    // // publish a link that represents the front wheel (the one steering left and right)
+    // _transform.setOrigin( tf::Vector3(m_dyna_states_.m_axle_distance_, 0.0, 0.0) );
+    // _tf_qua.setRPY(0, 0, m_dyna_states_.m_steer_rad_actual_);
+    // _transform.setRotation(_tf_qua);
+    // // m_tf_bcr_.sendTransform(tf::StampedTransform(_transform, ros::Time::now(), "base_link", "steer_link"));
+
+
+    visualization_msgs::msg::Marker _body_line_marker = m_car_box_.getMarkerMsg();
+    m_car_body_line_puber_->publish(_body_line_marker);
+
+    m_odometry_msg_.header.stamp = this->get_clock()->now();
     m_odometry_msg_.pose.pose.position.x = m_dyna_states_.m_x_meter_;
     m_odometry_msg_.pose.pose.position.y = m_dyna_states_.m_y_meter_;
-    _transform.setOrigin(tf::Vector3(0, 0, 0));
-    _tf_qua.setRPY(0, 0, m_dyna_states_.m_yaw_rad_);
-    m_odometry_msg_.pose.pose.orientation.x = _tf_qua.getX();
-    m_odometry_msg_.pose.pose.orientation.y = _tf_qua.getY();
-    m_odometry_msg_.pose.pose.orientation.z = _tf_qua.getZ();
-    m_odometry_msg_.pose.pose.orientation.w = _tf_qua.getW();
+    // _transform.setOrigin(tf::Vector3(0, 0, 0));
+    q.setRPY(0, 0, m_dyna_states_.m_yaw_rad_);
+    m_odometry_msg_.pose.pose.orientation.x = q.getX();
+    m_odometry_msg_.pose.pose.orientation.y = q.getY();
+    m_odometry_msg_.pose.pose.orientation.z = q.getZ();
+    m_odometry_msg_.pose.pose.orientation.w = q.getW();
     
     m_odometry_msg_.twist.twist.linear.x = m_dyna_states_.m_linear_vb_mps_actual_;
     m_odometry_msg_.twist.twist.linear.y = 0;
     m_odometry_msg_.twist.twist.angular.z = m_dyna_states_.m_angular_wb_radps_actual_;
     
-    m_odometry_puber_.publish(m_odometry_msg_);
+    m_odometry_puber_->publish(m_odometry_msg_);
+
+    
 }
 
 

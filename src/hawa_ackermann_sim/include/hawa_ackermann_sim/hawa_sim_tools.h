@@ -36,6 +36,8 @@
 #define HAWA_SIM_TOOLS_H
 
 #include <chrono>
+// #include "math.hpp"
+#include <math.h>
 
 using std::chrono::high_resolution_clock;
 

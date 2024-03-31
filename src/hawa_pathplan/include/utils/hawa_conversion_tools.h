@@ -37,9 +37,9 @@
 
 #include "tf2/LinearMath/Quaternion.h"
 
-#include "geometry_msgs/Pose.h"
-#include "geometry_msgs/PoseStamped.h"
-#include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
 
 /**
  * @brief modulate the given angle.
@@ -73,9 +73,9 @@ tf2::Quaternion twodYawToTf2qua(double yaw_rad)
 /**
  * @brief Convert a given tf2 quaternion to geometry_msgs quaternion.
 */
-geometry_msgs::Quaternion tf2quaToGeoQua(tf2::Quaternion tf2quaternion)
+geometry_msgs::msg::Quaternion tf2quaToGeoQua(tf2::Quaternion tf2quaternion)
 {
-    geometry_msgs::Quaternion myQuaternion;
+    geometry_msgs::msg::Quaternion myQuaternion;
     myQuaternion.w = tf2quaternion.getW();
     myQuaternion.x = tf2quaternion.getX();
     myQuaternion.y = tf2quaternion.getY();
@@ -88,7 +88,7 @@ geometry_msgs::Quaternion tf2quaToGeoQua(tf2::Quaternion tf2quaternion)
  * @param ptr_tftrans The pointer to the transform. 
  * @return The yaw value. 
 */
-double tfStampedTransformToYaw(const tf::StampedTransform* ptr_tftrans)
+double StampedTransformToYaw(const geometry_msgs::msg::TransformStamped * ptr_trans)
 {
     // tf::Quaternion q(m_tf_robot_to_map_.getRotation().x(),
     //                 m_tf_robot_to_map_.getRotation().y(),
@@ -99,12 +99,12 @@ double tfStampedTransformToYaw(const tf::StampedTransform* ptr_tftrans)
     // mat.getEulerYPR(yaw, pitch, roll);
     // m_start_pose_.yaw = mod_2pi(yaw);
     
-    tf::Quaternion q(ptr_tftrans->getRotation().x(),
-                    ptr_tftrans->getRotation().y(),
-                    ptr_tftrans->getRotation().z(),
-                    ptr_tftrans->getRotation().w());
-    tfScalar yaw, pitch, roll;
-    tf::Matrix3x3 mat(q);
+    tf2::Quaternion q(ptr_trans->transform.rotation.x,
+                        ptr_trans->transform.rotation.y,
+                        ptr_trans->transform.rotation.z,
+                        ptr_trans->transform.rotation.w);
+    double yaw, pitch, roll;
+    tf2::Matrix3x3 mat(q);
     mat.getEulerYPR(yaw, pitch, roll);
     return mod2pi(yaw);
 }
@@ -114,7 +114,7 @@ double tfStampedTransformToYaw(const tf::StampedTransform* ptr_tftrans)
  * @param ptr_geoqua The pointer to the quaternion. 
  * @return The yaw value. 
 */
-double geoQuaToYaw(const geometry_msgs::Quaternion* ptr_geoqua)
+double geoQuaToYaw(const geometry_msgs::msg::Quaternion* ptr_geoqua)
 {
     // tf::Quaternion q(msg->pose.orientation.x,
     //                  msg->pose.orientation.y,
@@ -124,12 +124,12 @@ double geoQuaToYaw(const geometry_msgs::Quaternion* ptr_geoqua)
     // tf::Matrix3x3 mat(q);
     // mat.getEulerYPR(yaw, pitch, roll);
 
-    tf::Quaternion q(ptr_geoqua->x,
+    tf2::Quaternion q(ptr_geoqua->x,
                      ptr_geoqua->y,
                      ptr_geoqua->z,
                      ptr_geoqua->w);
-    tfScalar yaw, pitch, roll;
-    tf::Matrix3x3 mat(q);
+    double yaw, pitch, roll;
+    tf2::Matrix3x3 mat(q);
     mat.getEulerYPR(yaw, pitch, roll);
     return mod2pi(yaw);
 }

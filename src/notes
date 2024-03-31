@@ -1,0 +1,34 @@
+
+
+for optimization:
+- change angle calc from random float to pre-calc ints
+
+
+
+for presentation:
+- run pure pursuit example paths in rviz, (maunal paths)
+- measure speed, eg. (xx ms per 1M search)
+
+
+
+
+TODO:
+
+Mar 29 2024
+- path-validation:
+-- create a new function: bool validate(){}
+-- add the mechnism in planner to trigger by validate().
+
+- simulaion:
+-- add randomness in states
+
+
+future:
+
+(Might not worth doing this one, because TEB is implemented in ROS, and it works well.)
+add trajectory optimization:
+- the intial waypoints are the points from existing result
+- start annd end pose are fixed
+- will need a way to define the cost when close to the occupied grids
+
+

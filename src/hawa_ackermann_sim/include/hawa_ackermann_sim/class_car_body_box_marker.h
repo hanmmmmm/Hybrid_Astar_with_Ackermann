@@ -39,9 +39,13 @@
 
 #include <string>
 
-#include "visualization_msgs/Marker.h"
-#include "geometry_msgs/Pose.h"
-#include "geometry_msgs/Point.h"
+// #include "visualization_msgs/Marker.h"
+// #include "geometry_msgs/Pose.h"
+// #include "geometry_msgs/Point.h"
+
+#include "visualization_msgs/msg/marker.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/point.hpp"
 
 class ClassCarBox2D
 {
@@ -54,9 +58,9 @@ public:
 
     void setFrameID(std::string id_str);
 
-    visualization_msgs::Marker m_box_2d_marker_;
+    visualization_msgs::msg::Marker m_box_2d_marker_;
 
-    visualization_msgs::Marker getMarkerMsg( );
+    visualization_msgs::msg::Marker getMarkerMsg( );
 };
 
 ClassCarBox2D::ClassCarBox2D()
@@ -76,13 +80,14 @@ ClassCarBox2D::~ClassCarBox2D()
 */
 void ClassCarBox2D::setFrameID(std::string id_str)
 {
+    auto _temp = id_str;
     m_box_2d_marker_.header.frame_id = "base_link";  //id_str;
     m_box_2d_marker_.color.r = 0.0;
     m_box_2d_marker_.color.g = 0.0;
     m_box_2d_marker_.color.b = 1.0;
     m_box_2d_marker_.color.a = 1.0;
     m_box_2d_marker_.type = m_box_2d_marker_.LINE_STRIP;
-    m_box_2d_marker_.lifetime.fromSec(5);
+    // m_box_2d_marker_.lifetime.fromSec(5);
     m_box_2d_marker_.scale.x = 0.03;
     m_box_2d_marker_.scale.y = 0.03;
     m_box_2d_marker_.scale.z = 0.03;
@@ -97,30 +102,30 @@ void ClassCarBox2D::setFrameID(std::string id_str)
  * @brief Get the marker message that's ready to be publsihed. 
  * @return the visualization_msgs::Marker message.
 */
-visualization_msgs::Marker ClassCarBox2D::getMarkerMsg( )
+visualization_msgs::msg::Marker ClassCarBox2D::getMarkerMsg( )
 {
     double _width_half = m_rectangle_width_ / 2.0 ;
-    geometry_msgs::Point _p1;
+    geometry_msgs::msg::Point _p1;
     _p1.x = 0; // - ( m_dist_robot_base_to_end_ );
     _p1.y = 0;
 
-    geometry_msgs::Point _p2;
+    geometry_msgs::msg::Point _p2;
     _p2.x = 0;
     _p2.y = m_rectangle_width_;
 
-    geometry_msgs::Point _p3;
+    geometry_msgs::msg::Point _p3;
     _p3.x = m_rectangle_length_;
     _p3.y = m_rectangle_width_;
 
-    geometry_msgs::Point _p4;
+    geometry_msgs::msg::Point _p4;
     _p4.x = m_rectangle_length_ + 0.3;
     _p4.y = _width_half + 0.03;
 
-    geometry_msgs::Point _p5;
+    geometry_msgs::msg::Point _p5;
     _p5.x = m_rectangle_length_ + 0.3;
     _p5.y = _width_half - 0.03;
 
-    geometry_msgs::Point _p6;
+    geometry_msgs::msg::Point _p6;
     _p6.x = m_rectangle_length_;
     _p6.y = 0;
 

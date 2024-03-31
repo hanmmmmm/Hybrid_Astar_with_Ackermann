@@ -1,11 +1,16 @@
 
 
-import rospy
+
+import rclpy
+from rclpy.node import Node
+
 from std_msgs.msg import String
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 from visualization_msgs.msg import MarkerArray, Marker
 from random import choice
+
+
 
 
 def load_path(path_file):
@@ -59,6 +64,23 @@ def load_path(path_file):
 
 
 
+class ClassPathPublisher(Node):
+    def __init__(self):
+        super().__init__('node_test_path_pub')
+        self.path_publisher = self.create_publisher(Path, "/path", 10)
+        self.point_publisher = self.create_publisher(MarkerArray, "/visualization_marker_array", 1)
+        
+        self.path_msg, self.points_array_msg = load_path('path_wave.txt')
+
+        timer_period = 1  #sec
+        self.timer = self.create_timer(timer_period, self.publish_all)
+
+    def publish_all(self):
+        self.path_publisher.publish(self.path_msg)
+        self.point_publisher.publish(self.points_array_msg)
+
+
+
 def cb_change_path(msg:String):
     global path_msg, points_array_msg
     paths = ['path_long_circle.txt',
@@ -71,19 +93,28 @@ def cb_change_path(msg:String):
 
 if __name__ == "__main__":
 
-    rospy.init_node("node_test_path_pub")
+    # rospy.init_node("node_test_path_pub")
 
-    rospy.Subscriber("/change_path", String, cb_change_path)
-    puber = rospy.Publisher("/path", Path, queue_size=1)
-    points_puber = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size= 1)
+    # rospy.Subscriber("/change_path", String, cb_change_path)
+    # puber = rospy.Publisher("/path", Path, queue_size=1)
+    # points_puber = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size= 1)
 
-    path_msg, points_array_msg = load_path('path_long_circle.txt')
+    # path_msg, points_array_msg = load_path('path_long_circle.txt')
 
-    while not rospy.is_shutdown():
-        puber.publish(path_msg)
-        points_puber.publish(points_array_msg)
+    rclpy.init()
 
-        rospy.sleep(1)
+    publisher = ClassPathPublisher()
+
+    rclpy.spin(publisher)
+
+    publisher.destroy_node()
+    rclpy.shutdown()
+
+    # while not rospy.is_shutdown():
+    #     puber.publish(path_msg)
+    #     points_puber.publish(points_array_msg)
+
+    #     rospy.sleep(1)
 
 
 

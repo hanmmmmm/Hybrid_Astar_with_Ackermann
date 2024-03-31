@@ -27,7 +27,7 @@
 #include <deque>
 
 #include "class_elemental_pose2d.h"
-#include "nav_msgs/Path.h"
+#include "nav_msgs/msg/path.hpp"
 
 
 /**
@@ -70,7 +70,7 @@ public:
     std::deque< ClassPose2D > m_path_extended_;  
     // the original + the extra points extended at the end of the original.
     
-    nav_msgs::Path toRosPath();
+    nav_msgs::msg::Path toRosPath();
 
 };
 
@@ -166,12 +166,12 @@ void ClassPath2DSegment::extendThePath()
  * ros path is only used for visulization, I didn't put the actual yaw for the waypoints in this path.
  * @return the converted path.
 */
-nav_msgs::Path ClassPath2DSegment::toRosPath()
+nav_msgs::msg::Path ClassPath2DSegment::toRosPath()
 {
-    nav_msgs::Path _ros_path;
+    nav_msgs::msg::Path _ros_path;
     for (auto pose : m_path_original_)
     {
-        geometry_msgs::PoseStamped _temp;
+        geometry_msgs::msg::PoseStamped _temp;
         _temp.pose.position.x = pose.x;
         _temp.pose.position.y = pose.y;
         _temp.pose.orientation.w = 1;

@@ -4,7 +4,8 @@ import time
 import sys
 from select import select
 
-import rospy
+import rclpy
+from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
@@ -60,31 +61,56 @@ def getKey(settings, timeout):
 
 settings = saveTerminalSettings()
 
-class ClassAckermannMsgKeyboard:
-    def __init__(self) -> None:
+# class ClassAckermannMsgKeyboard:
+#     def __init__(self) -> None:
         
-        rospy.init_node("node_akmsim_keyboard")
+#         rospy.init_node("node_akmsim_keyboard")
 
-        self.puber = rospy.Publisher("/ackermann_cmd", AckermannDriveStamped, queue_size=10)
+#         self.puber = rospy.Publisher("/ackermann_cmd", AckermannDriveStamped, queue_size=10)
+#         self.msg = AckermannDriveStamped()
+#         self.FLAG_publish_sim_cmd = True
+#         self.end_process = False
+
+#         print()
+#         print("Ending keyboard control by pressing SpaceBar on keyboard. Ctrl+C cannot stop this process.")
+#         print()
+
+#         while not rospy.is_shutdown():
+#             key = getKey(settings, key_timeout)
+#             valid = self.process_key_inputs(key=key)
+#             if valid:
+#                 self.puber.publish(self.msg)
+#             rospy.sleep(0.01)
+
+#             if self.end_process:
+#                 break
+
+#         restoreTerminalSettings(settings)
+
+
+
+class ClassCmdPublisher(Node):
+
+    def __init__(self):
+        super().__init__('keyboard_cmd_publisher')
+        self.cmd_publisher = self.create_publisher(AckermannDriveStamped, "/ackermann_cmd", 10)
         self.msg = AckermannDriveStamped()
         self.FLAG_publish_sim_cmd = True
         self.end_process = False
+
+        timer_period = 0.01  #sec
+        self.timer = self.create_timer(timer_period, self.timerCallback)
 
         print()
         print("Ending keyboard control by pressing SpaceBar on keyboard. Ctrl+C cannot stop this process.")
         print()
 
-        while not rospy.is_shutdown():
-            key = getKey(settings, key_timeout)
-            valid = self.process_key_inputs(key=key)
-            if valid:
-                self.puber.publish(self.msg)
-            rospy.sleep(0.01)
 
-            if self.end_process:
-                break
-
-        restoreTerminalSettings(settings)
+    def timerCallback(self):
+        key = getKey(settings, key_timeout)
+        valid = self.process_key_inputs(key=key)
+        if valid:
+            self.cmd_publisher.publish(self.msg)
 
 
     def process_key_inputs(self, key) -> bool:
@@ -106,6 +132,7 @@ class ClassAckermannMsgKeyboard:
         if "" == key:
             print("Ending keyboard control.")
             self.end_process = True
+            raise SystemExit
             return True
         
         speed_forward = 0.4
@@ -156,7 +183,21 @@ class ClassAckermannMsgKeyboard:
         self.msg = AckermannDriveStamped()
 
 
+def main(args=None):
+    rclpy.init(args=args)
+
+    publisher = ClassCmdPublisher()
+
+    try:
+        rclpy.spin(publisher)
+    except SystemExit:
+        rclpy.logging.get_logger("ClassCmdPublisher").info('Done')
+
+    publisher.destroy_node()
+    rclpy.shutdown()
+
+
 if __name__ == "__main__":
-    kb = ClassAckermannMsgKeyboard()
+    main()
 
 

@@ -27,13 +27,15 @@
 #include <iostream>
 #include <mutex>
 
-#include "ros/ros.h"
-#include "std_msgs/Float64.h"
-#include "nav_msgs/Path.h"
-#include "nav_msgs/Odometry.h"
+// #include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
+
+#include "std_msgs/msg/float64.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "tf2/LinearMath/Quaternion.h"
-#include "visualization_msgs/Marker.h"
-#include "ackermann_msgs/AckermannDriveStamped.h"
+#include "visualization_msgs/msg/marker.hpp"
+#include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 
 #include "class_purepursuit.h"
 
@@ -41,57 +43,59 @@
 #include "../common/tools_angles.h"
 #include "../common/class_multi_segment_manager.h"
 
+
+using namespace std::chrono_literals;
+using std::placeholders::_1;
+
 /**
  * @brief This class is made for utilizing the ClassPurePursuit, and let it being interactive 
  * with ROS.
 */
-class ClassNodePurePursuit
+class ClassNodePurePursuit : public rclcpp::Node
 {
 private:
-    ros::NodeHandle nh_;
-
     ClassPurePursuit m_controller_purepursuit_;
 
     ClassPath2DSegment m_current_path_segment_;
 
     ClassHawaMultiSegmentManager m_segment_manager_;
 
-    nav_msgs::Odometry m_robot_odom_msg_;
+    nav_msgs::msg::Odometry m_robot_odom_msg_;
 
     std::mutex m_mutex_path_;
 
     // For algorithm
-    ros::Subscriber m_suber__path_;
-    ros::Subscriber m_suber__odom_;
-    ros::Publisher m_puber__ackerman_msg_;
+    rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr m_suber__path_;
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_suber__odom_;
+    rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr m_puber__ackerman_msg_;
     std::string m_topic_name__path_subscribed_;
     std::string m_topic_name__odom_subscribed_;
     std::string m_topic_name__ackerman_msg_;
-    ros::Timer m_periodic_controller_;
+    rclcpp::TimerBase::SharedPtr m_periodic_controller_;
     double m_controller_interval_;
 
     double m_expected_speed_mps_, m_look_ahead_ratio_;
 
     // For human interactivity only
-    ros::Publisher m_puber__target_point_marker_;
-    ros::Publisher m_puber__current_path_;
-    ros::Subscriber m_suber__speed_mps_;
-    ros::Subscriber m_suber__look_coefficient_;
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr m_puber__target_point_marker_;
+    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr m_puber__current_path_;
+    rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr m_suber__speed_mps_;
+    rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr m_suber__look_coefficient_;
     std::string m_topic_name__target_point_marker_;
     std::string m_topic_name__speed_mps_subscribed_;
     std::string m_topic_name__look_coefficient_subscribed_;
     std::string m_topic_name__current_path_published_;
 
 private:
-    void pathCallback(const nav_msgs::Path::ConstPtr &msg);
+    void pathCallback(const nav_msgs::msg::Path &msg);
 
-    void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
+    void odomCallback(const nav_msgs::msg::Odometry &msg);
 
-    void speedCallback(const std_msgs::Float64::ConstPtr &msg);
+    void speedCallback(const std_msgs::msg::Float64 &msg);
 
-    void ratioCallback(const std_msgs::Float64::ConstPtr &msg);
+    void ratioCallback(const std_msgs::msg::Float64 &msg);
 
-    void controllerUpdate(const ros::TimerEvent &event);
+    void controllerUpdate();
 
     bool validateOdomMsg();
 
@@ -101,12 +105,15 @@ private:
 
     void visulizeTargetPoint();
 
+    void ros_info(const std::string& str);
+    void ros_warn(const std::string& str, const int t=5);
+
 public:
-    ClassNodePurePursuit(const ros::NodeHandle nh_in_);
+    ClassNodePurePursuit();
     ~ClassNodePurePursuit();
 };
 
-ClassNodePurePursuit::ClassNodePurePursuit(const ros::NodeHandle nh_in_) : nh_{nh_in_}
+ClassNodePurePursuit::ClassNodePurePursuit() : Node("NodePurePursuit")
 {
     m_topic_name__target_point_marker_ = "/target_point_marker";
     m_topic_name__ackerman_msg_ = "/ackermann_cmd";
@@ -123,22 +130,39 @@ ClassNodePurePursuit::ClassNodePurePursuit(const ros::NodeHandle nh_in_) : nh_{n
     m_expected_speed_mps_ = 0.6;
     m_look_ahead_ratio_ = 0.9;
 
-    m_robot_odom_msg_.header.stamp.fromSec(0);
+    m_robot_odom_msg_.header.stamp = this->get_clock()->now();
 
-    m_puber__target_point_marker_ = nh_.advertise<visualization_msgs::Marker>(m_topic_name__target_point_marker_, 10);
-    m_puber__ackerman_msg_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>(m_topic_name__ackerman_msg_, 10);
+    m_puber__target_point_marker_ = this->create_publisher<visualization_msgs::msg::Marker>(
+        m_topic_name__target_point_marker_, 10
+    );
 
-    m_puber__current_path_ = nh_.advertise<nav_msgs::Path>(m_topic_name__current_path_published_, 10);
+    m_puber__ackerman_msg_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
+        m_topic_name__ackerman_msg_, 10
+    );
 
-    m_suber__path_ = nh_.subscribe(m_topic_name__path_subscribed_, 1, &ClassNodePurePursuit::pathCallback, this);
-    m_suber__odom_ = nh_.subscribe(m_topic_name__odom_subscribed_, 1, &ClassNodePurePursuit::odomCallback, this);
+    m_puber__current_path_ = this->create_publisher<nav_msgs::msg::Path>(
+        m_topic_name__current_path_published_, 10
+    );
 
-    m_suber__speed_mps_ = nh_.subscribe(m_topic_name__speed_mps_subscribed_, 1, &ClassNodePurePursuit::speedCallback, this);
-    m_suber__look_coefficient_ = nh_.subscribe(m_topic_name__look_coefficient_subscribed_, 1, &ClassNodePurePursuit::ratioCallback, this);
+    m_suber__path_ = this->create_subscription<nav_msgs::msg::Path>(
+        m_topic_name__path_subscribed_, 10, std::bind(&ClassNodePurePursuit::pathCallback, this, _1)
+    );
 
-    m_periodic_controller_ = nh_.createTimer(ros::Duration(m_controller_interval_), &ClassNodePurePursuit::controllerUpdate, this);
+    m_suber__odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
+        m_topic_name__odom_subscribed_, 10, std::bind(&ClassNodePurePursuit::odomCallback, this, _1)
+    );
 
-    ROS_INFO_STREAM("ClassNodePurePursuit inti Done");
+    m_suber__speed_mps_ = this->create_subscription<std_msgs::msg::Float64>(
+        m_topic_name__speed_mps_subscribed_, 10, std::bind(&ClassNodePurePursuit::speedCallback, this, _1)
+    );
+
+    m_suber__look_coefficient_ = this->create_subscription<std_msgs::msg::Float64>(
+        m_topic_name__look_coefficient_subscribed_, 10, std::bind(&ClassNodePurePursuit::ratioCallback, this, _1)
+    );
+
+    m_periodic_controller_ = this->create_wall_timer(100ms, std::bind(&ClassNodePurePursuit::controllerUpdate, this));
+
+    ros_info("ClassNodePurePursuit inti Done");
 
     return;
 }
@@ -149,19 +173,35 @@ ClassNodePurePursuit::~ClassNodePurePursuit()
 }
 
 
+void ClassNodePurePursuit::ros_info(const std::string& str)
+{
+    RCLCPP_INFO(this->get_logger(), str.c_str());
+}
+
+
+void ClassNodePurePursuit::ros_warn(const std::string& str, const int t)
+{
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), 
+                                *(this->get_clock()), 
+                                std::chrono::seconds(t).count(), 
+                                str.c_str());
+}
+
+
 /**
  * @brief callback when receiving path msgs. Pass it to the path manager module.
  * @param msg ros topic msg.
 */
-void ClassNodePurePursuit::pathCallback(const nav_msgs::Path::ConstPtr &msg)
+void ClassNodePurePursuit::pathCallback(const nav_msgs::msg::Path &msg)
 {
-    if(msg->poses.size() < 2)
+    if(msg.poses.size() < 2)
     {
-        ROS_WARN_STREAM_NAMED("ClassNodePurePursuit::pathCallback()", "Path msg size < 2.  Do not proceed.");
+        // RCLCPP_INFO(this->get_logger(), "ClassNodePurePursuit::pathCallback()", "Path msg size < 2.  Do not proceed.");
+        ros_info("ClassNodePurePursuit::pathCallback(), Path msg size < 2.  Do not proceed.");
         return;
     }
     m_mutex_path_.lock();
-    m_segment_manager_.setPath(*msg);
+    m_segment_manager_.setPath(msg);
     m_mutex_path_.unlock();
 }
 
@@ -169,47 +209,48 @@ void ClassNodePurePursuit::pathCallback(const nav_msgs::Path::ConstPtr &msg)
  * @brief For updating the value of the robot pose.
  * @param msg ros topic msg.
 */
-void ClassNodePurePursuit::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
+void ClassNodePurePursuit::odomCallback(const nav_msgs::msg::Odometry &msg)
 {
-    m_robot_odom_msg_.child_frame_id = msg->child_frame_id;
-    m_robot_odom_msg_.header = msg->header;
-    m_robot_odom_msg_.pose = msg->pose;
-    m_robot_odom_msg_.twist = msg->twist;
+    m_robot_odom_msg_.child_frame_id = msg.child_frame_id;
+    m_robot_odom_msg_.header = msg.header;
+    m_robot_odom_msg_.pose = msg.pose;
+    m_robot_odom_msg_.twist = msg.twist;
 }
 
 /**
  * @brief For updating the value of the target speed in mps
  * @param msg ros topic msg.
 */
-void ClassNodePurePursuit::speedCallback(const std_msgs::Float64::ConstPtr &msg)
+void ClassNodePurePursuit::speedCallback(const std_msgs::msg::Float64 &msg)
 {
-    m_expected_speed_mps_ = msg->data;
+    m_expected_speed_mps_ = msg.data;
 }
 
 /**
  * @brief For updating the value of the m_look_ahead_ratio_ by ros topic.
  * @param msg ros topic msg.
 */
-void ClassNodePurePursuit::ratioCallback(const std_msgs::Float64::ConstPtr &msg)
+void ClassNodePurePursuit::ratioCallback(const std_msgs::msg::Float64 &msg)
 {
-    m_look_ahead_ratio_ = msg->data;
+    m_look_ahead_ratio_ = msg.data;
 }
 
 /**
  * @brief Main function to be called by timer regualerly.
  * @param event ros timer event.
 */
-void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
+void ClassNodePurePursuit::controllerUpdate()
 {
     if( ! validateOdomMsg() )
     {
-        ROS_WARN_STREAM_THROTTLE(2 , "Invalid robot odom msg.  Do not proceed.");
+        // RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *(this->get_clock()), std::chrono::seconds(5).count(), "Invalid robot odom msg.  Do not proceed.");
+        ros_warn("Invalid robot odom msg.  Do not proceed.");
         return;
     }
 
     m_mutex_path_.lock();
 
-    ROS_DEBUG_STREAM_THROTTLE(10 , "m_counter_current_segment_ " << m_segment_manager_.getCounter());
+    // ROS_DEBUG_STREAM_THROTTLE(10 , "m_counter_current_segment_ " << m_segment_manager_.getCounter());
 
     m_segment_manager_.update(m_robot_odom_msg_.pose.pose.position.x, 
                               m_robot_odom_msg_.pose.pose.position.y,
@@ -218,9 +259,9 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
     {
         m_current_path_segment_ = m_segment_manager_.getCurrentSegment();
         m_controller_purepursuit_.setPathSegment(m_current_path_segment_);
-        nav_msgs::Path _ros_current_path = m_segment_manager_.getCurrentSegment().toRosPath();
+        nav_msgs::msg::Path _ros_current_path = m_segment_manager_.getCurrentSegment().toRosPath();
         _ros_current_path.header = m_segment_manager_.getOriginalPath().header;
-        m_puber__current_path_.publish(_ros_current_path);
+        m_puber__current_path_->publish(_ros_current_path);
     }
 
     
@@ -237,7 +278,8 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
     m_controller_purepursuit_.findTargetPoint(_valid_target_point);
     if( ! _valid_target_point )
     {
-        ROS_WARN_STREAM_THROTTLE(10 , "Invalid target point.  Do not proceed.");
+        // ROS_WARN_STREAM_THROTTLE(10 , "Invalid target point.  Do not proceed.");
+        ros_warn("Invalid target point.  Do not proceed.", 10);
         m_mutex_path_.unlock();
         return;
     }
@@ -247,12 +289,12 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
     bool _success;  double _steer_needed = 0.0;
     m_controller_purepursuit_.solveForSpeedCommand(_success, _steer_needed);
 
-    ackermann_msgs::AckermannDriveStamped  _akm_cmd_msg;
+    ackermann_msgs::msg::AckermannDriveStamped  _akm_cmd_msg;
     _akm_cmd_msg.drive.speed = _signed_speed_mps;
     _akm_cmd_msg.drive.steering_angle = _steer_needed;
-    _akm_cmd_msg.header.stamp = ros::Time::now();
+    _akm_cmd_msg.header.stamp = this->get_clock()->now();
 
-    m_puber__ackerman_msg_.publish(_akm_cmd_msg);
+    m_puber__ackerman_msg_->publish(_akm_cmd_msg);
 
     m_mutex_path_.unlock();
 }
@@ -263,11 +305,21 @@ void ClassNodePurePursuit::controllerUpdate(const ros::TimerEvent &event)
 */
 bool ClassNodePurePursuit::validateOdomMsg()
 {
-    if( ros::Time::now().toSec() - m_robot_odom_msg_.header.stamp.toSec() >1.0 )
+    // auto t_now = this->get_clock()->now().nanoseconds()/1000000000.;
+    // auto t_msg = m_robot_odom_msg_.header.stamp.nanosec/1000000000.;
+    auto t_now = this->get_clock()->now().seconds();
+    auto t_msg = m_robot_odom_msg_.header.stamp.sec;
+    if( t_now - t_msg > 1.0 )
     {
         return false;
     }
     return true;
+    
+    // if( ros::Time::now().toSec() - m_robot_odom_msg_.header.stamp.toSec() >1.0 )
+    // {
+    //     return false;
+    // }
+    // return true;
 }
 
 /**
@@ -322,15 +374,15 @@ double ClassNodePurePursuit::decideSpeedMps()
 */
 void ClassNodePurePursuit::visulizeTargetPoint()
 {
-    geometry_msgs::PointStamped _target_point;
+    geometry_msgs::msg::PointStamped _target_point;
     m_controller_purepursuit_.getTargetPoint(_target_point);
 
-    visualization_msgs::Marker _target_point_marker;
+    visualization_msgs::msg::Marker _target_point_marker;
     _target_point_marker.pose.position.x = _target_point.point.x;
     _target_point_marker.pose.position.y = _target_point.point.y;
     _target_point_marker.header.frame_id = "map";
-    _target_point_marker.type = visualization_msgs::Marker::SPHERE;
-    _target_point_marker.action = visualization_msgs::Marker::MODIFY;
+    _target_point_marker.type = visualization_msgs::msg::Marker::SPHERE;
+    _target_point_marker.action = visualization_msgs::msg::Marker::MODIFY;
 
     _target_point_marker.scale.x = 0.1;
     _target_point_marker.scale.y = 0.1;
@@ -340,7 +392,7 @@ void ClassNodePurePursuit::visulizeTargetPoint()
     _target_point_marker.color.r = 1.0;
     _target_point_marker.color.g = 0.0;
     _target_point_marker.color.b = 0.0;
-    m_puber__target_point_marker_.publish(_target_point_marker);
+    m_puber__target_point_marker_->publish(_target_point_marker);
 }
 
 

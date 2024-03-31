@@ -124,7 +124,7 @@ std::deque< std::array<double, 3> >  ClassCustomPathContainer::getPath()
 */
 std::array<double, 3> ClassCustomPathContainer::getAt(int index)
 {
-    if (index < 0 ||  (index >= m_path_.size()) )
+    if (index < 0 ||  (index >= int(m_path_.size())) )
     {
         std::cerr << "Check input for ClassCustomPathContainer::getAt()  " 
         << index << "  pathsize " << m_path_.size() << std::endl;

@@ -42,7 +42,8 @@
 #include <algorithm>
 #include <set>
 
-#include "ros/console.h"
+// #include "ros/console.h"
+#include "rclcpp/rclcpp.hpp"
 
 #include "../utils/hawa_data_containers.h"
 
@@ -177,7 +178,8 @@ bool ClassGridMapHandler::setGridWidthHeight(int width, int height)
     else
     {
         m_FLAG_valid_width_is_set_ = false;
-        ROS_WARN_STREAM_THROTTLE(20, "Invalid width is assigned: " << width);
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "Invalid width is assigned: %d", width);
+        // ROS_WARN_STREAM_THROTTLE(20, "Invalid width is assigned: " << width);
     }
     if (height > 1 && height < 123456)
     {
@@ -187,7 +189,8 @@ bool ClassGridMapHandler::setGridWidthHeight(int width, int height)
     else
     {
         m_FLAG_valid_height_is_set_ = false;
-        ROS_WARN_STREAM_THROTTLE(20, "Invalid height is assigned: " << height);
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "Invalid height is assigned: %d", height);
+        // ROS_WARN_STREAM_THROTTLE(20, "Invalid height is assigned: " << height);
     }
     if( m_FLAG_valid_height_is_set_ && m_FLAG_valid_width_is_set_)
     {
@@ -223,13 +226,15 @@ bool ClassGridMapHandler::setValidateObstacleThreshold(int8_t thd)
     if (thd < 0)
     {
         thd = 0;
-        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value smaller than 0");
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setValidateObstacleThreshold() value smaller than 0");
+        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value smaller than 0");
         return false;
     }
     else if (thd > 100)
     {
         thd = 100;
-        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value larger than 100");
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setValidateObstacleThreshold() value larger than 100");
+        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value larger than 100");
         return false;
     }
     m_validate_obstacle_threshold_value_ = thd;
@@ -245,13 +250,15 @@ bool ClassGridMapHandler::setPlanningObstacleThreshold(int8_t thd)
     if (thd < 0)
     {
         thd = 0;
-        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value smaller than 0");
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setPlanningObstacleThreshold() value smaller than 0");
+        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value smaller than 0");
         return false;
     }
     else if (thd > 100)
     {
         thd = 100;
-        ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value larger than 100");
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setPlanningObstacleThreshold() value larger than 100");
+        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value larger than 100");
         return false;
     }
     m_planning_obstacle_threshold_value_ = thd;
@@ -286,7 +293,8 @@ bool ClassGridMapHandler::checkGridClear(int x, int y, EnumMode mode)
     }
     else
     {
-        ROS_WARN_STREAM_THROTTLE(30, "function <ClassGridMapHandler::checkGridClear>\nindex_1d out of map size.");
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "function <ClassGridMapHandler::checkGridClear>\nindex_1d out of map size.");
+        // ROS_WARN_STREAM_THROTTLE(30, "function <ClassGridMapHandler::checkGridClear>\nindex_1d out of map size.");
         return false;
     }
 }
@@ -367,8 +375,10 @@ bool ClassGridMapHandler::convertFinePoseToGrid(double fine_x, double fine_y, do
     }
     else
     {
-        ROS_WARN_STREAM_ONCE("K_ratio_fine_to_grid_ seems too small " 
-                            <<  m_ratio_fine_to_grid_xy_ << " , " << m_ratio_fine_to_grid_yaw_);
+        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "K_ratio_fine_to_grid_ seems too small %f, %f", 
+                                        m_ratio_fine_to_grid_xy_, m_ratio_fine_to_grid_yaw_);
+        // ROS_WARN_STREAM_ONCE("K_ratio_fine_to_grid_ seems too small " 
+        //                     <<  m_ratio_fine_to_grid_xy_ << " , " << m_ratio_fine_to_grid_yaw_);
         return false;
     }
 }
