@@ -3,6 +3,7 @@
 for optimization:
 - change angle calc from random float to pre-calc ints
 
+- Mem. path plan node use over 200MB ram. Could be reduced.
 
 
 for presentation:
@@ -21,14 +22,23 @@ Mar 29 2024
 
 - simulaion:
 -- add randomness in states
+--- Done.  Apr 1
+
+-- Mem usage keeps increasing over time. 
+--- Might change car-shape msg type from marker to Path or geometry_msgs/PolygonStamped.h.
+--- after some testing, the lagging and memory issue seem to caused by the Marker msg. 
+--- the reason was the msg points vector was not cleared in loop, so it's always growing.
+--- Fixed. Apr 1
 
 
-future:
 
-(Might not worth doing this one, because TEB is implemented in ROS, and it works well.)
-add trajectory optimization:
-- the intial waypoints are the points from existing result
-- start annd end pose are fixed
-- will need a way to define the cost when close to the occupied grids
+idea for future:
+
+
+-add trajectory optimization:
+-- (Might not worth doing this one, because TEB is implemented in ROS, and it works well.)
+-- the intial waypoints are the points from existing result
+-- start annd end pose are fixed
+-- will need a way to define the cost when close to the occupied grids
 
 

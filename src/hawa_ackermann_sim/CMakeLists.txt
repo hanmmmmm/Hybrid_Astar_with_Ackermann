@@ -20,7 +20,20 @@ find_package(ackermann_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
-add_executable(akm_sim_node  src/simulation.cpp)
+
+
+
+include_directories(include )
+
+add_executable(akm_sim_node  src/simulation.cpp
+                              src/class_node_ackermann_simulation.cpp
+                              src/class_car_body_box_marker.cpp
+                              src/class_akm_sim_dynamic_states.cpp
+                              src/hawa_sim_tools.cpp
+                              src/class_random_sin_noise_generator.cpp
+                              )
+
+# target_sources(akm_sim_node PUBLIC src/class_node_ackermann_simulation.cpp)
 
 ament_target_dependencies(
   akm_sim_node 
@@ -34,11 +47,18 @@ ament_target_dependencies(
   visualization_msgs
   )
 
-target_include_directories(akm_sim_node PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_ackermann_sim/include")
+# target_include_directories(akm_sim_node PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_ackermann_sim/include")
 
 install(TARGETS
         akm_sim_node
         DESTINATION lib/${PROJECT_NAME})
+
+
+# target_link_libraries(akm_sim_node
+# akm_sim_modules
+# )
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

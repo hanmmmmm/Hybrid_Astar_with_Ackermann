@@ -41,18 +41,6 @@ int main(int argc, char **argv)
 
     return 0;
 
-    // ros::init(argc, argv, "path_plan_node");
-
-    // ros::NodeHandle n;
-
-    // ClassPathPlanner planner( n );
-
-    // ros::AsyncSpinner s(4);
-    // s.start();
-
-    // ros::waitForShutdown();
-
-    // return 0;
 }
 
 

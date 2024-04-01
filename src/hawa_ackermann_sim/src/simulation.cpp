@@ -23,35 +23,15 @@
 
 #include "hawa_ackermann_sim/class_node_ackermann_simulation.h"
 
-// #include "ros/ros.h"
-
-#include "rclcpp/rclcpp.hpp"
-
-
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
 
-    rclcpp::spin(std::make_shared<ClassNodeAckermannSim>());
+    rclcpp::spin(std::make_shared<hawa::ClassNodeAckermannSim>());
 
     rclcpp::shutdown();
 
     return 0;
-
-
-    // ros::init(argc, argv, "akm_sim_node");
-
-    // ros::NodeHandle n;
-
-    // ClassNodeAckermannSim simer( n );
-
-    // ros::AsyncSpinner s(2);
-    // s.start();
-
-    // ros::waitForShutdown();
-
-    // return 0;
-
 }
 
 

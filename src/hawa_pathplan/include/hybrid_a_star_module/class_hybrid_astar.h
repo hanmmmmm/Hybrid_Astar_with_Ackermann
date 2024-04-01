@@ -152,8 +152,8 @@ ClassHybridAStar::~ClassHybridAStar()
 bool ClassHybridAStar::loadParameters()
 {
     // std::string _path = ros::package::getPath("hawa_pathplan");
-    std::string _path = ament_index_cpp::get_package_share_directory("hawa_pathplan");
-
+    // std::string _path = ament_index_cpp::get_package_share_directory("hawa_pathplan"); // this requires the cfg to locate in ros2_ws/install/... which is inconvenient.
+    std::string _path = "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_pathplan";
     std::cout << "pkg path: >" << _path << "< " << std::endl;
 
     boost::property_tree::ptree root;
