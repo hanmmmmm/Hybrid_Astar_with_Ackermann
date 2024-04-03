@@ -60,6 +60,7 @@
 #include "../utils/hawa_tools.h"
 #include "../utils/hawa_data_containers.h"
 #include "../utils/hawa_timestamp.h"
+#include "class_path_validator.h"
 
 
 // TODO:
@@ -126,6 +127,10 @@ private:
     void exit_pathplan_function(const double time_start);
 
     void ros_info(const std::string& str);
+
+    void checkPath();
+
+    ClassPathValidator m_path_validator_;
 
 
 public:
@@ -235,6 +240,8 @@ void ClassPathPlanner::pathPlan()
 {
     if( ! m_map_received_ ) return;
     if( ! m_goal_received_ ) return;
+
+    checkPath();
 
     if (m_goal_solved_) return;
 
@@ -356,6 +363,26 @@ void ClassPathPlanner::mapCallback(const nav_msgs::msg::OccupancyGrid &msg)
     m_map_msg_.info = msg.info;
     m_map_received_ = true;
     m_map_mutex_.unlock();
+}
+
+
+/**
+ * @brief Check if the current path is still valid.
+*/
+void ClassPathPlanner::checkPath()
+{
+    if (! m_goal_solved_) return;
+
+    m_path_validator_.setPath(m_navmsgs_path_msg_);
+    m_path_validator_.setMap(&m_map_msg_);
+    m_path_validator_.setRobotPose(m_tf_robot_to_map_);
+
+    if (! m_path_validator_.validate())
+    {
+        m_goal_solved_ = false;
+        std::cerr << "Path is no longer valid. Need to replan." << std::endl;
+    }
+
 }
 
 

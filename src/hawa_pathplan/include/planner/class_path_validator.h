@@ -43,6 +43,16 @@
 #include <array>
 #include <math.h>
 #include <vector>
+#include <Eigen/Geometry>
+
+#include "geometry_msgs/msg/transform_stamped.hpp"
+
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "nav_msgs/msg/map_meta_data.hpp"
+#include "nav_msgs/msg/path.hpp"
+
+#include "hawa_modules/class_gridmap_handler.h"
+#include "hybrid_a_star_module/hybrid_astar_tools.h"
 
 // #include "../car_pathplan/class_pose.h"
 
@@ -57,77 +67,186 @@ using std::vector;
 class ClassPathValidator
 {
 private:
-    deque<array<double, 3>> *path_ptr_;
-    ClassPose2D robot_pose_;
-    // double robot_x_, robot_y_, robot_yaw_;
-    double distance_tolerance_;
-    double angle_tolerance_;
 
-    double k_pi2_;
+    struct 
+    {
+        double x = 0;
+        double y = 0;
+        double yaw = 0;
+    } m_robot_pose_;
 
-    bool check_robot_close_to_path();
+    nav_msgs::msg::Path::SharedPtr m_path_ptr_;
+
+    ClassGridMapHandler m_gridmap_handler_;
+    MapOccThreshold m_map_occ_threshold_;
+    
+
+    double m_distance_tolerance_;
+    double m_angle_tolerance_;
+
+    static const double k_pi2_;
+
+    bool checkPathIsClear();
+    bool checkRobotNearPath();
 
     double mod_2pi(double angle);
 
     double euclidean_distance(double x1, double y1, double x2, double y2);
     double min_angle_diffrence(double a1, double a2);
 
+    double quaternionToYaw(const geometry_msgs::msg::Quaternion& q_msg);
+
+
 public:
     ClassPathValidator();
     ~ClassPathValidator();
-    void setup_data(deque<array<double, 3>> *pathptr, double robot_x, double robot_y, double robot_yaw);
-    void setup_para(double distance_tole, double angle_tole);
-    void validate(bool &result);
+
+    double m_yaw_angle_bin_size_;
+    
+    void setRobotPose(const geometry_msgs::msg::TransformStamped& robot_pose);
+    void setPath(const nav_msgs::msg::Path& path);
+    void setMap(nav_msgs::msg::OccupancyGrid * ptr_map);
+
+    // void setup_para(double distance_tole, double angle_tole);
+    
+    bool validate();
 };
 
+const double ClassPathValidator::k_pi2_ = M_PI * 2.0;
+
+/**
+ * @brief Default constructor.
+*/
 ClassPathValidator::ClassPathValidator()
 {
-    distance_tolerance_ = 0.05;
-    angle_tolerance_ = M_PI / 6.0;
-    k_pi2_ = M_PI * 2.0;
+    m_distance_tolerance_ = 0.05;
+    m_angle_tolerance_ = M_PI / 6.0;
+
+    m_map_occ_threshold_.plan = 60;
+    m_map_occ_threshold_.vali = 50;
+
+    m_yaw_angle_bin_size_ = 0.1745329;
 }
 
+/**
+ * @brief Default destructor.
+*/
 ClassPathValidator::~ClassPathValidator()
 {
 }
 
-void ClassPathValidator::setup_data(deque<array<double, 3>> *pathptr, double robot_x, double robot_y, double robot_yaw)
+/**
+ * @brief Set path pointer.
+ * @param path 
+*/
+void ClassPathValidator::setPath(const nav_msgs::msg::Path& path)
 {
-    path_ptr_ = pathptr;
-    robot_x_ = robot_x;
-    robot_y_ = robot_y;
-    robot_yaw_ = robot_yaw;
+    m_path_ptr_ = std::make_shared<nav_msgs::msg::Path>(path);
 }
 
-void ClassPathValidator::setup_para(double distance_tole, double angle_tole)
+/**
+ * @brief Set the Map object.
+*/
+void ClassPathValidator::setMap(nav_msgs::msg::OccupancyGrid * ptr_map)
 {
-    distance_tolerance_ = distance_tole;
-    angle_tolerance_ = angle_tole;
+    m_gridmap_handler_.setGridMapPtr(&(ptr_map->data));
+    m_gridmap_handler_.setGridWidthHeight(ptr_map->info.width, ptr_map->info.height);
+    m_gridmap_handler_.setPlanningObstacleThreshold(m_map_occ_threshold_.plan);
+    m_gridmap_handler_.setValidateObstacleThreshold(m_map_occ_threshold_.vali);
+    m_gridmap_handler_.setGridMeterRatio(ptr_map->info.resolution, m_yaw_angle_bin_size_);
 }
 
-void ClassPathValidator::validate(bool &result)
+
+/**
+ * @brief Set the Robot Pose object.
+*/
+void ClassPathValidator::setRobotPose(const geometry_msgs::msg::TransformStamped& robot_pose)
 {
-    if (!check_robot_close_to_path())
-        result = false;
+    m_robot_pose_.x = robot_pose.transform.translation.x;
+    m_robot_pose_.y = robot_pose.transform.translation.y;
+    m_robot_pose_.yaw = quaternionToYaw(robot_pose.transform.rotation);
 }
 
-bool ClassPathValidator::check_robot_close_to_path()
+/**
+ * @brief Check if the path is still valid.
+ * @return true 
+ * @return false 
+*/
+bool ClassPathValidator::validate()
 {
-    // vector< array<double, 3> > points_near_robot;
-    for (auto pt : *path_ptr_)
+    if (m_path_ptr_ == nullptr)
     {
-        double distance = euclidean_distance(pt[0], pt[1], robot_x_, robot_y_);
-        if (distance <= distance_tolerance_)
+        std::cerr << "Path is not set. nullptr." << std::endl;
+        return false;
+    }
+
+    if (m_path_ptr_->poses.size() <= 1)
+    {
+        std::cerr << "Path too short: " << m_path_ptr_->poses.size() << std::endl;
+        return false;
+    }
+
+    // if (! checkRobotNearPath())
+    // {
+    //     return false;
+    // }
+
+    if (! checkPathIsClear())
+    {
+        std::cerr << "Path collides." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the path is clear.
+ * @return true 
+*/
+bool ClassPathValidator::checkPathIsClear()
+{
+    StructPoseGrid _pose_grid;
+    StructPoseReal _pose_real;
+    for (auto ps : m_path_ptr_->poses)
+    {
+        _pose_real.x = ps.pose.position.x;
+        _pose_real.y = ps.pose.position.y;
+        _pose_real.yaw = quaternionToYaw(ps.pose.orientation);
+
+        m_gridmap_handler_.convertFinePoseToGrid(_pose_real, _pose_grid);
+
+        if (m_gridmap_handler_.checkGridWithinMap(_pose_grid.x, _pose_grid.y))
+            continue;
+        
+        bool step_is_clear = m_gridmap_handler_.checkGridClear(_pose_grid.x, _pose_grid.y, ClassGridMapHandler::EnumMode::plan);
+        if (! step_is_clear)
         {
-            if (min_angle_diffrence(robot_yaw_, pt[2]) < angle_tolerance_)
-            {
-                // points_near_robot.push_back( pt );
-                return true;
-            }
+            return false;
         }
     }
-    return false;
+    return true;
 }
+
+
+// bool ClassPathValidator::checkRobotNearPath()
+// {
+//     // vector< array<double, 3> > points_near_robot;
+//     for (auto pt : *path_ptr_)
+//     {
+//         double distance = euclidean_distance(pt[0], pt[1], robot_x_, robot_y_);
+//         if (distance <= distance_tolerance_)
+//         {
+//             if (min_angle_diffrence(robot_yaw_, pt[2]) < angle_tolerance_)
+//             {
+//                 // points_near_robot.push_back( pt );
+//                 return true;
+//             }
+//         }
+//     }
+//     return false;
+// }
+
 
 inline double ClassPathValidator::euclidean_distance(double x1, double y1, double x2, double y2)
 {
@@ -135,6 +254,7 @@ inline double ClassPathValidator::euclidean_distance(double x1, double y1, doubl
     double dy = y2 - y1;
     return sqrt(dx * dx + dy * dy);
 }
+
 
 double ClassPathValidator::min_angle_diffrence(double a1, double a2)
 {
@@ -165,6 +285,7 @@ double ClassPathValidator::min_angle_diffrence(double a1, double a2)
     return diff;
 }
 
+
 double ClassPathValidator::mod_2pi(double angle)
 {
     double a_out = std::remainder(angle, k_pi2_);
@@ -177,5 +298,15 @@ double ClassPathValidator::mod_2pi(double angle)
         return a_out + k_pi2_;
     }
 }
+
+
+double ClassPathValidator::quaternionToYaw(const geometry_msgs::msg::Quaternion& q_msg) 
+{
+    Eigen::Quaterniond q(q_msg.w, q_msg.x, q_msg.y, q_msg.z);
+    Eigen::Vector3d euler = q.toRotationMatrix().eulerAngles(0, 1, 2);
+    return euler[2];
+}
+
+
 
 #endif

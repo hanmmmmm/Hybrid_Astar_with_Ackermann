@@ -11,6 +11,7 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+include_directories("/usr/include/eigen3")
 
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)

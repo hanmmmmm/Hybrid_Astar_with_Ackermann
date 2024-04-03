@@ -19,6 +19,7 @@ Mar 29 2024
 - path-validation:
 -- create a new function: bool validate(){}
 -- add the mechnism in planner to trigger by validate().
+-- Apr 3 2024, initial version of path validator done.
 
 - simulaion:
 -- add randomness in states
@@ -29,6 +30,7 @@ Mar 29 2024
 --- after some testing, the lagging and memory issue seem to caused by the Marker msg. 
 --- the reason was the msg points vector was not cleared in loop, so it's always growing.
 --- Fixed. Apr 1
+
 
 
 

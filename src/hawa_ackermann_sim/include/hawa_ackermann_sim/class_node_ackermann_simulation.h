@@ -87,7 +87,8 @@ private:
 
     std::unique_ptr<ClassRandomSinNoiseGenerator> m_noise_generator_;
 
-    bool FLAG_use_noise_ = true;
+    // bool FLAG_use_noise_ = true;
+    bool FLAG_use_noise_ = false;
 
 private:
     DynamicsStates m_dyna_states_;
