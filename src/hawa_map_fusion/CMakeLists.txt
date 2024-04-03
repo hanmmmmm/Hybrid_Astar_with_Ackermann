@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(trybuild)
+project(hawa_map_fusion)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -12,25 +12,41 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 find_package(rclcpp REQUIRED)
-
-include_directories(include )
-
-### this solution works
-# add_executable(trybuildexe src/main.cpp src/mytest.cpp)
-# ament_target_dependencies(trybuildexe
-#   "rclcpp")
-# install(TARGETS
-#   trybuildexe
-#   DESTINATION lib/${PROJECT_NAME})
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 
-add_executable(trybuildexe src/main.cpp src/mytest.cpp src/modu1.cpp src/modu2.cpp)
-ament_target_dependencies(trybuildexe
-  "rclcpp")
+include_directories(include)
+
+add_executable(map_fusion_node  src/node_map_fusion.cpp)
+
+ament_target_dependencies(
+  map_fusion_node 
+  rclcpp 
+  std_msgs
+  geometry_msgs
+  tf2
+  tf2_ros
+  nav_msgs
+  visualization_msgs
+  tf2_geometry_msgs
+  )
+
 install(TARGETS
-  trybuildexe
-  DESTINATION lib/${PROJECT_NAME})
+        map_fusion_node
+        DESTINATION lib/${PROJECT_NAME})
 
+                
+install(DIRECTORY
+        launch
+        DESTINATION share/${PROJECT_NAME}
+)
 
 
 if(BUILD_TESTING)

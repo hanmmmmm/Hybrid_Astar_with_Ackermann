@@ -48,26 +48,26 @@ install(TARGETS
         DESTINATION lib/${PROJECT_NAME})
 
 
-add_executable(map_fusion_node  src/map_fusion_node.cpp)
+# add_executable(map_fusion_node  src/map_fusion_node.cpp)
 
-ament_target_dependencies(
-  map_fusion_node 
-  rclcpp 
-  std_msgs
-  geometry_msgs
-  tf2
-  tf2_ros
-  ackermann_msgs
-  nav_msgs
-  visualization_msgs
-  tf2_geometry_msgs
-  )
+# ament_target_dependencies(
+#   map_fusion_node 
+#   rclcpp 
+#   std_msgs
+#   geometry_msgs
+#   tf2
+#   tf2_ros
+#   ackermann_msgs
+#   nav_msgs
+#   visualization_msgs
+#   tf2_geometry_msgs
+#   )
 
-target_include_directories(map_fusion_node PRIVATE "/home/jf/ros2_hawa_ws/src/hawa_pathplan/include")
+# target_include_directories(map_fusion_node PRIVATE "/home/jf/ros2_hawa_ws/src/hawa_pathplan/include")
 
-install(TARGETS
-        map_fusion_node
-        DESTINATION lib/${PROJECT_NAME})
+# install(TARGETS
+#         map_fusion_node
+#         DESTINATION lib/${PROJECT_NAME})
 
                 
 install(DIRECTORY

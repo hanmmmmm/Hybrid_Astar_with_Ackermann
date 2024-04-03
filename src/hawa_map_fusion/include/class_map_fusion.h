@@ -62,8 +62,8 @@
 
 
 #include "class_inflation_samples.h"
-#include "../utils/hawa_timer_class.h"
-#include "../utils/hawa_tools.h"
+#include "class_tool_timer.h"
+#include "class_tool_general.h"
 
 
 using namespace std::chrono_literals;
