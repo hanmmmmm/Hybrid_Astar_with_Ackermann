@@ -42,10 +42,9 @@
 #include <algorithm>
 #include <set>
 
-// #include "ros/console.h"
 #include "rclcpp/rclcpp.hpp"
 
-#include "../utils/hawa_data_containers.h"
+#include "utils/hawa_data_containers.h"
 
 /**
  * @brief The class for storing gridmap and perform actions about it.

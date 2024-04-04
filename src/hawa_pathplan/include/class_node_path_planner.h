@@ -55,11 +55,11 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/buffer.h"
 
-#include "../hybrid_a_star_module/class_hybrid_astar.h"
-#include "../utils/hawa_conversion_tools.h"
-#include "../utils/hawa_tools.h"
-#include "../utils/hawa_data_containers.h"
-#include "../utils/hawa_timestamp.h"
+#include "class_hybrid_astar.h"
+#include "utils/hawa_conversion_tools.h"
+#include "utils/hawa_tools.h"
+#include "utils/hawa_data_containers.h"
+#include "utils/hawa_timestamp.h"
 #include "class_path_validator.h"
 
 

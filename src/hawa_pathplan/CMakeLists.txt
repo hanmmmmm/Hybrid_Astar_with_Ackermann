@@ -13,6 +13,8 @@ find_package(ament_cmake REQUIRED)
 
 include_directories("/usr/include/eigen3")
 
+include_directories(include)
+
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -25,7 +27,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 
 
-add_executable(path_plan_node  src/path_plan_node.cpp)
+add_executable(path_plan_node  src/node_path_plan.cpp)
 
 ament_target_dependencies(
   path_plan_node 

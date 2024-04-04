@@ -26,7 +26,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "../include/planner/class_path_planner.h"
+#include "class_node_path_planner.h"
 
 /**
  * @brief Entry point.

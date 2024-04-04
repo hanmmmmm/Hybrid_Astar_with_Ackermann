@@ -51,10 +51,8 @@
 #include "nav_msgs/msg/map_meta_data.hpp"
 #include "nav_msgs/msg/path.hpp"
 
-#include "hawa_modules/class_gridmap_handler.h"
-#include "hybrid_a_star_module/hybrid_astar_tools.h"
-
-// #include "../car_pathplan/class_pose.h"
+#include "class_gridmap_handler.h"
+#include "hybrid_astar_tools.h"
 
 using std::array;
 using std::deque;

@@ -35,8 +35,8 @@
 #define HYBRID_ASTAR_TOOLS_H
 
 #include <vector>
-
-#include "../utils/hawa_data_containers.h"
+#include <limits>
+#include "utils/hawa_data_containers.h"
 
 
 /**

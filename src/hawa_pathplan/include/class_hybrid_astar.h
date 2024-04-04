@@ -55,15 +55,15 @@
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/map_meta_data.hpp"
 
-#include "class_reedsshepp_solver.h"
+#include "hybrid_a_star_module/class_reedsshepp_solver.h"
 
-#include "../hawa_modules/class_gridmap_handler.h"
-#include "../hawa_modules/class_custom_path.h"
+#include "class_gridmap_handler.h"
+#include "class_custom_path_container.h"
 
-#include "../utils/hawa_data_containers.h"
-#include "../utils/hawa_conversion_tools.h"
-#include "../utils/hawa_tools.h"
-#include "../utils/hawa_timer_class.h"
+#include "utils/hawa_data_containers.h"
+#include "utils/hawa_conversion_tools.h"
+#include "utils/hawa_tools.h"
+#include "utils/hawa_timer_class.h"
 
 #include "hybrid_astar_tools.h"
 #include "struct_motion_primitives.h"
