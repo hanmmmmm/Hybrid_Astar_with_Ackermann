@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
 
-    rclcpp::spin(std::make_shared<ClassMapFusion>());
+    rclcpp::spin(std::make_shared<hawa::ClassMapFusion>());
 
     rclcpp::shutdown();
 

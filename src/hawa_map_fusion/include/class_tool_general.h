@@ -35,16 +35,26 @@
 #ifndef HAWA_TOOLS_H
 #define HAWA_TOOLS_H
 
+#include <iostream>
 #include <chrono>
+#include <math.h>
 
-/**
- * @brief return time in seconds, epoch time. 
- * @return time, double type.
- */
-double helperGetTime()
+namespace hawa
 {
-    return std::chrono::high_resolution_clock::now().time_since_epoch().count()/1000000000.0; 
-}
+
+class classToolGeneral
+{
+public:
+    classToolGeneral(){};
+    ~classToolGeneral(){};
+
+    
+
+    static int8_t calcOccValue(const int8_t vmax, const int8_t vmin, const int pos_x, const int pos_y, const int radius, const int width);
+};
+
+} // namespace hawa
+
 
 
 #endif
