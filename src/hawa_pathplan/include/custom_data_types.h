@@ -34,94 +34,50 @@
 #ifndef HAWA_DATA_CONTAINERS_H
 #define HAWA_DATA_CONTAINERS_H
 
-#include <iostream>
-#include <math.h>
-#include <array>
+
+#include "common_includes.h"
+
+
+namespace hawa
+{
+
 
 /**
  * @brief Storing the pose in real world metric coordinate. 
 */
 struct StructPoseReal
 {
-    double x;  // meter
-    double y;  // meter
-    double yaw;  // radian
+    double x = 0;  // meter
+    double y = 0;  // meter
+    double yaw = 0;  // radian
 
-    StructPoseReal()
-    {
-    }
+    StructPoseReal() {}
 
-    StructPoseReal(double x_in, double y_in, double yaw_in)
-    {
-        x = x_in;
-        y = y_in;
-        yaw = yaw_in;
-    }
-
-    /**
-     * @brief Convert the pose value to a std array.
-    */
-    inline std::array<double, 3> toArray3()
-    {
-        return std::array<double, 3> {x, y, yaw};
-    }
-
-    /**
-     * @brief Setup the values from another StructPoseReal.
-    */
-    inline void setFrom(StructPoseReal* ptr_in)
-    {
-        this->x = ptr_in->x;
-        this->y = ptr_in->y;
-        this->yaw = ptr_in->yaw;
-    }
-    
+    StructPoseReal(double x_, double y_, double yaw_) : x(x_), y(y_), yaw(yaw_) {}
 };
 
-/**
- * @brief Reset the values in a StructPoseReal back to 0.
-*/
-inline void structPoseRealReset(StructPoseReal* ptr_target)
-{
-    ptr_target->x = 0;
-    ptr_target->y = 0;
-    ptr_target->yaw = 0;
-}
+
 
 /**
  * @brief Storing the pose in grid-wise coordinate. 
 */
 struct StructPoseGrid
 {
-    int x;
-    int y;
-    int yaw;
+    int x = 0;
+    int y = 0;
+    int yaw = 0;
 
-    StructPoseGrid()
+    StructPoseGrid() {}
+
+    StructPoseGrid(int x, int y, int yaw) : x(x), y(y), yaw(yaw) {}
+
+    bool operator!=(const StructPoseGrid &p) const 
     {
-    }
-
-    StructPoseGrid(int x, int y, int yaw):x(x), y(y), yaw(yaw)
-    {
-    }
-
-    bool operator!=(const StructPoseGrid &p) const {
         return ! (x == p.x && y == p.y && yaw == p.yaw) ;
     }
-
-    inline std::array<int, 3> toArray3()
-    {
-        return std::array<int, 3> {x, y, yaw};
-    }
-
-    inline std::array<int, 2> toArray2()
-    {
-        return std::array<int, 2> {x, y};
-    }
-
 };
 
 
-
+} // namespace hawa
 
 #endif

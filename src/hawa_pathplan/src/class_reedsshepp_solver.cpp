@@ -1,110 +1,8 @@
-// MIT License
 
-// Copyright (c) 2023 Mingjie
+#include "class_reedsshepp_solver.h"
 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-/**
- * @file class_reedsshepp_solver.h
- * @author Mingjie
- * @brief This class is the entry to the RS module.
- * @version 0.2
- * @date 2023-11-15
- * 
- * @copyright Copyright (c) 2023
- * 
- */
-
-
-/**
- * @note Only the CSC and CCC curves are completed. All the rest types were working but were made for the previous
- * version of code before refactoring. So they still need to be refactored in order to match with the current 
- * version. 
-*/
-
-#ifndef CLASS_HAWA_REEDSSHEPP_FINDER_H
-#define CLASS_HAWA_REEDSSHEPP_FINDER_H
-
-#include <iostream>
-#include <string>
-#include <queue>
-#include <unordered_map>
-#include <map>
-
-#include <algorithm>
-#include <set>
-#include <stdexcept>
-#include <limits>
-#include <math.h>
-
-#include "hawa_reeds_shepp_curves/reedshepp_path.h"
-#include "reedsshepp_tools.h"
-
-#include "../utils/hawa_conversion_tools.h"
-
-#include "hawa_reeds_shepp_curves/rs_LSL.h"
-#include "hawa_reeds_shepp_curves/rs_LSR.h"
-#include "hawa_reeds_shepp_curves/rs_LRL.h"
-#include "hawa_reeds_shepp_curves/rs_RLR.h"
-
-/*
-This is my implementation of Reeds-Sheep curve. 
-Most parts are following the paper. 
-One exceptation is that L+R+L+ L-R-L- R+L+R+ R-L-R- are also included;
-so here are 52=48+4 types of curves are being considered;
-And the CCC types are computed using Dubins Curve formula. 
-
-The result is a vector of my custom path type, defined in another header file. 
-Each 'path' contains the type-word, unitless length, sampled waypoints (x,y,yaw), valid (bool).
-Sorted in length increasing order. 
-*/
-
-class ClassReedsSheppSolver
+namespace hawa
 {
-private:
-
-    StructPoseReal m_start_pose_;
-    StructPoseReal m_goal_pose_;
-    StructPoseReal m_goal_pose_processed_;
-
-    StructSamplingProperties m_sampling_properites_;
-
-    double calc_weighted_length(std::vector<double> list_in);
-
-public:
-    ClassReedsSheppSolver();
-
-    ~ClassReedsSheppSolver();
-
-    ClassReedSheppPath::PathCollection m_all_curves_;
-
-    std::vector<StructRSPathResult> m_vector_path_results_;  
-
-    void setup( StructPoseReal start_pose, StructPoseReal goal_pose );
-
-    void search( );
-
-    // void get_path( std::array<double,3> start_pose, std::array<double,3> goal_pose , std::string path_type, std::vector<double>& path_angle, bool& valid);
-
-    std::array<double, 2> calcFixFrameDxDy(const double angle_change, const double pose_yaw );
-
-};
 
 
 void ClassReedsSheppSolver::setup(  StructPoseReal start_pose, StructPoseReal goal_pose )
@@ -169,35 +67,35 @@ void ClassReedsSheppSolver::search(  )
     StructDubinsCurveCCCvalcollection _ccc_lrl_parameters;
     _ccc_lrl_parameters = prepareCCCLRL(m_goal_pose_, m_start_pose_, m_sampling_properites_.turning_radius);
 
-    solveLpRpLp(m_goal_pose_, m_start_pose_, 
+    solveLpRpLp(m_start_pose_, 
                 &_ccc_lrl_parameters, &(m_all_curves_.LpRpLp), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.LpRpLp), m_vector_path_results_);
 
-    solveLpRpLm(m_goal_pose_, m_start_pose_, 
+    solveLpRpLm(m_start_pose_, 
                 &_ccc_lrl_parameters, &(m_all_curves_.LpRpLm), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.LpRpLm), m_vector_path_results_);
 
-    // solveLpRmLp(m_goal_pose_, m_start_pose_, 
+    // solveLpRmLp(m_start_pose_, 
     //             &_ccc_lrl_parameters, &(m_all_curves_.LpRmLp), &m_sampling_properites_);
     // add_sort_path(&(m_all_curves_.LpRmLp), m_vector_path_results_);
 
-    solveLpRmLm(m_goal_pose_, m_start_pose_, 
+    solveLpRmLm(m_start_pose_, 
                 &_ccc_lrl_parameters, &(m_all_curves_.LpRmLm), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.LpRmLm), m_vector_path_results_);
 
-    solveLmRpLp(m_goal_pose_, m_start_pose_, 
+    solveLmRpLp(m_start_pose_, 
                 &_ccc_lrl_parameters, &(m_all_curves_.LmRpLp), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.LmRpLp), m_vector_path_results_);
 
-    // solveLmRpLm(m_goal_pose_, m_start_pose_, 
+    // solveLmRpLm(m_start_pose_, 
     //             &_ccc_lrl_parameters, &(m_all_curves_.LmRpLm), &m_sampling_properites_);
     // add_sort_path(&(m_all_curves_.LmRpLm), m_vector_path_results_);
 
-    solveLmRmLp(m_goal_pose_, m_start_pose_, 
+    solveLmRmLp(m_start_pose_, 
                 &_ccc_lrl_parameters, &(m_all_curves_.LmRmLp), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.LmRmLp), m_vector_path_results_);
 
-    solveLmRmLm(m_goal_pose_, m_start_pose_, 
+    solveLmRmLm(m_start_pose_, 
                 &_ccc_lrl_parameters, &(m_all_curves_.LmRmLm), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.LmRmLm), m_vector_path_results_);
 
@@ -206,35 +104,35 @@ void ClassReedsSheppSolver::search(  )
     StructDubinsCurveCCCvalcollection _ccc_rlr_parameters;
     _ccc_rlr_parameters = prepareCCCRLR(m_goal_pose_, m_start_pose_, m_sampling_properites_.turning_radius);
 
-    solveRpLpRp(m_goal_pose_, m_start_pose_, 
+    solveRpLpRp(m_start_pose_, 
                 &_ccc_rlr_parameters, &(m_all_curves_.RpLpRp), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.RpLpRp), m_vector_path_results_);
 
-    solveRpLpRm(m_goal_pose_, m_start_pose_, 
+    solveRpLpRm(m_start_pose_, 
                 &_ccc_rlr_parameters, &(m_all_curves_.RpLpRm), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.RpLpRm), m_vector_path_results_);
 
-    // solveRpLmRp(m_goal_pose_, m_start_pose_, 
+    // solveRpLmRp(m_start_pose_, 
     //             &_ccc_rlr_parameters, &(m_all_curves_.RpLmRp), &m_sampling_properites_);
     // add_sort_path(&(m_all_curves_.RpLmRp), m_vector_path_results_);
 
-    solveRpLmRm(m_goal_pose_, m_start_pose_, 
+    solveRpLmRm(m_start_pose_, 
                 &_ccc_rlr_parameters, &(m_all_curves_.RpLmRm), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.RpLmRm), m_vector_path_results_);
 
-    solveRmLpRp(m_goal_pose_, m_start_pose_, 
+    solveRmLpRp(m_start_pose_, 
                 &_ccc_rlr_parameters, &(m_all_curves_.RmLpRp), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.RmLpRp), m_vector_path_results_);
 
-    // solveRmLpRm(m_goal_pose_, m_start_pose_, 
+    // solveRmLpRm(m_start_pose_, 
     //             &_ccc_rlr_parameters, &(m_all_curves_.RmLpRm), &m_sampling_properites_);
     // add_sort_path(&(m_all_curves_.RmLpRm), m_vector_path_results_);
 
-    solveRmLmRp(m_goal_pose_, m_start_pose_, 
+    solveRmLmRp(m_start_pose_, 
                 &_ccc_rlr_parameters, &(m_all_curves_.RmLmRp), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.RmLmRp), m_vector_path_results_);
 
-    solveRmLmRm(m_goal_pose_, m_start_pose_, 
+    solveRmLmRm(m_start_pose_, 
                 &_ccc_rlr_parameters, &(m_all_curves_.RmLmRm), &m_sampling_properites_);
     add_sort_path(&(m_all_curves_.RmLmRm), m_vector_path_results_);
 
@@ -1168,14 +1066,6 @@ std::array<double, 2> ClassReedsSheppSolver::calcFixFrameDxDy(const double angle
 }
 
 
-ClassReedsSheppSolver::ClassReedsSheppSolver(  )
-{
+
 }
 
-
-ClassReedsSheppSolver::~ClassReedsSheppSolver()
-{
-}
-
-
-#endif

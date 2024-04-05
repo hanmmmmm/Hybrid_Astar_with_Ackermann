@@ -21,29 +21,40 @@
 // SOFTWARE.
 
 /**
- * This file is the entry point of the path planner module.
-*/
+ * @file hawa_timestamp.h
+ * @author Mingjie
+ * @brief This class provides time stamp managment.  
+ * @version 0.2
+ * @date 2023-11-15
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
-#include "rclcpp/rclcpp.hpp"
 
-#include "class_node_path_planner.h"
+#ifndef HAWA_TIMESTAMP_CLASS_H
+#define HAWA_TIMESTAMP_CLASS_H
+
+#include "utils/class_utils__timer.h"
+
+namespace hawa
+{
 
 /**
- * @brief Entry point.
+ * @brief This class provides time stamp managment. 
 */
-int main(int argc, char **argv)
+class ClassHawaTimeStamp
 {
-    rclcpp::init(argc, argv);
-
-    rclcpp::spin(std::make_shared<hawa::ClassPathPlanner>());
-
-    rclcpp::shutdown();
-
-    return 0;
+private:
+    double m_stamp_;
+public:
+    ClassHawaTimeStamp();
+    ~ClassHawaTimeStamp();
+    void stampNow();
+    bool checkPass(const double duration_sec);
+};
 
 }
 
 
-
-
-
+#endif

@@ -31,7 +31,8 @@ Mar 29 2024
 --- the reason was the msg points vector was not cleared in loop, so it's always growing.
 --- Fixed. Apr 1
 
-
+Apr 5 2024
+- Done refactor path_plan pkg.
 
 
 idea for future:

@@ -37,8 +37,12 @@
 
 #include <math.h>
 
-#include "../utils/hawa_conversion_tools.h"
+#include "utils/class_utils__converters.h"
 #include "hawa_reeds_shepp_curves/reedshepp_path.h"
+
+
+namespace hawa
+{
 
 /**
  * @brief Contains the four values calculated in the RS curve formulas. 
@@ -129,7 +133,7 @@ struct StructSamplingProperties
  * @param radius_ro The radius value of the polar coordinates, an output parameter to be filled.  
  * @param theta The angle value of the polar coordinates, an output parameter to be filled.  
  */
-void convertCartesianToPolar(const double x, const double y, double &radius_ro, double &theta)
+static void convertCartesianToPolar(const double x, const double y, double &radius_ro, double &theta)
 {
     radius_ro = std::sqrt(x*x + y*y);
     theta = std::atan2(y, x);
@@ -148,7 +152,7 @@ void convertCartesianToPolar(const double x, const double y, double &radius_ro, 
  * @param tau The calculated value of tau, output parameter to be filled  
  * @param omega The calculated value of omega, output parameter to be filled  
  */
-void tauOmega(const double u, const double v, const double xi, const double eta, const double phi,
+static void tauOmega(const double u, const double v, const double xi, const double eta, const double phi,
                                double &tau, double &omega)
 {
     double _delta = mod2pi(u - v);
@@ -177,7 +181,7 @@ void tauOmega(const double u, const double v, const double xi, const double eta,
  * @param ptr_path_result Pointer to this path. 
  * @param ptr_properties Pointer to the parameters used during sampling. 
 */
-void sampleOnLeftCurve( const double target_angle_change, 
+static void sampleOnLeftCurve( const double target_angle_change, 
                         double& robot_yaw, double& robotx, double& roboty, 
                         StructRSPathResult* ptr_path_result,
                         StructSamplingProperties* ptr_properties)
@@ -241,7 +245,7 @@ void sampleOnLeftCurve( const double target_angle_change,
  * @param ptr_path_result Pointer to this path. 
  * @param ptr_properties Pointer to the parameters used during sampling. 
 */
-void sampleOnRightCurve(const double target_angle_change, 
+static void sampleOnRightCurve(const double target_angle_change, 
                         double& robot_yaw, double& robotx, double& roboty, 
                         StructRSPathResult* ptr_path_result,
                         StructSamplingProperties* ptr_properties)
@@ -307,7 +311,7 @@ void sampleOnRightCurve(const double target_angle_change,
  * @param ptr_path_result Pointer to this path. 
  * @param ptr_properties Pointer to the parameters used during sampling. 
 */
-void sampleOnStraightLine(const double target_angle_change, 
+static void sampleOnStraightLine(const double target_angle_change, 
                           double robot_yaw, double& robotx, double& roboty, 
                           StructRSPathResult* ptr_path_result,
                           StructSamplingProperties* ptr_properties)
@@ -360,7 +364,7 @@ void sampleOnStraightLine(const double target_angle_change,
  * @param ptr_path pointer to this path.
  * @param r_path_collection The container to be filled. It contains all the curves.
 */
-void add_sort_path(StructRSPathResult* ptr_path, std::vector<StructRSPathResult>& r_path_collection )
+static void add_sort_path(StructRSPathResult* ptr_path, std::vector<StructRSPathResult>& r_path_collection )
 {
     if (! ptr_path->valid)
     {
@@ -385,6 +389,11 @@ void add_sort_path(StructRSPathResult* ptr_path, std::vector<StructRSPathResult>
     }
     r_path_collection.insert( r_path_collection.begin() + _count, *ptr_path);
 }
+
+
+
+
+} // namespace hawa
 
 
 

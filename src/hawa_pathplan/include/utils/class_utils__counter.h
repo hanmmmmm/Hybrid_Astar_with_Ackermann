@@ -20,31 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#ifndef HAWA_UTILS_COUNTER_H
+#define HAWA_UTILS_COUNTER_H
 
-/**
- * @file hawa_tools.h
- * @author Mingjie
- * @brief This file contains a function that would be used regularly. 
- * @version 0.2
- * @date 2023-11-15
- * 
- * @copyright Copyright (c) 2023
- * 
- */
+#include "common_includes.h"
 
-#ifndef HAWA_TOOLS_H
-#define HAWA_TOOLS_H
-
-#include <chrono>
-
-/**
- * @brief return time in seconds, epoch time. 
- * @return time, double type.
- */
-double helperGetTime()
+namespace hawa
 {
-    return std::chrono::high_resolution_clock::now().time_since_epoch().count()/1000000000.0; 
-}
 
+/**
+ * @brief Wrapped counter.
+*/
+class ClassHawaCounter
+{
+private:
+    int m_count_;
+public:
+    ClassHawaCounter() {m_count_ = 0;};
+    ~ClassHawaCounter() {};
+    void increment() {m_count_ ++;};
+    void resetCount() {m_count_ = 0;};
+    int getVal() {return m_count_;};
+};
+
+}
 
 #endif

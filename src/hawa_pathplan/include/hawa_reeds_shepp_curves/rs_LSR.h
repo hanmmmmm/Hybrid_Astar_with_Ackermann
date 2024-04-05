@@ -18,12 +18,11 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
+// SOFTWARE
 /**
- * @file rs_LSL.h
+ * @file rs_LSR.h
  * @author Mingjie
- * @brief Solve the LSL type curves. 
+ * @brief Solve the LSR type curves. 
  * @version 0.1
  * @date 2023-11-15
  * 
@@ -31,64 +30,39 @@
  * 
  */
 
+#ifndef HAWA_REEDS_SHEPP_LSR_H
+#define HAWA_REEDS_SHEPP_LSR_H
 
-#ifndef HAWA_REEDS_SHEPP_LSL_H
-#define HAWA_REEDS_SHEPP_LSL_H
+#include "common_includes.h"
 
-#include <math.h>
-
-#include "../../utils/hawa_conversion_tools.h"
-#include "../../utils/hawa_data_containers.h"
+#include "utils/class_utils__converters.h"
+#include "custom_data_types.h"
 #include "../reedsshepp_tools.h"
-// #include "reedshepp_path.h"
-
-///////////////////////////   CSC 
-// 8.1 in paper 
 
 
-// void LpSpLp_base(double x, double y, double phi, double &t, double &u, double &v, double& L, bool& valid )
-// {
-//     valid = false;
+namespace hawa
+{
 
-//     convertCartesianToPolar( x-sin(phi), y-1+cos(phi), u, t );
-//     v = mod2pi(phi - t);
-//     L = std::abs(t) + std::abs(u) + std::abs(v) ;
-//     if( t > 0.0 && v > 0.0){
-//         valid = true;
-//     }
-//     else{
-//         valid = false;
-//     }
-// }
-
-// void LpSpLp_base(StructPoseReal* ptr_pose, StructReedsSheppFormulaResult* rs_result )
-// {
-//     rs_result->valid = false;
-
-//     convertCartesianToPolar(ptr_pose->x - std::sin(ptr_pose->yaw), 
-//                             ptr_pose->y + std::cos(ptr_pose->yaw) - 1, 
-//                             rs_result->u,
-//                             rs_result->t);
-//     rs_result->v = mod2pi(ptr_pose->yaw - rs_result->t);
-//     rs_result->L = std::abs(rs_result->t) + std::abs(rs_result->u) + std::abs(rs_result->v) ;
-//     if( rs_result->t > 0.0 && rs_result->v > 0.0){
-//         rs_result->valid = true;
-//     }
-//     else{
-//         rs_result->valid = false;
-//     }
-// }
-
-StructReedsSheppFormulaResult LpSpLp_base(StructPoseReal* ptr_pose)
+static StructReedsSheppFormulaResult LpSpRp_base(StructPoseReal* ptr_pose)
 {
     StructReedsSheppFormulaResult _rs_result;
 
-    convertCartesianToPolar(ptr_pose->x - std::sin(ptr_pose->yaw), 
-                            ptr_pose->y + std::cos(ptr_pose->yaw) - 1, 
-                            _rs_result.u,
-                            _rs_result.t);
-    _rs_result.v = mod2pi(ptr_pose->yaw - _rs_result.t);
-    _rs_result.L = std::abs(_rs_result.t) + std::abs(_rs_result.u) + std::abs(_rs_result.v) ;
+    double t1, u1;
+
+    convertCartesianToPolar(ptr_pose->x + std::sin(ptr_pose->yaw), 
+                            ptr_pose->y - std::cos(ptr_pose->yaw) - 1, 
+                            u1,
+                            t1);
+    if(u1 * u1 < 4.0){
+        _rs_result.valid = false;
+        return _rs_result;
+    }
+    _rs_result.u = std::sqrt(u1 * u1 - 4.0);
+    double _theta = std::atan2(2.0, _rs_result.u);
+    _rs_result.t = mod2pi(t1 + _theta);
+    _rs_result.v = mod2pi(_rs_result.t - ptr_pose->yaw);
+    _rs_result.L = std::abs( _rs_result.t) + std::abs( _rs_result.u) + std::abs( _rs_result.v) ;
+
     if( _rs_result.t > 0.0 && _rs_result.v > 0.0){
         _rs_result.valid = true;
     }
@@ -98,16 +72,17 @@ StructReedsSheppFormulaResult LpSpLp_base(StructPoseReal* ptr_pose)
 
     if (std::abs(_rs_result.t) > 1.5 * M_PI || std::abs(_rs_result.v) > 1.5 * M_PI) _rs_result.valid = false;
     
+    
     return _rs_result;
 }
 
 
-void solveLpSpLp(StructPoseReal goal_pose, 
+static void solveLpSpRp(StructPoseReal goal_pose, 
                  StructPoseReal start_pose, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
 {
-    StructReedsSheppFormulaResult _res = LpSpLp_base(&goal_pose);
+    StructReedsSheppFormulaResult _res = LpSpRp_base(&goal_pose);
 
     ptr_path->setValid(_res.valid);
 
@@ -118,10 +93,10 @@ void solveLpSpLp(StructPoseReal goal_pose,
 
     sampleOnLeftCurve(_res.t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnStraightLine(_res.u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
-    sampleOnLeftCurve(_res.v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
+    sampleOnRightCurve(_res.v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
 }
 
-void solveLmSmLm(StructPoseReal goal_pose, 
+static void solveLmSmRm(StructPoseReal goal_pose, 
                  StructPoseReal start_pose, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -129,7 +104,7 @@ void solveLmSmLm(StructPoseReal goal_pose,
     goal_pose.x *= -1;
     goal_pose.yaw *= -1;
 
-    StructReedsSheppFormulaResult _res = LpSpLp_base(&goal_pose);
+    StructReedsSheppFormulaResult _res = LpSpRp_base(&goal_pose);
 
     ptr_path->setValid(_res.valid);
 
@@ -140,11 +115,11 @@ void solveLmSmLm(StructPoseReal goal_pose,
 
     sampleOnLeftCurve(-_res.t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnStraightLine(-_res.u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
-    sampleOnLeftCurve(-_res.v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
+    sampleOnRightCurve(-_res.v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
 
 }
 
-// void LmSmLm(){
+// static void LmSmLm(){
 //     double x   = goal_pose_processed_[0];
 //     double y   = goal_pose_processed_[1];
 //     double phi = goal_pose_processed_[2];
@@ -166,7 +141,7 @@ void solveLmSmLm(StructPoseReal goal_pose,
 // }
 
 
-void solveRpSpRp(StructPoseReal goal_pose, 
+static void solveRpSpLp(StructPoseReal goal_pose, 
                  StructPoseReal start_pose, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -174,7 +149,7 @@ void solveRpSpRp(StructPoseReal goal_pose,
     goal_pose.y *= -1;
     goal_pose.yaw *= -1;
 
-    StructReedsSheppFormulaResult _res = LpSpLp_base(&goal_pose);
+    StructReedsSheppFormulaResult _res = LpSpRp_base(&goal_pose);
 
     ptr_path->setValid(_res.valid);
 
@@ -183,12 +158,12 @@ void solveRpSpRp(StructPoseReal goal_pose,
     
     ptr_path->path_length_unitless = _res.L;
 
-    sampleOnLeftCurve(_res.t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
+    sampleOnRightCurve(_res.t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnStraightLine(_res.u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(_res.v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
 }
 
-// void RpSpRp( ){
+// static void RpSpRp( ){
 //     double x   = goal_pose_processed_[0];
 //     double y   = goal_pose_processed_[1];
 //     double phi = goal_pose_processed_[2];
@@ -211,7 +186,7 @@ void solveRpSpRp(StructPoseReal goal_pose,
 
 
 
-void solveRmSmRm(StructPoseReal goal_pose, 
+static void solveRmSmLm(StructPoseReal goal_pose, 
                  StructPoseReal start_pose, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -219,7 +194,7 @@ void solveRmSmRm(StructPoseReal goal_pose,
     goal_pose.x *= -1;
     goal_pose.y *= -1;
 
-    StructReedsSheppFormulaResult _res = LpSpLp_base(&goal_pose);
+    StructReedsSheppFormulaResult _res = LpSpRp_base(&goal_pose);
 
     ptr_path->setValid(_res.valid);
 
@@ -228,12 +203,12 @@ void solveRmSmRm(StructPoseReal goal_pose,
     
     ptr_path->path_length_unitless = _res.L;
 
-    sampleOnLeftCurve(-_res.t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
+    sampleOnRightCurve(-_res.t, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnStraightLine(-_res.u, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
     sampleOnLeftCurve(-_res.v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
 }
 
-// void RmSmRm( ){
+// static void RmSmRm( ){
 //     double x   = goal_pose_processed_[0];
 //     double y   = goal_pose_processed_[1];
 //     double phi = goal_pose_processed_[2];
@@ -254,6 +229,6 @@ void solveRmSmRm(StructPoseReal goal_pose,
 //     }
 // }
 
-
+}
 
 #endif

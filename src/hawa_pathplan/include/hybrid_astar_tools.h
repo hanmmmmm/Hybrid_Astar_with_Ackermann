@@ -34,51 +34,16 @@
 #ifndef HYBRID_ASTAR_TOOLS_H
 #define HYBRID_ASTAR_TOOLS_H
 
-#include <vector>
-#include <limits>
-#include "utils/hawa_data_containers.h"
+#include "common_includes.h"
+#include "custom_data_types.h"
+#include "utils/class_utils__counter.h"
 
+namespace hawa
+{
 
 /**
- * @brief Wrapped conter.
+ * @brief The struct for storing the timing information.
 */
-class ClassHawaCounter
-{
-private:
-    int m_count_;
-public:
-    ClassHawaCounter(/* args */);
-    ~ClassHawaCounter();
-    void increment();
-    void resetCount();
-    int getVal();
-};
-
-ClassHawaCounter::ClassHawaCounter(/* args */)
-{
-    m_count_ = 0;
-}
-
-ClassHawaCounter::~ClassHawaCounter()
-{
-}
-
-void ClassHawaCounter::increment()
-{
-    m_count_ ++;
-}
-
-void ClassHawaCounter::resetCount()
-{
-    m_count_ = 0;
-}
-
-int ClassHawaCounter::getVal()
-{
-    return m_count_;
-}
-
-
 struct TimingAndCounter
 {
     double sec__rs_search;
@@ -145,13 +110,16 @@ struct StructCounterForRSSearch
     }
 };
 
+/**
+ * @brief This struct is used for storing the flags that are frequently used in the code.
+*/
 struct StructFlags
 {
-    bool reach_goal;
-    bool trapped;
-    bool inside_obstacle;
-    bool found_rs_solution;
-    bool timeout;
+    bool reach_goal;        // if a valid path is found
+    bool found_rs_solution; // if a valid path ending with RS curve is found
+    bool trapped;           // if searching failed due to being trapped by obstacles
+    bool inside_obstacle;   // if searching failed due to the start pose is inside an obstacle
+    bool timeout;           // if searching failed due to time exceeds the time limit
 
     inline void resetVals()
     {
@@ -164,6 +132,9 @@ struct StructFlags
 };
 
 
+/**
+ * @brief This struct is used for storing the important poses that are frequently used in the code.
+*/
 struct StructImportantPoses
 {
     StructPoseGrid start_grid;
@@ -177,8 +148,10 @@ struct StructImportantPoses
     StructPoseGrid min_cost_node;
 };
 
-
-struct StructParametersForSearching
+/**
+ * @brief This struct is used for storing the parameters that are frequently used in the code.
+*/
+struct ParametersForSearching
 {
     int time_out_ms = 200;
 
@@ -197,7 +170,9 @@ struct StructParametersForSearching
     }
 };
 
-
+/**
+ * @brief This struct is used for storing the information of the grid.
+*/
 enum AStarGridType
 {
     NewGrid,
@@ -219,6 +194,9 @@ enum EnumHAMotionType
     R_R
 };
 
+/**
+ * @brief This struct is used for storing the information of the grid.
+*/
 struct GridInfo
 {
     double gcost = 0;
@@ -235,6 +213,9 @@ struct GridInfo
     };
 };
 
+/**
+ * @brief This struct is used for storing the information of the nodes in the priority queue.
+*/
 struct NodeinfoForPQ
 {
     double cost;
@@ -245,6 +226,9 @@ struct NodeinfoForPQ
     }
 };
 
+/**
+ * @brief This struct is used for comparing the cost of the nodes in the priority queue.
+*/
 struct CostCompareMethod
 {
     bool operator()(NodeinfoForPQ const& p1, NodeinfoForPQ const& p2)
@@ -254,6 +238,9 @@ struct CostCompareMethod
 };
 
 
+/**
+ * @brief This struct is used for storing the result of the hybrid astar searching.
+*/
 enum EnumResultState
 {
     searching,
@@ -265,8 +252,10 @@ enum EnumResultState
 
 
 
-
-double estimate_steering_cost(const int last_steer, const int new_steer)
+/**
+ * @brief compute the cost of the steering, based on the last steering and the new steering.
+*/
+static double estimateSteeringCost(const int last_steer, const int new_steer)
 {
     int _diff = std::abs(last_steer - new_steer);
     if (_diff == 0)
@@ -287,7 +276,13 @@ double estimate_steering_cost(const int last_steer, const int new_steer)
     }
 }
 
-double estimateChangingMotionTypeCost(const EnumHAMotionType last_motion, const EnumHAMotionType this_motion)
+/**
+ * @brief compute the cost of the motion type, based on the last motion type and the new motion type. 
+ * F is forward, R is reverse. S is straight motion, 
+ * L is steer to left side. R is steer to right side.
+ * @return multiplier of the cost of the motion type.
+*/
+static double estimateChangingMotionTypeCost(const EnumHAMotionType last_motion, const EnumHAMotionType this_motion)
 {
     const double _no_change = 1.0;
     const double _small_steer = 1.1;
@@ -373,6 +368,9 @@ double estimateChangingMotionTypeCost(const EnumHAMotionType last_motion, const 
     return 1.0;
 }
 
+/**
+ * @brief compute the h cost between 2 nodes, in the metric coordinate system.
+*/
 inline double computeHCostEuclidean(const StructPoseReal n, const StructPoseReal g)
 {
     double dx = n.x - g.x;
@@ -380,6 +378,9 @@ inline double computeHCostEuclidean(const StructPoseReal n, const StructPoseReal
     return std::sqrt(dx * dx + dy * dy);
 }
 
+/**
+ * @brief compute the h cost between 2 nodes, in the metric coordinate system.
+*/
 inline double computeHCostManhattan(const StructPoseReal n, const StructPoseReal g)
 {
     double dx = std::abs(n.x - g.x);
@@ -387,6 +388,9 @@ inline double computeHCostManhattan(const StructPoseReal n, const StructPoseReal
     return dx + dy;
 }
 
+/**
+ * @brief compute the h cost between 2 nodes, in the metric coordinate system.
+*/
 inline double computeHCostChebyshev(const StructPoseReal n, const StructPoseReal g)
 {
     double dx = std::abs(n.x - g.x);
@@ -397,5 +401,7 @@ inline double computeHCostChebyshev(const StructPoseReal n, const StructPoseReal
 
 
 
+
+}
 
 #endif

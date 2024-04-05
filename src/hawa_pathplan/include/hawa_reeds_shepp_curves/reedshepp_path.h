@@ -40,18 +40,22 @@
 
 #include "../reedsshepp_tools.h"
 
+
+namespace hawa
+{
+
 class ClassReedSheppPath
 {
 private:
 
     
 public:
-    ClassReedSheppPath();
-    ~ClassReedSheppPath();
+    ClassReedSheppPath(){};
+    ~ClassReedSheppPath(){};
 
     struct posePerSample
     {
-        posePerSample(double xp, double yp, double angle):x(xp),y(yp),theta(angle){};
+        posePerSample(double xp, double yp, double angle) : x(xp), y(yp), theta(angle) {};
         double x;
         double y;
         double theta; // radian
@@ -257,13 +261,9 @@ public:
     };
 };
 
-ClassReedSheppPath::ClassReedSheppPath()
-{
+
 }
 
-ClassReedSheppPath::~ClassReedSheppPath()
-{
-}
 
 
 

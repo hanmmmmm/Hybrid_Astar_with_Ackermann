@@ -63,12 +63,12 @@ visualization_msgs::msg::Marker ClassCarBox2D::getMarkerMsg( )
     _p3.y = m_rectangle_width_;
 
     geometry_msgs::msg::Point _p4;
-    _p4.x = m_rectangle_length_ + 0.3;
-    _p4.y = _width_half + 0.03;
+    _p4.x = m_rectangle_length_ + 0.12;
+    _p4.y = _width_half + 0.06;
 
     geometry_msgs::msg::Point _p5;
-    _p5.x = m_rectangle_length_ + 0.3;
-    _p5.y = _width_half - 0.03;
+    _p5.x = m_rectangle_length_ + 0.12;
+    _p5.y = _width_half - 0.06;
 
     geometry_msgs::msg::Point _p6;
     _p6.x = m_rectangle_length_;

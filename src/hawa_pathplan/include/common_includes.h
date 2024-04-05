@@ -20,56 +20,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-/**
- * @file hawa_timestamp.h
- * @author Mingjie
- * @brief This class provides time stamp managment.  
- * @version 0.2
- * @date 2023-11-15
- * 
- * @copyright Copyright (c) 2023
- * 
- */
 
+#ifndef HAWA_COMMON_INCLUDES_H
+#define HAWA_COMMON_INCLUDES_H
 
-#ifndef HAWA_TIMESTAMP_CLASS_H
-#define HAWA_TIMESTAMP_CLASS_H
+#include <array>
+#include <algorithm>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include "hawa_tools.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
-/**
- * @brief This class provides time stamp managment. 
-*/
-class ClassHawaTimeStamp
+#include <chrono>
+#include <cmath>
+
+#include <deque>
+
+#include <Eigen/Geometry>
+
+#include <iostream>
+
+#include <limits>
+
+#include <map>
+#include <math.h>
+#include <mutex>
+
+#include <queue>
+
+#include <set>
+#include <stdexcept>
+#include <string>
+
+#include <unordered_map>
+
+#include <vector>
+
+#include "rclcpp/rclcpp.hpp"
+
+namespace hawa
 {
-private:
-    double m_stamp_;
-public:
-    ClassHawaTimeStamp(/* args */);
-    ~ClassHawaTimeStamp();
-    void stampNow();
-    bool checkPass(const double duration_sec);
-};
 
-ClassHawaTimeStamp::ClassHawaTimeStamp(/* args */)
+static const double k_pi2 = M_PI * 2.0;
+
+static double mod2pi(double angle)
 {
-    m_stamp_ = 0;
-}
-
-ClassHawaTimeStamp::~ClassHawaTimeStamp()
-{
-}
-
-void ClassHawaTimeStamp::stampNow()
-{
-    m_stamp_ = helperGetTime();
-}
-
-
-bool ClassHawaTimeStamp::checkPass(const double duration_sec)
-{
-    return (helperGetTime() - m_stamp_) > duration_sec;
+    return angle - k_pi2 * std::floor(angle / k_pi2);
 }
 
 
-#endif
+
+} // namespace hawa
+
+#endif // HAWA_COMMON_INCLUDES_H

@@ -27,7 +27,17 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 
 
-add_executable(path_plan_node  src/node_path_plan.cpp)
+add_executable(path_plan_node  src/node_path_plan.cpp
+                               src/class_node_path_planner.cpp
+                               src/class_custom_path_container.cpp
+                               src/class_path_validator.cpp
+                               src/class_reedsshepp_solver.cpp
+                               src/class_hybrid_astar.cpp
+                               src/class_gridmap_handler.cpp
+                               src/utils/class_utils__converters.cpp
+                               src/utils/class_utils__timer.cpp
+                               src/utils/class_utils__timestamp.cpp
+                               )
 
 ament_target_dependencies(
   path_plan_node 
@@ -39,37 +49,16 @@ ament_target_dependencies(
   ackermann_msgs
   nav_msgs
   visualization_msgs
+  ament_index_cpp
   )
-ament_target_dependencies(path_plan_node ament_index_cpp)
 
 
-target_include_directories(path_plan_node PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_pathplan/include")
+# target_include_directories(path_plan_node PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_pathplan/include")
 
 install(TARGETS
         path_plan_node
         DESTINATION lib/${PROJECT_NAME})
 
-
-# add_executable(map_fusion_node  src/map_fusion_node.cpp)
-
-# ament_target_dependencies(
-#   map_fusion_node 
-#   rclcpp 
-#   std_msgs
-#   geometry_msgs
-#   tf2
-#   tf2_ros
-#   ackermann_msgs
-#   nav_msgs
-#   visualization_msgs
-#   tf2_geometry_msgs
-#   )
-
-# target_include_directories(map_fusion_node PRIVATE "/home/jf/ros2_hawa_ws/src/hawa_pathplan/include")
-
-# install(TARGETS
-#         map_fusion_node
-#         DESTINATION lib/${PROJECT_NAME})
 
                 
 install(DIRECTORY

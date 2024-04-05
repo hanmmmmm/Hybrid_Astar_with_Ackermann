@@ -34,18 +34,20 @@
 #ifndef HAWA_REEDS_SHEPP_LRL_H
 #define HAWA_REEDS_SHEPP_LRL_H
 
-#include <math.h>
+#include "common_includes.h"
 
-#include "../../utils/hawa_conversion_tools.h"
-#include "../../utils/hawa_data_containers.h"
+#include "utils/class_utils__converters.h"
+#include "custom_data_types.h"
 #include "../reedsshepp_tools.h"
 
+namespace hawa
+{
 
 /**
  * @brief Call this before run any solveXXX function below, so the important values will be 
  * calculated first.
 */
-StructDubinsCurveCCCvalcollection prepareCCCLRL(StructPoseReal goal_pose, 
+static StructDubinsCurveCCCvalcollection prepareCCCLRL(StructPoseReal goal_pose, 
                                                 StructPoseReal start_pose, 
                                                 double turning_radius)
 {
@@ -78,8 +80,7 @@ StructDubinsCurveCCCvalcollection prepareCCCLRL(StructPoseReal goal_pose,
 /**
  * 
 */
-void solveLpRpLp(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLpRpLp(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -105,8 +106,7 @@ void solveLpRpLp(StructPoseReal goal_pose,
 /**
  * 
 */
-void solveLpRpLm(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLpRpLm(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -130,8 +130,7 @@ void solveLpRpLm(StructPoseReal goal_pose,
 }
 
 
-void solveLpRmLp(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLpRmLp(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -156,8 +155,7 @@ void solveLpRmLp(StructPoseReal goal_pose,
 
 
 
-void solveLpRmLm(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLpRmLm(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -182,8 +180,7 @@ void solveLpRmLm(StructPoseReal goal_pose,
 
 
 
-void solveLmRpLp(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLmRpLp(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -208,8 +205,7 @@ void solveLmRpLp(StructPoseReal goal_pose,
 
 
 
-void solveLmRpLm(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLmRpLm(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -234,8 +230,7 @@ void solveLmRpLm(StructPoseReal goal_pose,
 
 
 
-void solveLmRmLp(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLmRmLp(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -260,8 +255,7 @@ void solveLmRmLp(StructPoseReal goal_pose,
 
 
 
-void solveLmRmLm(StructPoseReal goal_pose, 
-                 StructPoseReal start_pose, 
+static void solveLmRmLm(StructPoseReal start_pose, 
                  StructDubinsCurveCCCvalcollection* ptr_dubins_para, 
                  StructRSPathResult* ptr_path, 
                  StructSamplingProperties* ptr_sample )
@@ -284,5 +278,6 @@ void solveLmRmLm(StructPoseReal goal_pose,
     sampleOnLeftCurve(new_v, start_pose.yaw, start_pose.x, start_pose.y, ptr_path, ptr_sample);
 }
 
+} // namespace hawa
 
 #endif
