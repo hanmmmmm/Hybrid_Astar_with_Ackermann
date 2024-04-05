@@ -21,6 +21,10 @@ ClassPathPlanner::ClassPathPlanner(): Node("path_plan_node")
         m_topic_name_path_published_, 10
     );
 
+    m_publisher_searching_  = this->create_publisher<std_msgs::msg::Bool>(
+        m_topic_name_searching_published_, 10
+    );
+
     m_subscriber_map_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
         m_topic_name_map_subscribed_, 10, std::bind(&ClassPathPlanner::mapCallback, this, std::placeholders::_1)
     );
@@ -58,6 +62,7 @@ void ClassPathPlanner::loadParameters()
     m_topic_name_map_subscribed_ = "/map_fusion";
     m_topic_name_goal_subscribed_ = "/goal_pose"; // "/move_base_simple/goal";
     m_topic_name_path_published_ = "/path";
+    m_topic_name_searching_published_ = "/planner_searching";
 
     m_map_tf_frame_name_ = "/map";
     m_robot_tf_frame_name_ = "/base_link";
@@ -90,12 +95,20 @@ void ClassPathPlanner::exit_pathplan_function(const double time_start)
 */
 void ClassPathPlanner::pathPlan()
 {
+    std_msgs::msg::Bool msg;
+    msg.data = false;
+    m_publisher_searching_->publish(msg);
+
+
     if( ! m_map_received_ ) return;
     if( ! m_goal_received_ ) return;
 
     checkPath();
 
     if (m_goal_solved_) return;
+
+    msg.data = true;
+    m_publisher_searching_->publish(msg);
 
     ros_info("ClassPathPlanner::path_plan() start");
 

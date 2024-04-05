@@ -111,15 +111,6 @@ void ClassHawaMultiSegmentManager::ros_info(const std::string& str)
 }
 
 
-// void ClassHawaMultiSegmentManager::ros_warn(const std::string& str, const int t=5)
-// {
-//     RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("ClassHawaMultiSegmentManager"), 
-//                                 *(rclcpp::get_clock()), 
-//                                 std::chrono::seconds(t).count(), 
-//                                 str.c_str());
-// }
-
-
 /**
  * @brief Call function when the robot reaches the end of the current segment. The counter holding the 
  * the index of the active segment will increment by 1. And if this is the last segment, then the flag
@@ -205,7 +196,6 @@ std::vector<int> ClassHawaMultiSegmentManager::findSingularPoints()
 */
 void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_points)
 {
-    // ROS_INFO_STREAM("split_whole_path(), " << singular_points.size() << " sg points.");
     std::stringstream ss;
     ss << "split_whole_path(), " << singular_points.size() << " sg points.";
     ros_info(ss.str());
@@ -255,7 +245,6 @@ void ClassHawaMultiSegmentManager::split_whole_path(std::vector<int> singular_po
         
         m_vector_segments_.push_back(_one_segment);
     }
-    // ROS_INFO_STREAM("num of segments: " << m_vector_segments_.size());
     std::stringstream ss2;
     ss2 << "num of segments: " << m_vector_segments_.size();
     ros_info(ss2.str());
@@ -276,10 +265,9 @@ ClassPath2DSegment ClassHawaMultiSegmentManager::getCurrentSegment()
 */
 bool ClassHawaMultiSegmentManager::doesPathExist()
 {
-    // ROS_DEBUG_STREAM_THROTTLE(10, "doesPathExist: " << m_vector_segments_.size() << " " <<  m_counter_current_segment_);
-    std::stringstream ss;
-    ss << "doesPathExist: " << m_vector_segments_.size() << " " <<  m_counter_current_segment_;
-    ros_info(ss.str());
+    // std::stringstream ss;
+    // ss << "doesPathExist: " << m_vector_segments_.size() << " " <<  m_counter_current_segment_;
+    // ros_info(ss.str());
     return bool(m_vector_segments_.size() - m_counter_current_segment_);
 }
 
@@ -348,15 +336,14 @@ void ClassHawaMultiSegmentManager::update(const double robot_x, const double rob
 
     if (m_finished_all_)
     {
-        // ROS_INFO_STREAM_THROTTLE_NAMED(20, "ClassHawaMultiSegmentManager::update()", "Wait for new path.");
-        std::stringstream ss;
-        ss << "ClassHawaMultiSegmentManager::update()  Wait for new path.";
-        ros_info(ss.str());
+        // std::stringstream ss;
+        // ss << "ClassHawaMultiSegmentManager::update()  Wait for new path.";
+        // ros_info(ss.str());
         return;
     }
 
     bool _this_finished = checkCurrentSegFinish( robot_x, robot_y, robot_yaw);
-    // ROS_DEBUG_STREAM_THROTTLE(20, "update() _this_finished " << _this_finished);
+    
     if (_this_finished)
     {
         finishCurrentSegment();

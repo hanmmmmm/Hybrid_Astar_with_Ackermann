@@ -42,6 +42,7 @@
 
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/map_meta_data.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 #include "class_reedsshepp_solver.h"
 
@@ -69,6 +70,10 @@ namespace hawa
 class ClassHybridAStar
 {
 private:
+    
+    // rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr m_publisher_searching_ ;
+    // std::string m_topic_name_searching_published_;
+
     ClassGridMapHandler m_gridmap_handler_;
 
     ClassReedsSheppSolver m_RS_curve_finder_;
