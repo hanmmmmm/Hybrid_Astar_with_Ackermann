@@ -31,6 +31,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "std_msgs/msg/float64.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "tf2/LinearMath/Quaternion.h"
@@ -62,11 +63,14 @@ private:
 
     nav_msgs::msg::Odometry m_robot_odom_msg_;
 
+    std_msgs::msg::Bool m_pause_for_searching_;
+
     std::mutex m_mutex_path_;
 
     // For algorithm
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr m_suber__path_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_suber__odom_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr m_suber__pause_for_searching_;
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr m_puber__ackerman_msg_;
     std::string m_topic_name__path_subscribed_;
     std::string m_topic_name__odom_subscribed_;
@@ -84,6 +88,7 @@ private:
     std::string m_topic_name__target_point_marker_;
     std::string m_topic_name__speed_mps_subscribed_;
     std::string m_topic_name__look_coefficient_subscribed_;
+    std::string m_topic_name__pause_for_searching_subscribed_;
     std::string m_topic_name__current_path_published_;
 
 private:
@@ -94,6 +99,8 @@ private:
     void speedCallback(const std_msgs::msg::Float64 &msg);
 
     void ratioCallback(const std_msgs::msg::Float64 &msg);
+
+    void pauseCallback(const std_msgs::msg::Bool &msg);
 
     void controllerUpdate();
 
@@ -117,6 +124,7 @@ ClassNodePurePursuit::ClassNodePurePursuit() : Node("NodePurePursuit")
 {
     m_topic_name__target_point_marker_ = "/target_point_marker";
     m_topic_name__ackerman_msg_ = "/ackermann_cmd";
+    m_topic_name__pause_for_searching_subscribed_ = "/planner_searching";
 
     m_topic_name__odom_subscribed_ = "/odometry";
     m_topic_name__path_subscribed_ = "/path";
@@ -129,6 +137,8 @@ ClassNodePurePursuit::ClassNodePurePursuit() : Node("NodePurePursuit")
 
     m_expected_speed_mps_ = 0.6;
     m_look_ahead_ratio_ = 0.9;
+
+    m_pause_for_searching_.data = false;
 
     m_robot_odom_msg_.header.stamp = this->get_clock()->now();
 
@@ -150,6 +160,10 @@ ClassNodePurePursuit::ClassNodePurePursuit() : Node("NodePurePursuit")
 
     m_suber__odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
         m_topic_name__odom_subscribed_, 10, std::bind(&ClassNodePurePursuit::odomCallback, this, _1)
+    );
+
+    m_suber__pause_for_searching_ = this->create_subscription<std_msgs::msg::Bool>(
+        m_topic_name__pause_for_searching_subscribed_, 10, std::bind(&ClassNodePurePursuit::pauseCallback, this, _1)
     );
 
     m_suber__speed_mps_ = this->create_subscription<std_msgs::msg::Float64>(
@@ -236,11 +250,25 @@ void ClassNodePurePursuit::ratioCallback(const std_msgs::msg::Float64 &msg)
 }
 
 /**
+ * @brief For updating the value of the m_pause_for_searching_ by ros topic.
+*/
+void ClassNodePurePursuit::pauseCallback(const std_msgs::msg::Bool &msg)
+{
+    m_pause_for_searching_ = msg;
+}
+
+/**
  * @brief Main function to be called by timer regualerly.
  * @param event ros timer event.
 */
 void ClassNodePurePursuit::controllerUpdate()
 {
+    if (m_pause_for_searching_.data)
+    {
+        ros_warn("Pause while searching path.");
+        return;
+    }
+
     if( ! validateOdomMsg() )
     {
         // RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *(this->get_clock()), std::chrono::seconds(5).count(), "Invalid robot odom msg.  Do not proceed.");
@@ -278,8 +306,7 @@ void ClassNodePurePursuit::controllerUpdate()
     m_controller_purepursuit_.findTargetPoint(_valid_target_point);
     if( ! _valid_target_point )
     {
-        // ROS_WARN_STREAM_THROTTLE(10 , "Invalid target point.  Do not proceed.");
-        ros_warn("Invalid target point.  Do not proceed.", 10);
+        // ros_warn("Invalid target point.  Do not proceed.", 10);
         m_mutex_path_.unlock();
         return;
     }

@@ -42,7 +42,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "rclcpp/rclcpp.hpp"
-
+#include "std_msgs/msg/bool.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/map_meta_data.hpp"
 #include "nav_msgs/msg/path.hpp"
@@ -78,6 +78,7 @@ class ClassPathPlanner : public rclcpp::Node
 private:
     rclcpp::TimerBase::SharedPtr m_periodic_timer_;
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr m_publisher_path_ ;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr m_publisher_searching_ ;
     rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr m_subscriber_map_;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr m_subscriber_goal_;
         
@@ -86,6 +87,7 @@ private:
     void goalCallback(const geometry_msgs::msg::PoseStamped &msg);
 
     std::string m_topic_name_path_published_;
+    std::string m_topic_name_searching_published_;
     std::string m_topic_name_map_subscribed_; 
     std::string m_topic_name_goal_subscribed_;
 

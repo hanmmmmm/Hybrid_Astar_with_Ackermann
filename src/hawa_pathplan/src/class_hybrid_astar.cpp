@@ -13,6 +13,14 @@ ClassHybridAStar::ClassHybridAStar()
 {
     loadParameters();
 
+    // m_topic_name_searching_published_ = "/planner_searching";
+
+    // rclcpp::Node::SharedPtr _node = rclcpp::Node::make_shared("temp_hybrid_astar_node");
+
+    // m_publisher_searching_  = _node->create_publisher<std_msgs::msg::Bool>(
+    //     m_topic_name_searching_published_, 10
+    // );
+
     m_timer_and_counter_.resetVals();
 
     m_motion_model_.prepare_model();
@@ -166,6 +174,10 @@ bool ClassHybridAStar::search()
     int _search_iteration_count = 0;
     while (!m_flags_.reach_goal)
     {
+        // std_msgs::msg::Bool msg;
+        // msg.data = true;
+        // m_publisher_searching_->publish(msg);
+
         // check if there's any valid nodes to search.
         if (m_opennodes_pq_.size() == 0)
         {
