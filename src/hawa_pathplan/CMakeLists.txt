@@ -52,9 +52,6 @@ ament_target_dependencies(
   ament_index_cpp
   )
 
-
-# target_include_directories(path_plan_node PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_pathplan/include")
-
 install(TARGETS
         path_plan_node
         DESTINATION lib/${PROJECT_NAME})

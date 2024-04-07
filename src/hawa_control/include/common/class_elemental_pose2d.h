@@ -20,12 +20,11 @@
  */
 class ClassPose2D
 {
-private:
 public:
-    ClassPose2D();
+    ClassPose2D() {};
     ClassPose2D(const double x_in, const double y_in, const double yaw_in);
     void set(const double x_in, const double y_in, const double yaw_in);
-    ~ClassPose2D();
+    ~ClassPose2D() {};
 
     double x, y, yaw;
 };
@@ -40,10 +39,6 @@ void ClassPose2D::set(const double x_in, const double y_in, const double yaw_in)
     x = x_in;
     y = y_in;
     yaw = yaw_in;
-}
-
-ClassPose2D::~ClassPose2D()
-{
 }
 
 #endif

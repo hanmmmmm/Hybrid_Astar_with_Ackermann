@@ -312,12 +312,17 @@ bool ClassHawaMultiSegmentManager::checkCurrentSegFinish(const double robot_x,
                                                          const double robot_y, 
                                                          const double robot_yaw)
 {
+    
     ClassPose2D _end = m_vector_segments_.at(m_counter_current_segment_).m_path_original_.back();
 
-    double _dist_to_end = computeDistanceMeter(_end.x, 
-                                               _end.y, 
-                                               robot_x, 
-                                               robot_y);
+    double dx = _end.x - robot_x;
+    double dy = _end.y - robot_y;
+    double dyaw = std::abs(mod2pi(_end.yaw - robot_yaw));
+    double _dist_to_end = std::sqrt(dx*dx + dy*dy);
+    // double _dist_to_end = computeDistanceMeter(_end.x, 
+    //                                            _end.y, 
+    //                                            robot_x, 
+    //                                            robot_y);
     // ROS_INFO_STREAM("_dist_to_end " << _dist_to_end << "  look_ahead " << parameters_.look_ahead_distance_meter_);
     m_distance_to_end_ = _dist_to_end;
     return (_dist_to_end <= 0.2);
