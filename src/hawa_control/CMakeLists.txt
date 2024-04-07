@@ -11,6 +11,8 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+include_directories(include)
+include_directories("/usr/include/eigen3")
 
 
 find_package(rclcpp REQUIRED)
@@ -43,6 +45,26 @@ install(TARGETS
         DESTINATION lib/${PROJECT_NAME})
 
 
+add_executable(node_lqr  src/node_lqr.cpp)
+
+ament_target_dependencies(
+  node_lqr 
+  rclcpp 
+  std_msgs
+  geometry_msgs
+  tf2
+  tf2_ros
+  ackermann_msgs
+  nav_msgs
+  visualization_msgs
+  )
+
+target_include_directories(node_lqr PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_control/include/common")
+
+install(TARGETS
+node_lqr
+        DESTINATION lib/${PROJECT_NAME})
+        
 
 
 if(BUILD_TESTING)
