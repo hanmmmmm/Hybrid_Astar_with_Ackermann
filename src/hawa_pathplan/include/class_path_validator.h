@@ -70,7 +70,7 @@ private:
 
     nav_msgs::msg::Path::SharedPtr m_path_ptr_;
 
-    ClassGridMapHandler m_gridmap_handler_;
+    std::shared_ptr<ClassGridMapHandler> m_gridmap_handler_ptr_;
     MapOccThreshold m_map_occ_threshold_;
     
 
@@ -98,7 +98,8 @@ public:
     
     void setRobotPose(const geometry_msgs::msg::TransformStamped& robot_pose);
     void setPath(const nav_msgs::msg::Path& path);
-    void setMap(nav_msgs::msg::OccupancyGrid * ptr_map);
+    // void setMap(nav_msgs::msg::OccupancyGrid * ptr_map);
+    void setMapHandler(std::shared_ptr<ClassGridMapHandler> gridmap_handler_ptr);
 
     // void setup_para(double distance_tole, double angle_tole);
     

@@ -37,16 +37,21 @@ void ClassPathValidator::setPath(const nav_msgs::msg::Path& path)
     m_path_ptr_ = std::make_shared<nav_msgs::msg::Path>(path);
 }
 
-/**
- * @brief Set the Map object.
-*/
-void ClassPathValidator::setMap(nav_msgs::msg::OccupancyGrid * ptr_map)
+// /**
+//  * @brief Set the Map object.
+// */
+// void ClassPathValidator::setMap(nav_msgs::msg::OccupancyGrid * ptr_map)
+// {
+//     m_gridmap_handler_.setGridMapPtr(&(ptr_map->data));
+//     m_gridmap_handler_.setGridWidthHeight(ptr_map->info.width, ptr_map->info.height);
+//     m_gridmap_handler_.setPlanningObstacleThreshold(m_map_occ_threshold_.plan);
+//     m_gridmap_handler_.setValidateObstacleThreshold(m_map_occ_threshold_.vali);
+//     m_gridmap_handler_.setGridMeterRatio(ptr_map->info.resolution, m_yaw_angle_bin_size_);
+// }
+
+void ClassPathValidator::setMapHandler(std::shared_ptr<ClassGridMapHandler> gridmap_handler_ptr)
 {
-    m_gridmap_handler_.setGridMapPtr(&(ptr_map->data));
-    m_gridmap_handler_.setGridWidthHeight(ptr_map->info.width, ptr_map->info.height);
-    m_gridmap_handler_.setPlanningObstacleThreshold(m_map_occ_threshold_.plan);
-    m_gridmap_handler_.setValidateObstacleThreshold(m_map_occ_threshold_.vali);
-    m_gridmap_handler_.setGridMeterRatio(ptr_map->info.resolution, m_yaw_angle_bin_size_);
+    m_gridmap_handler_ptr_ = gridmap_handler_ptr;
 }
 
 
@@ -99,20 +104,34 @@ bool ClassPathValidator::validate()
 */
 bool ClassPathValidator::checkPathIsClear()
 {
+    if (m_gridmap_handler_ptr_ == nullptr)
+    {
+        std::cerr << "Gridmap handler is not set. nullptr." << std::endl;
+        return false;
+    }
+
+    double map_offset_x, map_offset_y;
+    m_gridmap_handler_ptr_->getOriginOffset(map_offset_x, map_offset_y);
     StructPoseGrid _pose_grid;
     StructPoseReal _pose_real;
     for (auto ps : m_path_ptr_->poses)
     {
-        _pose_real.x = ps.pose.position.x;
-        _pose_real.y = ps.pose.position.y;
+        _pose_real.x = ps.pose.position.x - map_offset_x;
+        _pose_real.y = ps.pose.position.y - map_offset_y;
         _pose_real.yaw = quaternionToYaw(ps.pose.orientation);
 
-        m_gridmap_handler_.convertFinePoseToGrid(_pose_real, _pose_grid);
+        std::cout << "ClassPathValidator::checkPathIsClear()  pose_real: " << _pose_real.x << ", " << _pose_real.y << ", " << _pose_real.yaw << std::endl;
 
-        if (m_gridmap_handler_.checkGridWithinMap(_pose_grid.x, _pose_grid.y))
+        m_gridmap_handler_ptr_->convertFinePoseToGrid(_pose_real, _pose_grid);
+
+        std::cout << "ClassPathValidator::checkPathIsClear()  pose_grid: " << _pose_grid.x << ", " << _pose_grid.y << std::endl;
+
+        if (m_gridmap_handler_ptr_->checkGridWithinMap(_pose_grid.x, _pose_grid.y))
             continue;
         
-        bool step_is_clear = m_gridmap_handler_.checkGridClear(_pose_grid.x, _pose_grid.y, ClassGridMapHandler::EnumMode::plan);
+        std::cout << "inside." << std::endl;
+
+        bool step_is_clear = m_gridmap_handler_ptr_->checkGridClear(_pose_grid.x, _pose_grid.y, ClassGridMapHandler::EnumMode::plan);
         if (! step_is_clear)
         {
             return false;

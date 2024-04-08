@@ -41,6 +41,8 @@ ClassPathPlanner::ClassPathPlanner(): Node("path_plan_node")
     m_ha_planner_ = std::make_unique<ClassHybridAStar>();
     m_path_validator_ = std::make_unique<ClassPathValidator>();
 
+    m_path_validator_->setMapHandler(m_ha_planner_->m_gridmap_handler_ptr_);
+
     ros_info("ClassPathPlanner inti Done.");
 }
 
@@ -239,7 +241,7 @@ void ClassPathPlanner::checkPath()
     if (! m_goal_solved_) return;
 
     m_path_validator_->setPath(m_navmsgs_path_msg_);
-    m_path_validator_->setMap(&m_map_msg_);
+    // m_path_validator_->setMap(&m_map_msg_);
     m_path_validator_->setRobotPose(m_tf_robot_to_map_);
 
     if (! m_path_validator_->validate())

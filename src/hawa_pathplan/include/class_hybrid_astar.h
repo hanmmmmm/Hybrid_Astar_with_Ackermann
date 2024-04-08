@@ -74,7 +74,7 @@ private:
     // rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr m_publisher_searching_ ;
     // std::string m_topic_name_searching_published_;
 
-    ClassGridMapHandler m_gridmap_handler_;
+    // ClassGridMapHandler m_gridmap_handler_;
 
     ClassReedsSheppSolver m_RS_curve_finder_;
 
@@ -115,6 +115,8 @@ private:
 public:
     ClassHybridAStar();
     ~ClassHybridAStar();
+    
+    std::shared_ptr<ClassGridMapHandler> m_gridmap_handler_ptr_;
 
     bool loadParameters();
 

@@ -19,7 +19,7 @@ Mar 29 2024
 - path-validation:
 -- create a new function: bool validate(){}
 -- add the mechnism in planner to trigger by validate().
--- Apr 3 2024, initial version of path validator done.
+-- Apr 3 2024, DONE initial version of path validator.
 
 - simulaion:
 -- add randomness in states
@@ -34,10 +34,18 @@ Mar 29 2024
 Apr 5 2024
 - Done refactor path_plan pkg.
 
+Apr 7 2024
+- Done LQR controller. 
+- new todo:
+-- fix bug in edge area in path-validater.
+--- Fixed.  The reason was the map_origin_offset missing in path validator.
+-- remove the plan&validate mode option in planner, because it's not needed.
+-- polish the path segment extension logic.
+-- refactor hawa_control pkg, so the common section will be shared by every algo. 
+-- refactor everything, so all the parameters are in one json file. 
+-- Refactor and simplify the path-plan pkg.
 
 idea for future:
-
-
 -add trajectory optimization:
 -- (Might not worth doing this one, because TEB is implemented in ROS, and it works well.)
 -- the intial waypoints are the points from existing result

@@ -185,8 +185,11 @@ bool ClassGridMapHandler::checkGridClear(int x, int y, EnumMode mode)
     }
     else
     {
-        RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "function <ClassGridMapHandler::checkGridClear>\nindex_1d out of map size.");
-        // ROS_WARN_STREAM_THROTTLE(30, "function <ClassGridMapHandler::checkGridClear>\nindex_1d out of map size.");
+        std::stringstream ss;
+        ss << "function <ClassGridMapHandler::checkGridClear>: index_1d out of map size. " << _index_1d;
+        ss << " xy:" << x << " , " << y;
+        std::cerr << ss.str() << std::endl;
+        // RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), ss.c_str());
         return false;
     }
 }
@@ -442,6 +445,21 @@ inline int ClassGridMapHandler::convert2DTo1D(const int x, const int y)
 {
     return y * m_grid_map_width_ + x;
 }
+
+
+void ClassGridMapHandler::setOriginOffset(double x, double y)
+{
+    m_origin_offset_x_ = x;
+    m_origin_offset_y_ = y;
+}
+
+
+void ClassGridMapHandler::getOriginOffset(double &x, double &y)
+{
+    x = m_origin_offset_x_;
+    y = m_origin_offset_y_;
+}
+
 
 
 } // namespace hawa

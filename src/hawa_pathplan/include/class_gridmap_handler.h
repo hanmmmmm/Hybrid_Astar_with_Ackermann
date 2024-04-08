@@ -60,6 +60,8 @@ private:
     double m_ratio_fine_to_grid_xy_;  // convert meter to grid_index
     double m_ratio_fine_to_grid_yaw_; // convert radian to grid_index
 
+    double m_origin_offset_x_, m_origin_offset_y_;
+
 public:
     ClassGridMapHandler();
     ~ClassGridMapHandler();
@@ -109,6 +111,9 @@ public:
     bool setValidateObstacleThreshold(int8_t thd);
     bool setGridMapPtr(std::vector<int8_t> * ptr_);
     bool setGridMeterRatio(double xy, double angle);
+
+    void setOriginOffset(double x, double y);
+    void getOriginOffset(double &x, double &y);
 
     int getMapLength();
 };
