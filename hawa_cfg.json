@@ -1,0 +1,50 @@
+{
+    "brief": "This is the configuration file for the project",
+    "robot_specs": {
+        "axle_distance_metric": 0.25,
+        "max_speed_mps": 1.3,
+        "max_steer_angle": 0.8,
+        "max_acceleration_mps2": 0.8,
+        "max_steer_rate_radps": 1.0
+    },
+    "simulation": {
+        "loop_time_ms_INT": 20,
+        "cmd_timeout_sec_FLOAT": 0.3,
+        "use_noise_BOOL": false,
+        "pub_tf_map2odom_BOOL": true
+    },
+    "motion_controller": {
+        "pure_pursuit": {
+            "look_ahead_distance_metric": 0.5
+        },
+        "LQR": {
+            "Q_FLOAT": [1, 1, 1],
+            "R_FLOAT": [1, 1],
+            "ref_point_proximity_INT": 3 
+        }
+    },
+    "path_planer": {
+        "wait_for_stop_before_replan_BOOL": true,
+        "reedshepp_radius_metric": 0.7 
+    },
+    "map_processor": {
+        "inflation_size_INT": 6,
+        "include_lidar_BOOL": true,
+        "include_depth_BOOL": false
+    },
+    "ros_topics": {
+        "odometry_topic": "/odometry",
+        "ackerman_cmd_topic": "/ackermann_cmd",
+        "whole_path": "/path",
+        "map_from_slam": "/map",
+        "map_from_map_processor": "/map_fusion",
+        "robot_body_visualization": "/car_body_line_marker"
+
+    },
+    "frames": {
+        "base_frame": "base_link",
+        "steer_frame": "steer_link",
+        "odom_frame": "odom",
+        "map_frame": "map"
+    }
+}

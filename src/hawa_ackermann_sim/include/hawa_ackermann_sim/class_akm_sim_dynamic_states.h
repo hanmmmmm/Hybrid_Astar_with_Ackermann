@@ -46,13 +46,13 @@ namespace hawa
 
 struct DynamicsLimits
 {
-    const double max_linear_v_mps = 1.7;
-    const double min_linear_v_mps = -1.7;
-    const double linear_a_mpss = 0.8;
+    double max_linear_v_mps = 1.7;
+    double min_linear_v_mps = -1.7;
+    double linear_a_mpss = 0.8;
 
-    const double max_steer_rad = 0.5;
-    const double min_steer_rad = -0.5;
-    const double steer_rate_radps = 1.0;
+    double max_steer_rad = 0.5;
+    double min_steer_rad = -0.5;
+    double steer_rate_radps = 1.0;
 };
 
 // Everything in this class is set to be public because I think this class is quite simple and 
@@ -88,6 +88,22 @@ public:
     void calcActualSteerRad(const double dt);
 
     void updateAllStates(const double dt);
+
+    DynamicsStates(const double axle_distance, 
+                   const double max_linear_v_mps, 
+                   const double linear_a_mpss, 
+                   const double max_steer_rad,
+                   const double steer_rate_radps) 
+    : m_axle_distance_(axle_distance)
+    {
+        m_limits_.max_linear_v_mps = max_linear_v_mps;
+        m_limits_.min_linear_v_mps = -max_linear_v_mps;
+        m_limits_.linear_a_mpss = linear_a_mpss;
+        m_limits_.max_steer_rad = max_steer_rad;
+        m_limits_.min_steer_rad = -max_steer_rad;
+        m_limits_.steer_rate_radps = steer_rate_radps;
+    }
+    
 };
 
 

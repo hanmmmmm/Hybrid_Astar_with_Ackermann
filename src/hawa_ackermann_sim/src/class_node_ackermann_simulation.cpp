@@ -50,7 +50,8 @@ ClassNodeAckermannSim::ClassNodeAckermannSim(): Node("AckermannSim")
         m_topic_name_car_body_vis_, 10
     );
 
-    m_periodic_timer_ = this->create_wall_timer(20ms, std::bind(&ClassNodeAckermannSim::mainUpdate, this));
+    m_periodic_timer_ = this->create_wall_timer(std::chrono::milliseconds(m_main_loop_timer_interval_millisecond_), 
+                                                std::bind(&ClassNodeAckermannSim::mainUpdate, this));
 
     m_noise_generator_ = std::make_unique<ClassRandomSinNoiseGenerator>();
 
@@ -72,16 +73,46 @@ ClassNodeAckermannSim::~ClassNodeAckermannSim()
 */
 void ClassNodeAckermannSim::loadParameters()
 {
-    m_topic_name_akm_drive_ = "/ackermann_cmd";
-    m_topic_name_odometry_ = "/odometry";
-    m_topic_name_car_body_vis_ = "/car_body_line_marker";
-    
-    m_robot_frame_ = "/base_link";
+    typedef boost::property_tree::ptree ptree;
 
-    m_main_loop_timer_interval_second_ = 0.02;
-    FLAG_pub_tf__map2odom_ = true; // set to true if there's no other source provides the tf bwtn map and odom.
+    std::string cfg_path = "/home/jf/Hybrid_Astar_with_Ackermann/hawa_cfg.json";
+
+    std::cout << "cfg path: >" << cfg_path << "< " << std::endl;
+
+    ptree root;
+    boost::property_tree::read_json(cfg_path, root);
+
+    ptree topics = root.get_child("ros_topics");
+
+    m_topic_name_akm_drive_ = topics.get<std::string>("ackerman_cmd_topic");            //"/ackermann_cmd";
+    m_topic_name_odometry_ = topics.get<std::string>("odometry_topic");                 //"/odometry";
+    m_topic_name_car_body_vis_ = topics.get<std::string>("robot_body_visualization");   //"/car_body_line_marker";
+    
+    ptree frames = root.get_child("frames");
+
+    m_robot_frame_ = frames.get<std::string>("base_frame");        //"/base_link";
+    m_steer_link_frame_ = frames.get<std::string>("steer_frame"); 
+    m_map_frame_ = frames.get<std::string>("map_frame"); 
+    m_odom_frame_ = frames.get<std::string>("odom_frame"); 
+
+    ptree simulation = root.get_child("simulation");
+
+    m_main_loop_timer_interval_millisecond_ = simulation.get<int>("loop_time_ms_INT");  //20;
+    m_cmd_timeout_sec_ = simulation.get<double>("cmd_timeout_sec_FLOAT");               //0.3;
+    FLAG_use_noise_ = simulation.get<bool>("use_noise_BOOL");                           //true;
+    FLAG_pub_tf__map2odom_ = simulation.get<bool>("pub_tf_map2odom_BOOL");              //true;
 
     m_car_box_.setFrameID(m_robot_frame_);
+
+    ptree robot_specs = root.get_child("robot_specs");
+    double axle_distance_metric = robot_specs.get<double>("axle_distance_metric");
+    double max_speed_mps = robot_specs.get<double>("max_speed_mps");
+    double max_steer_angle = robot_specs.get<double>("max_steer_angle");
+    double max_acceleration_mps2 = robot_specs.get<double>("max_acceleration_mps2");
+    double max_steer_rate_radps = robot_specs.get<double>("max_steer_rate_radps");
+
+    m_dyna_states_ = std::make_unique<DynamicsStates>(axle_distance_metric, max_speed_mps, max_acceleration_mps2
+                                            , max_steer_angle, max_steer_rate_radps);
 }
 
 /**
@@ -89,12 +120,12 @@ void ClassNodeAckermannSim::loadParameters()
 */
 void ClassNodeAckermannSim::akmDriveCallback(const ackermann_msgs::msg::AckermannDriveStamped &msg)
 {
-    RCLCPP_INFO(this->get_logger(), "akmDriveCallback()");
+    // RCLCPP_INFO(this->get_logger(), "akmDriveCallback()");
     m_akm_drive_msg_.header = msg.header;
     m_akm_drive_msg_.drive = msg.drive;
-    // m_akm_drive_msg_stamp_system_ = getTimeSecond();
-    auto tools = ClassHawaSimTools();
-    m_akm_drive_msg_stamp_system_ = tools.getTimeSecond();
+    
+    // auto tools = ClassHawaSimTools();
+    m_akm_drive_msg_stamp_system_ = ClassHawaSimTools::getTimeSecond();
 }
 
 /**
@@ -102,36 +133,31 @@ void ClassNodeAckermannSim::akmDriveCallback(const ackermann_msgs::msg::Ackerman
 */
 void ClassNodeAckermannSim::mainUpdate()
 {
-    // double _time_now_second = getTimeSecond();
-
-    // auto tools = ClassHawaSimTools();
-    // double _time_now_second = tools.getTimeSecond();
-
     double _time_now_second = ClassHawaSimTools::getTimeSecond();
 
     double _age_of_akm_drive_msg = _time_now_second - m_akm_drive_msg_stamp_system_ ;
 
     // stop the robot when the command input is out of date. 
-    if (_age_of_akm_drive_msg < 0.3)
+    if (_age_of_akm_drive_msg < m_cmd_timeout_sec_)
     {
-        m_dyna_states_.setTargetLinearVbMps(m_akm_drive_msg_.drive.speed);
-        m_dyna_states_.setTargetSteerRad(m_akm_drive_msg_.drive.steering_angle);
+        m_dyna_states_->setTargetLinearVbMps(m_akm_drive_msg_.drive.speed);
+        m_dyna_states_->setTargetSteerRad(m_akm_drive_msg_.drive.steering_angle);
     }
     else
     {
-        m_dyna_states_.setTargetLinearVbMps(0);
-        m_dyna_states_.setTargetSteerRad(0);
+        m_dyna_states_->setTargetLinearVbMps(0);
+        m_dyna_states_->setTargetSteerRad(0);
     }
 
     double _delta_t = _time_now_second - m_timestamp_last_update_;
 
-    m_dyna_states_.updateAllStates(_delta_t);
+    m_dyna_states_->updateAllStates(_delta_t);
 
     m_timestamp_last_update_ = _time_now_second;
 
-    auto state_x = m_dyna_states_.m_x_meter_;
-    auto state_y = m_dyna_states_.m_y_meter_;
-    auto state_yaw = m_dyna_states_.m_yaw_rad_;
+    auto state_x = m_dyna_states_->m_x_meter_;
+    auto state_y = m_dyna_states_->m_y_meter_;
+    auto state_yaw = m_dyna_states_->m_yaw_rad_;
     // apply the noise to the states
     if (FLAG_use_noise_)
     {
@@ -143,14 +169,16 @@ void ClassNodeAckermannSim::mainUpdate()
     }
     // done applying noise
 
+    // prepare and publish the tf and odometry message
+
     geometry_msgs::msg::TransformStamped _transform;
 
     _transform.header.stamp = this->get_clock()->now();
    
     if (FLAG_pub_tf__map2odom_)
     {
-        _transform.header.frame_id = "map";
-        _transform.child_frame_id = "odom";
+        _transform.header.frame_id = m_map_frame_;
+        _transform.child_frame_id = m_odom_frame_;
         _transform.transform.translation.x = 0;
         _transform.transform.translation.y = 0;
         _transform.transform.translation.z = 0;
@@ -161,8 +189,8 @@ void ClassNodeAckermannSim::mainUpdate()
         m_tf_bcr_->sendTransform(_transform);
     }
     
-    _transform.header.frame_id = "odom";
-    _transform.child_frame_id = "base_link";
+    _transform.header.frame_id = m_odom_frame_;
+    _transform.child_frame_id = m_robot_frame_;
     _transform.transform.translation.x = state_x;
     _transform.transform.translation.y = state_y;
     _transform.transform.translation.z = 0;
@@ -175,13 +203,13 @@ void ClassNodeAckermannSim::mainUpdate()
     _transform.transform.rotation.w = q.w();
     m_tf_bcr_->sendTransform(_transform);
 
-    _transform.header.frame_id = "base_link";
-    _transform.child_frame_id = "steer_link";
-    _transform.transform.translation.x = m_dyna_states_.m_axle_distance_;
+    _transform.header.frame_id = m_robot_frame_;
+    _transform.child_frame_id = m_steer_link_frame_;
+    _transform.transform.translation.x = m_dyna_states_->m_axle_distance_;
     _transform.transform.translation.y = 0;
     _transform.transform.translation.z = 0;
 
-    q.setRPY(0, 0, m_dyna_states_.m_steer_rad_actual_);
+    q.setRPY(0, 0, m_dyna_states_->m_steer_rad_actual_);
     _transform.transform.rotation.x = q.x();
     _transform.transform.rotation.y = q.y();
     _transform.transform.rotation.z = q.z();
@@ -201,9 +229,9 @@ void ClassNodeAckermannSim::mainUpdate()
     m_odometry_msg_.pose.pose.orientation.z = q.getZ();
     m_odometry_msg_.pose.pose.orientation.w = q.getW();
     
-    m_odometry_msg_.twist.twist.linear.x = m_dyna_states_.m_linear_vb_mps_actual_;
+    m_odometry_msg_.twist.twist.linear.x = m_dyna_states_->m_linear_vb_mps_actual_;
     m_odometry_msg_.twist.twist.linear.y = 0;
-    m_odometry_msg_.twist.twist.angular.z = m_dyna_states_.m_angular_wb_radps_actual_;
+    m_odometry_msg_.twist.twist.angular.z = m_dyna_states_->m_angular_wb_radps_actual_;
     
     m_pub_ptr_odometry_->publish(m_odometry_msg_);
 

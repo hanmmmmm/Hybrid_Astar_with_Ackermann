@@ -40,9 +40,8 @@
 #include <string>
 #include <mutex>
 
-// #include <random>
-// #include <boost/property_tree/ptree.hpp>
-// #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/transform_broadcaster.h"
@@ -74,11 +73,15 @@ private:
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr m_pub_ptr_car_body_vis_;
     rclcpp::TimerBase::SharedPtr m_periodic_timer_;
 
-    std::string m_robot_frame_;
     std::string m_topic_name_akm_drive_; 
     std::string m_topic_name_odometry_;  
     std::string m_topic_name_car_body_vis_; 
 
+    std::string m_robot_frame_;
+    std::string m_map_frame_;
+    std::string m_odom_frame_;
+    std::string m_steer_link_frame_;
+    
     ackermann_msgs::msg::AckermannDriveStamped m_akm_drive_msg_;
     double m_akm_drive_msg_stamp_system_;
     nav_msgs::msg::Odometry m_odometry_msg_;
@@ -87,13 +90,14 @@ private:
 
     std::unique_ptr<ClassRandomSinNoiseGenerator> m_noise_generator_;
 
-    // bool FLAG_use_noise_ = true;
     bool FLAG_use_noise_ = false;
 
 private:
-    DynamicsStates m_dyna_states_;
+
+    std::unique_ptr<DynamicsStates> m_dyna_states_;
     double m_timestamp_last_update_;
-    double m_main_loop_timer_interval_second_;
+    double m_cmd_timeout_sec_ = 0.3;
+    int m_main_loop_timer_interval_millisecond_;
     bool FLAG_pub_tf__map2odom_;
     
 private:
