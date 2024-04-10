@@ -53,6 +53,7 @@ Apr 7 2024
 -- refactor hawa_control pkg, so the common section will be shared by every algo. 
 
 -- refactor everything, so all the parameters are in one json file. 
+--- Done the sim, map, plan pkgs. The controller pkg is left.
 
 -- Refactor and simplify the path-plan pkg.
 

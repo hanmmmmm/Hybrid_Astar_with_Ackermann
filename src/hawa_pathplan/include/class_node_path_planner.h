@@ -57,7 +57,7 @@
 #include "custom_data_types.h"
 #include "utils/class_utils__timestamp.h"
 #include "class_path_validator.h"
-
+#include "reedsshepp_tools.h"
 
 // TODO:
 // add a function to check if the current path is still valid:
@@ -125,6 +125,8 @@ private:
     StructPoseReal m_start_pose_;
     StructPoseReal m_goal_pose_;
 
+    StructSamplingProperties m_rs_sampling_properites_;
+
     int m_path_plan_timeout_ms_;
     double m_robot_linear_velocity_;
 
@@ -137,6 +139,11 @@ private:
     void checkPath();
 
     bool checkRobotStop();
+
+private:
+
+    bool FLAG_wait_before_replan_;
+    double m_rs_curve_radius_metric_;
 
 public:
     ClassPathPlanner();

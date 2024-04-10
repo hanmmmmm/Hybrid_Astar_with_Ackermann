@@ -5,7 +5,7 @@
         "max_speed_mps": 1.3,
         "max_steer_angle": 0.8,
         "max_acceleration_mps2": 0.8,
-        "max_steer_rate_radps": 1.5
+        "max_steer_rate_radps": 1.0
     },
     "simulation": {
         "loop_time_ms_INT": 20,
@@ -25,7 +25,12 @@
     },
     "path_planer": {
         "wait_for_stop_before_replan_BOOL": true,
-        "reedshepp_radius_metric": 0.7 
+        "timeout_ms_INT": 3000,
+        "ReedsShepp": {
+            "turning_radius_metric": 0.7,
+            "angle_step": 0.3,
+            "linear_step": 0.1
+        }
     },
     "map_processor": {
         "inflation_size_INT": 7,
@@ -43,7 +48,9 @@
         "map_from_map_processor": "/map_fusion",
         "robot_body_visualization": "/car_body_line_marker",
         "lidar_topic": "/scan",
-        "depth_topic": "/depth"
+        "depth_topic": "/depth",
+        "goal_topic": "/goal_pose",
+        "planner_searching": "/planner_searching"
     },
     "frames": {
         "base_frame": "base_link",

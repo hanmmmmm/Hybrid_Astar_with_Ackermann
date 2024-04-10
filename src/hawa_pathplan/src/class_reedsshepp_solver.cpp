@@ -10,9 +10,9 @@ void ClassReedsSheppSolver::setup(  StructPoseReal start_pose, StructPoseReal go
     m_start_pose_ = start_pose;
     m_goal_pose_ = goal_pose;
 
-    m_sampling_properites_.angular_step_size = 0.2;
-    m_sampling_properites_.turning_radius = 0.5;
-    m_sampling_properites_.linear_step_size = 0.1;
+    // m_sampling_properites_.angular_step_size = 0.2;
+    // m_sampling_properites_.turning_radius = 0.5;
+    // m_sampling_properites_.linear_step_size = 0.1;
 
     double _dy = m_goal_pose_.y - m_start_pose_.y;
     double _dx = m_goal_pose_.x - m_start_pose_.x;
@@ -27,6 +27,14 @@ void ClassReedsSheppSolver::setup(  StructPoseReal start_pose, StructPoseReal go
     while ( m_vector_path_results_.size() > 0 ){
         m_vector_path_results_.pop_back();
     }
+}
+
+/**
+ * @brief This function will set the sampling properties.
+*/
+void ClassReedsSheppSolver::setSamplingProperties(const StructSamplingProperties& sampling_properties)
+{
+    m_sampling_properites_ = sampling_properties;
 }
 
 /**

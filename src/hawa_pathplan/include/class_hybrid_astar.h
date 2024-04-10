@@ -76,7 +76,7 @@ private:
 
     // ClassGridMapHandler m_gridmap_handler_;
 
-    ClassReedsSheppSolver m_RS_curve_finder_;
+    
 
     StructMotionModel m_motion_model_;
 
@@ -117,6 +117,8 @@ public:
     ~ClassHybridAStar();
     
     std::shared_ptr<ClassGridMapHandler> m_gridmap_handler_ptr_;
+
+    ClassReedsSheppSolver m_RS_curve_finder_;
 
     bool loadParameters();
 

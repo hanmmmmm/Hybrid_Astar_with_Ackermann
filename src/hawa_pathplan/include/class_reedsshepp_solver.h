@@ -92,6 +92,8 @@ public:
 
     void setup( StructPoseReal start_pose, StructPoseReal goal_pose );
 
+    void setSamplingProperties(const StructSamplingProperties& sampling_properties);
+
     void search( );
 
     // void get_path( std::array<double,3> start_pose, std::array<double,3> goal_pose , std::string path_type, std::vector<double>& path_angle, bool& valid);

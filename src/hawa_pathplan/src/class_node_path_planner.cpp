@@ -47,6 +47,8 @@ ClassPathPlanner::ClassPathPlanner(): Node("path_plan_node")
 
     m_path_validator_->setMapHandler(m_ha_planner_->m_gridmap_handler_ptr_);
 
+    m_ha_planner_->m_RS_curve_finder_.setSamplingProperties(m_rs_sampling_properites_);
+
     ros_info("ClassPathPlanner inti Done.");
 }
 
@@ -65,16 +67,38 @@ void ClassPathPlanner::ros_info(const std::string& str)
 */
 void ClassPathPlanner::loadParameters()
 {
-    m_topic_name_map_subscribed_ = "/map_fusion";
-    m_topic_name_goal_subscribed_ = "/goal_pose"; // "/move_base_simple/goal";
-    m_topic_name_path_published_ = "/path";
-    m_topic_name_searching_published_ = "/planner_searching";
-    m_topic_name_odom_subscribed_ = "/odometry";
+    typedef boost::property_tree::ptree ptree;
 
-    m_map_tf_frame_name_ = "/map";
-    m_robot_tf_frame_name_ = "/base_link";
+    std::string cfg_path = "/home/jf/Hybrid_Astar_with_Ackermann/hawa_cfg.json";
 
-    m_path_plan_timeout_ms_ = 500;
+    std::cout << "cfg path: >" << cfg_path << "< " << std::endl;
+
+    ptree root;
+    boost::property_tree::read_json(cfg_path, root);
+
+    ptree topics = root.get_child("ros_topics");
+
+    m_topic_name_map_subscribed_ = topics.get<std::string>("map_from_map_processor");      //"/map_fusion";
+    m_topic_name_goal_subscribed_ = topics.get<std::string>("goal_topic");                 //"/goal_pose";
+    m_topic_name_odom_subscribed_ = topics.get<std::string>("odometry_topic");             //"/odometry";
+    m_topic_name_path_published_ = topics.get<std::string>("whole_path");                  //"/path";
+    m_topic_name_searching_published_ = topics.get<std::string>("planner_searching");      //"/planner_searching";
+
+    ptree frames = root.get_child("frames");
+
+    m_map_tf_frame_name_ = frames.get<std::string>("map_frame");     // "/map";
+    m_robot_tf_frame_name_ = frames.get<std::string>("base_frame");  // "/base_link";
+
+    ptree planner = root.get_child("path_planer");
+
+    m_path_plan_timeout_ms_ = planner.get<int>("timeout_ms_INT");
+    FLAG_wait_before_replan_ = planner.get<bool>("wait_for_stop_before_replan_BOOL");
+
+    ptree rs_curves = planner.get_child("ReedsShepp");
+
+    m_rs_sampling_properites_.turning_radius = rs_curves.get<double>("turning_radius_metric");
+    m_rs_sampling_properites_.angular_step_size = rs_curves.get<double>("angle_step");
+    m_rs_sampling_properites_.linear_step_size = rs_curves.get<double>("linear_step");
 
     ros_info("ClassPathPlanner loadParameters Done.");
 }
@@ -106,6 +130,7 @@ void ClassPathPlanner::pathPlan()
     msg.data = false;
     m_publisher_searching_->publish(msg);
 
+    // --------------- Check if everything is ready ----------------
 
     if( ! m_map_received_ ) return;
     if( ! m_goal_received_ ) return;
@@ -117,9 +142,9 @@ void ClassPathPlanner::pathPlan()
     msg.data = true;
     m_publisher_searching_->publish(msg);
 
-    std::cout << "-------speed" << m_robot_linear_velocity_ << std::endl; 
-
     if (! checkRobotStop()) return;
+
+    // --------------- Start path planning ----------------
 
     ros_info("ClassPathPlanner::path_plan() start");
 
@@ -148,32 +173,29 @@ void ClassPathPlanner::pathPlan()
         return;
     }
 
+    // --------------- Done searching. Get the path ----------------
+
     ClassCustomPathContainer path;
     m_ha_planner_->getFinalHybridAstarPath(path);
 
     m_goal_solved_ = true;
-
-    // std::cout << "path size: " << path.size() << std::endl;
 
     m_navmsgs_path_msg_.header.frame_id = m_map_tf_frame_name_;
 
     m_navmsgs_path_msg_.poses.clear();
     geometry_msgs::msg::PoseStamped one_pose;
 
-    for( auto point : path.getPath() ){
-        // std::cout << "in for" << std::endl;
+    for( auto point : path.getPath() )
+    {
         one_pose.pose.position.x = point[0] + m_map_msg_.info.origin.position.x;
         one_pose.pose.position.y = point[1] + m_map_msg_.info.origin.position.y;
         one_pose.pose.position.z = 0.0;
         one_pose.pose.orientation = ClassUtilsConverters::tf2quaToGeoQua(ClassUtilsConverters::twodYawToTf2qua(point[2]));
 
         m_navmsgs_path_msg_.poses.push_back(one_pose);
-        // std::cout << "path_ " << point[0] << " " << point[1] << " " << std::endl;
     }
 
     m_publisher_path_->publish( m_navmsgs_path_msg_ );
-
-    
 
     // std::cout << "Hybrid-A* last point " << path_msg_.poses.back().pose.position.x << " " << path_msg_.poses.back().pose.position.y << " " << std::endl;
     // std::cout << "Goal           point " << goal_pose_[0]+map_msg_.info.origin.position.x << " " << goal_pose_[1]+map_msg_.info.origin.position.y << " " << std::endl;
@@ -187,16 +209,13 @@ void ClassPathPlanner::pathPlan()
 void ClassPathPlanner::getRobotPoseInMapFrame()
 {
     try{
-        // m_tf_listener.lookupTransform( m_map_tf_frame_name_, m_robot_tf_frame_name_, ros::Time(0), m_tf_robot_to_map_);
-
-        // m_tf_robot_to_map_ = m_tf_buffer_->lookupTransform(m_map_tf_frame_name_, m_robot_tf_frame_name_, tf2::TimePointZero);
-        m_tf_robot_to_map_ = m_tf_buffer_->lookupTransform("map", "base_link", tf2::TimePointZero);
+        m_tf_robot_to_map_ = m_tf_buffer_->lookupTransform(m_map_tf_frame_name_, 
+                                                           m_robot_tf_frame_name_, 
+                                                           tf2::TimePointZero);
 
         m_start_pose_.x = m_tf_robot_to_map_.transform.translation.x - m_map_msg_.info.origin.position.x;
         m_start_pose_.y = m_tf_robot_to_map_.transform.translation.y - m_map_msg_.info.origin.position.y;
         m_start_pose_.yaw = ClassUtilsConverters::StampedTransformToYaw(&m_tf_robot_to_map_);
-        // std::cout << start_pose_[0] << " " << start_pose_[1] << " " << start_pose_[2] << std::endl;
-        // std::cout << "robot yaw  " << start_pose_[2]*180.0/M_PI << std::endl;
     }
     catch (tf2::TransformException const& ex){
         RCLCPP_ERROR(this->get_logger(), "getRobotPoseInMapFrame: TransformException %s", ex.what());
@@ -220,8 +239,6 @@ void ClassPathPlanner::goalCallback(const geometry_msgs::msg::PoseStamped &msg)
     m_goal_received_ = true;
     m_goal_solved_ = false;
 
-    // m_goal_stamp_.stampNow();
-    
     m_goal_mutex_.unlock();
 }
 
@@ -267,7 +284,6 @@ void ClassPathPlanner::checkPath()
     if (! m_goal_solved_) return;
 
     m_path_validator_->setPath(m_navmsgs_path_msg_);
-    // m_path_validator_->setMap(&m_map_msg_);
     m_path_validator_->setRobotPose(m_tf_robot_to_map_);
 
     if (! m_path_validator_->validate())
