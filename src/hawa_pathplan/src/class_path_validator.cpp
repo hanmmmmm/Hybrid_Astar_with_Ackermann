@@ -120,19 +120,12 @@ bool ClassPathValidator::checkPathIsClear()
         _pose_real.y = ps.pose.position.y - map_offset_y;
         _pose_real.yaw = quaternionToYaw(ps.pose.orientation);
 
-        std::cout << "ClassPathValidator::checkPathIsClear()  pose_real: " << _pose_real.x << ", " << _pose_real.y << ", " << _pose_real.yaw << std::endl;
-
         m_gridmap_handler_ptr_->convertFinePoseToGrid(_pose_real, _pose_grid);
-
-        std::cout << "ClassPathValidator::checkPathIsClear()  pose_grid: " << _pose_grid.x << ", " << _pose_grid.y << std::endl;
 
         if (m_gridmap_handler_ptr_->checkGridWithinMap(_pose_grid.x, _pose_grid.y))
             continue;
-        
-        std::cout << "inside." << std::endl;
 
-        bool step_is_clear = m_gridmap_handler_ptr_->checkGridClear(_pose_grid.x, _pose_grid.y, ClassGridMapHandler::EnumMode::plan);
-        if (! step_is_clear)
+        if (! m_gridmap_handler_ptr_->checkGridClear(_pose_grid.x, _pose_grid.y))
         {
             return false;
         }

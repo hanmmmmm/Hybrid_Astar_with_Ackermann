@@ -71,7 +71,6 @@ bool ClassGridMapHandler::setGridWidthHeight(int width, int height)
     {
         m_FLAG_valid_width_is_set_ = false;
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "Invalid width is assigned: %d", width);
-        // ROS_WARN_STREAM_THROTTLE(20, "Invalid width is assigned: " << width);
     }
     if (height > 1 && height < 123456)
     {
@@ -82,16 +81,9 @@ bool ClassGridMapHandler::setGridWidthHeight(int width, int height)
     {
         m_FLAG_valid_height_is_set_ = false;
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "Invalid height is assigned: %d", height);
-        // ROS_WARN_STREAM_THROTTLE(20, "Invalid height is assigned: " << height);
     }
-    if( m_FLAG_valid_height_is_set_ && m_FLAG_valid_width_is_set_)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    return ( m_FLAG_valid_height_is_set_ && m_FLAG_valid_width_is_set_);
 }
 
 /**
@@ -119,17 +111,15 @@ bool ClassGridMapHandler::setValidateObstacleThreshold(int8_t thd)
     {
         thd = 0;
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setValidateObstacleThreshold() value smaller than 0");
-        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value smaller than 0");
         return false;
     }
     else if (thd > 100)
     {
         thd = 100;
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setValidateObstacleThreshold() value larger than 100");
-        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setValidateObstacleThreshold() value larger than 100");
         return false;
     }
-    m_validate_obstacle_threshold_value_ = thd;
+    m_obstacle_threshold_value_ = thd;
     return true;
 }
 
@@ -143,17 +133,15 @@ bool ClassGridMapHandler::setPlanningObstacleThreshold(int8_t thd)
     {
         thd = 0;
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setPlanningObstacleThreshold() value smaller than 0");
-        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value smaller than 0");
         return false;
     }
     else if (thd > 100)
     {
         thd = 100;
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "ClassGridMapHandler::setPlanningObstacleThreshold() value larger than 100");
-        // ROS_WARN_STREAM_THROTTLE(20, "ClassGridMapHandler::setPlanningObstacleThreshold() value larger than 100");
         return false;
     }
-    m_planning_obstacle_threshold_value_ = thd;
+    m_obstacle_threshold_value_ = thd;
     return true;
 }
 
@@ -161,23 +149,16 @@ bool ClassGridMapHandler::setPlanningObstacleThreshold(int8_t thd)
  * @brief check if a grid is clear or it's obstacle.
  * @param x grid index.
  * @param y grid index.
- * @param mode EnumMode. The threshold value is different in plan mode and validate mode.
  * @return true , if it's clear.
  * @return false , if it's obstacle or error happened.
  */
-bool ClassGridMapHandler::checkGridClear(int x, int y, EnumMode mode)
+bool ClassGridMapHandler::checkGridClear(int x, int y)
 {
-    int8_t _threshold;
-    if (mode == EnumMode::plan)
-        _threshold = m_planning_obstacle_threshold_value_;
-    if (mode == EnumMode::validate)
-        _threshold = m_validate_obstacle_threshold_value_;
-
     int _index_1d = convert2DTo1D(x, y);
 
     if (0 <= _index_1d && _index_1d < int(m_ptr_grid_map_1D_->size()))
     {
-        if ((*m_ptr_grid_map_1D_).at(_index_1d) > _threshold)
+        if ((*m_ptr_grid_map_1D_).at(_index_1d) > m_obstacle_threshold_value_)
         {
             return false;
         }
@@ -189,63 +170,8 @@ bool ClassGridMapHandler::checkGridClear(int x, int y, EnumMode mode)
         ss << "function <ClassGridMapHandler::checkGridClear>: index_1d out of map size. " << _index_1d;
         ss << " xy:" << x << " , " << y;
         std::cerr << ss.str() << std::endl;
-        // RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), ss.c_str());
         return false;
     }
-}
-
-/**
- * @brief Check if a line is clear from any obstacle collision. 
- * @param x1 X of end point 1.
- * @param y1 Y of end point 1.
- * @param x2 X of end point 2.
- * @param y2 Y of end point 2.
- * @param mode Decide which mode it should use. 
- * @param coll Decide which type of checking should use.
- * @return true if this line does not collide with any thing.
- */
-bool ClassGridMapHandler::checkLineClearByGrid(int x1, int y1, 
-                                               int x2, int y2, 
-                                               EnumMode mode, EnumCollosionCheckType coll)
-{
-    if (coll == EnumCollosionCheckType::end_points_only)
-    {
-        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
-    }
-    else if (coll == EnumCollosionCheckType::all_grids)
-    {
-        // use bresenham to find the grids in the middle, and check each of them.
-        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
-    }
-    else if (coll == EnumCollosionCheckType::spaced)
-    {
-        // similar to above, but check only some grids.
-        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
-    }
-    else
-    {
-        return checkGridClear(x1, y1, mode) && checkGridClear(x2, y2, mode);
-    }
-}
-
-/**
- * @brief Check if a line is clear from any obstacle collision. 
- * @param x1 X of end point 1.
- * @param y1 Y of end point 1.
- * @param x2 X of end point 2.
- * @param y2 Y of end point 2.
- * @param mode Decide which mode it should use. 
- * @param coll Decide which type of checking should use.
- * @return true if this line does not collide with any thing.
- */
-bool ClassGridMapHandler::checkLineClearByReal(double x1, double y1, 
-                                               double x2, double y2, 
-                                               EnumMode mode, EnumCollosionCheckType coll)
-{
-    int _x1_grid, _y1_grid, _x2_grid, _y2_grid;
-    convertFinePoseToGrid(x1, y1, _x1_grid, _y1_grid);
-    convertFinePoseToGrid(x2, y2, _x2_grid, _y2_grid);
-    return checkLineClearByGrid(_x1_grid, _y1_grid, _x2_grid, _y2_grid, mode, coll);
 }
 
 /**
@@ -272,8 +198,6 @@ bool ClassGridMapHandler::convertFinePoseToGrid(double fine_x, double fine_y, do
     {
         RCLCPP_INFO(rclcpp::get_logger("ClassGridMapHandler"), "K_ratio_fine_to_grid_ seems too small %f, %f", 
                                         m_ratio_fine_to_grid_xy_, m_ratio_fine_to_grid_yaw_);
-        // ROS_WARN_STREAM_ONCE("K_ratio_fine_to_grid_ seems too small " 
-        //                     <<  m_ratio_fine_to_grid_xy_ << " , " << m_ratio_fine_to_grid_yaw_);
         return false;
     }
 }
@@ -397,42 +321,6 @@ bool ClassGridMapHandler::checkGridWithinMap(int x, int y)
     
     return true;
 }
-
-// /**
-//  * @brief The grid is 3D in logic, but the grid_map is saved in 1D vector.
-//  * So need this function to convert 3D grid (x,y,yaw) into 1D index.
-//  * @param x The x in coordinate.
-//  * @param y The y in coordinate.
-//  * @param yaw The index of yaw in coordinate.
-//  * @return The index in 1D. 
-//  */
-// inline int ClassGridMapHandler::convert3DTo1D(const int x, const int y,  const int yaw)
-// {
-//     return yaw * m_ptr_grid_map_1D_->size() + y * m_grid_map_width_ + x;
-// }
-
-// /**
-//  * @brief Check if the given grid in inside of grid map.
-//  * @param x The x in coordinate.
-//  * @param y The y in coordinate.
-//  * @return true , if inside or on the edges. false , if outside.
-//  */
-// inline bool ClassGridMapHandler::checkGridWithinMap(int x, int y)
-// {
-//     if ( x < 0 )
-//         return false;
-    
-//     else if (x >= m_grid_map_width_)
-//         return false;
-    
-//     else if (y < 0)
-//         return false;
-    
-//     else if (y >= m_grid_map_height_)
-//         return false;
-    
-//     return true;
-// }
 
 /**
  * @brief The grid is 2D in logic, but the grid_map is saved in 1D vector.

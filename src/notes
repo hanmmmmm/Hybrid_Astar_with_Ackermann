@@ -36,14 +36,27 @@ Apr 5 2024
 
 Apr 7 2024
 - Done LQR controller. 
-- new todo:
+
+- New TODO:
+
 -- fix bug in edge area in path-validater.
 --- Fixed.  The reason was the map_origin_offset missing in path validator.
+
 -- remove the plan&validate mode option in planner, because it's not needed.
+--- Done.
+
 -- polish the path segment extension logic.
+
+-- planner should wait until robot slows down to static, before doing replanning. 
+--- Done.
+
 -- refactor hawa_control pkg, so the common section will be shared by every algo. 
+
 -- refactor everything, so all the parameters are in one json file. 
+
 -- Refactor and simplify the path-plan pkg.
+
+
 
 idea for future:
 -add trajectory optimization:

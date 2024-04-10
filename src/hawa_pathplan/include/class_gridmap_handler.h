@@ -54,8 +54,7 @@ private:
     int m_grid_map_width_, m_grid_map_height_;
     bool m_FLAG_valid_width_is_set_, m_FLAG_valid_height_is_set_;
 
-    int8_t m_planning_obstacle_threshold_value_;
-    int8_t m_validate_obstacle_threshold_value_;
+    int8_t m_obstacle_threshold_value_;
 
     double m_ratio_fine_to_grid_xy_;  // convert meter to grid_index
     double m_ratio_fine_to_grid_yaw_; // convert radian to grid_index
@@ -66,45 +65,29 @@ public:
     ClassGridMapHandler();
     ~ClassGridMapHandler();
 
-    enum EnumMode
-    {
-        plan,
-        validate
-    }enum_mode_;
-
-    enum EnumCollosionCheckType
-    {
-        end_points_only,
-        all_grids,
-        spaced
-    }enum_collosion_type_;
-
     int m_number_of_angle_layers_;
 
     int convert2DTo1D(const int x, const int y);
     int convert3DTo1D(const int x, const int y,  const int yaw);
     
     bool convertFinePoseToGrid(double fine_x, double fine_y, double fine_yaw, 
-                                   int &r_grid_x, int &r_grid_y, int &r_grid_yaw);
+                               int &r_grid_x, int &r_grid_y, int &r_grid_yaw);
 
     bool convertFinePoseToGrid(std::array<double, 3> fine_xyyaw, 
-                                   int &r_grid_x, int &r_grid_y, int &r_grid_yaw);
+                               int &r_grid_x, int &r_grid_y, int &r_grid_yaw);
 
     bool convertFinePoseToGrid(double fine_x, double fine_y, 
-                                   int &r_grid_x, int &r_grid_y);
+                               int &r_grid_x, int &r_grid_y);
 
     bool convertGridPoseToFine(int grid_x, int grid_y, 
-                                   double &r_fine_x, double &r_fine_y);
+                               double &r_fine_x, double &r_fine_y);
 
     bool convertFinePoseToGrid(const StructPoseReal realpose, StructPoseGrid& r_gridpose);
     
     bool checkGridWithinMap(int x, int y);
 
     bool checkPoseWithinMap(double x, double y);
-    bool checkGridClear(int x, int y, EnumMode mode);
-    
-    bool checkLineClearByGrid(int x1, int y1, int x2, int y2, EnumMode mode, EnumCollosionCheckType coll);
-    bool checkLineClearByReal(double x1, double y1, double x2, double y2, EnumMode mode, EnumCollosionCheckType coll);
+    bool checkGridClear(int x, int y);
     
     bool setGridWidthHeight(int width, int height);
     bool setPlanningObstacleThreshold(int8_t thd);

@@ -320,10 +320,7 @@ bool ClassHybridAStar::checkRSSearchResult()
 
                 if (m_gridmap_handler_ptr_->checkGridWithinMap(_nb_grid.x, _nb_grid.y))
                 {
-                    bool step_is_clear = m_gridmap_handler_ptr_->checkGridClear(_nb_grid.x,
-                                                                             _nb_grid.y,
-                                                                             ClassGridMapHandler::EnumMode::plan);
-                    if (!step_is_clear)
+                    if (!m_gridmap_handler_ptr_->checkGridClear(_nb_grid.x, _nb_grid.y))
                     {
                         _this_path_is_usable = false;
                     }
@@ -332,7 +329,6 @@ bool ClassHybridAStar::checkRSSearchResult()
             }
             catch (const std::exception &e)
             {
-                // ROS_WARN_STREAM_NAMED("ClassHybridAStar::checkRSSearchResult()", "" << e.what());
                 std::cerr << "ClassHybridAStar::checkRSSearchResult() exception:" << e.what() << std::endl;
             }
         }
@@ -418,11 +414,8 @@ void ClassHybridAStar::exploreOneNode()
 
         m_gridmap_handler_ptr_->convertFinePoseToGrid(_neigbr_grid.real_pose, _neigbr_grid.self_grid);
 
-        bool _outside_of_map = !m_gridmap_handler_ptr_->checkGridWithinMap(_neigbr_grid.self_grid.x,
-                                                                      _neigbr_grid.self_grid.y);
-        bool _grid_inaccessible = !m_gridmap_handler_ptr_->checkGridClear(_neigbr_grid.self_grid.x,
-                                                                     _neigbr_grid.self_grid.y,
-                                                                     ClassGridMapHandler::EnumMode::plan);
+        bool _outside_of_map = !m_gridmap_handler_ptr_->checkGridWithinMap(_neigbr_grid.self_grid.x, _neigbr_grid.self_grid.y);
+        bool _grid_inaccessible = !m_gridmap_handler_ptr_->checkGridClear(_neigbr_grid.self_grid.x, _neigbr_grid.self_grid.y);
         if (_outside_of_map || _grid_inaccessible)
         {
             continue;
@@ -513,19 +506,13 @@ bool ClassHybridAStar::checkStartAndGoalAccessible()
 {
     bool _temp = true;
 
-    if (!m_gridmap_handler_ptr_->checkGridClear(m_important_poses_.start_grid.x,
-                                             m_important_poses_.start_grid.y,
-                                             ClassGridMapHandler::EnumMode::plan))
+    if (!m_gridmap_handler_ptr_->checkGridClear(m_important_poses_.start_grid.x, m_important_poses_.start_grid.y))
     {
-        // ROS_WARN_STREAM("!! Start grid is in obstacle.");
         std::cerr << "!! Start grid is in obstacle." << std::endl;
         _temp = false;
     }
-    if (!m_gridmap_handler_ptr_->checkGridClear(m_important_poses_.goal_grid.x,
-                                             m_important_poses_.goal_grid.y,
-                                             ClassGridMapHandler::EnumMode::plan))
+    if (!m_gridmap_handler_ptr_->checkGridClear(m_important_poses_.goal_grid.x, m_important_poses_.goal_grid.y))
     {
-        // ROS_WARN_STREAM("!! Goal grid is in obstacle.");
         std::cerr << "!! Goal grid is in obstacle." << std::endl;
         _temp = false;
     }

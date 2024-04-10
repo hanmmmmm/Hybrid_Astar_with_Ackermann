@@ -33,6 +33,10 @@ ClassPathPlanner::ClassPathPlanner(): Node("path_plan_node")
         m_topic_name_goal_subscribed_, 10, std::bind(&ClassPathPlanner::goalCallback, this, std::placeholders::_1)
     );
 
+    m_subscriber_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
+        m_topic_name_odom_subscribed_, 10, std::bind(&ClassPathPlanner::odomCallback, this, std::placeholders::_1)
+    );
+
     m_periodic_timer_ = this->create_wall_timer(200ms, std::bind(&ClassPathPlanner::pathPlan, this));
 
     m_tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -65,6 +69,7 @@ void ClassPathPlanner::loadParameters()
     m_topic_name_goal_subscribed_ = "/goal_pose"; // "/move_base_simple/goal";
     m_topic_name_path_published_ = "/path";
     m_topic_name_searching_published_ = "/planner_searching";
+    m_topic_name_odom_subscribed_ = "/odometry";
 
     m_map_tf_frame_name_ = "/map";
     m_robot_tf_frame_name_ = "/base_link";
@@ -111,6 +116,10 @@ void ClassPathPlanner::pathPlan()
 
     msg.data = true;
     m_publisher_searching_->publish(msg);
+
+    std::cout << "-------speed" << m_robot_linear_velocity_ << std::endl; 
+
+    if (! checkRobotStop()) return;
 
     ros_info("ClassPathPlanner::path_plan() start");
 
@@ -230,6 +239,23 @@ void ClassPathPlanner::mapCallback(const nav_msgs::msg::OccupancyGrid &msg)
     m_map_msg_.info = msg.info;
     m_map_received_ = true;
     m_map_mutex_.unlock();
+}
+
+/**
+ * @brief ROS callback frunction for the odometry message. 
+ * @param msg message of the rostopic
+*/
+void ClassPathPlanner::odomCallback(const nav_msgs::msg::Odometry &msg)
+{
+    m_odom_mutex_.lock();
+    m_odom_msg_ = msg;
+    m_robot_linear_velocity_ = m_odom_msg_.twist.twist.linear.x;
+    m_odom_mutex_.unlock();
+}
+
+bool ClassPathPlanner::checkRobotStop()
+{
+    return std::abs(m_robot_linear_velocity_) < 0.1;
 }
 
 
