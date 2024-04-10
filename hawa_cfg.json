@@ -5,7 +5,7 @@
         "max_speed_mps": 1.3,
         "max_steer_angle": 0.8,
         "max_acceleration_mps2": 0.8,
-        "max_steer_rate_radps": 1.0
+        "max_steer_rate_radps": 1.5
     },
     "simulation": {
         "loop_time_ms_INT": 20,
@@ -28,8 +28,11 @@
         "reedshepp_radius_metric": 0.7 
     },
     "map_processor": {
-        "inflation_size_INT": 6,
-        "include_lidar_BOOL": true,
+        "inflation_size_INT": 7,
+        "min_intensity_INT": 80,
+        "obstacle_threshold_INT": 50,
+        "lidar_range_max_FLOAT": 10.0,
+        "include_lidar_BOOL": false,
         "include_depth_BOOL": false
     },
     "ros_topics": {
@@ -38,13 +41,16 @@
         "whole_path": "/path",
         "map_from_slam": "/map",
         "map_from_map_processor": "/map_fusion",
-        "robot_body_visualization": "/car_body_line_marker"
-
+        "robot_body_visualization": "/car_body_line_marker",
+        "lidar_topic": "/scan",
+        "depth_topic": "/depth"
     },
     "frames": {
         "base_frame": "base_link",
         "steer_frame": "steer_link",
         "odom_frame": "odom",
-        "map_frame": "map"
+        "map_frame": "map",
+        "lidar_frame": "laser",
+        "depth_frame": "depth"
     }
 }

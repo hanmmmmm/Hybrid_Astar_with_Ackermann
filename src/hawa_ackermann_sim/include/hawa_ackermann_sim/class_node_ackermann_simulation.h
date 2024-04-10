@@ -69,8 +69,8 @@ private:
     std::unique_ptr<tf2_ros::TransformBroadcaster> m_tf_bcr_;
     
     rclcpp::Subscription<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr m_sub_ptr_akm_drive_;
-    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr m_pub_ptr_odometry_;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr m_pub_ptr_car_body_vis_;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr m_pub_ptr_odometry_;
     rclcpp::TimerBase::SharedPtr m_periodic_timer_;
 
     std::string m_topic_name_akm_drive_; 
@@ -83,28 +83,26 @@ private:
     std::string m_steer_link_frame_;
     
     ackermann_msgs::msg::AckermannDriveStamped m_akm_drive_msg_;
-    double m_akm_drive_msg_stamp_system_;
     nav_msgs::msg::Odometry m_odometry_msg_;
 
-    ClassCarBox2D m_car_box_;
-
-    std::unique_ptr<ClassRandomSinNoiseGenerator> m_noise_generator_;
-
-    bool FLAG_use_noise_ = false;
-
-private:
-
-    std::unique_ptr<DynamicsStates> m_dyna_states_;
-    double m_timestamp_last_update_;
-    double m_cmd_timeout_sec_ = 0.3;
-    int m_main_loop_timer_interval_millisecond_;
-    bool FLAG_pub_tf__map2odom_;
-    
-private:
     void akmDriveCallback(const ackermann_msgs::msg::AckermannDriveStamped &msg);
     void mainUpdate( );
     void loadParameters();
 
+private:
+
+    ClassCarBox2D m_car_box_;
+    std::unique_ptr<DynamicsStates> m_dyna_states_;
+    std::unique_ptr<ClassRandomSinNoiseGenerator> m_noise_generator_;
+
+    double m_timestamp_last_update_;
+    double m_akm_drive_msg_stamp_system_;
+    double m_cmd_timeout_sec_;
+    int m_main_loop_timer_interval_millisecond_;
+
+    bool FLAG_pub_tf__map2odom_;
+    bool FLAG_use_noise_;
+    
 public:
     ClassNodeAckermannSim();
     ~ClassNodeAckermannSim();

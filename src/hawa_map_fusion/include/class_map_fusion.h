@@ -42,8 +42,8 @@
 #include <future>
 #include <mutex>
 
-// #include <boost/property_tree/ptree.hpp>
-// #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
@@ -119,7 +119,12 @@ private:
     geometry_msgs::msg::TransformStamped m_lidar_to_base_tf_;
 
     std::unique_ptr<ClassInflationSamples> m_inflation_ptr_;
+
     int8_t m_inflation_radius_;
+    int8_t m_inflation_min_intensity_;
+    int8_t m_obstacle_thershold_;
+
+    double m_lidar_range_max_;
 
     void loadParameters();
 

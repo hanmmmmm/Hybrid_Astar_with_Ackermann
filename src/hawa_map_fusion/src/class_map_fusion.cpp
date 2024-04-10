@@ -9,7 +9,7 @@ ClassMapFusion::ClassMapFusion(): Node("map_fusion_node")
 {
     loadParameters();
 
-    m_inflation_ptr_ = std::make_unique<ClassInflationSamples>(75, m_inflation_radius_);
+    m_inflation_ptr_ = std::make_unique<ClassInflationSamples>(m_inflation_min_intensity_, m_inflation_radius_);
 
     m_tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
     m_tf_listener = std::make_shared<tf2_ros::TransformListener>(*m_tf_buffer_);
@@ -32,9 +32,6 @@ ClassMapFusion::ClassMapFusion(): Node("map_fusion_node")
 
     m_ros_timer_ = this->create_wall_timer( 100ms, std::bind(&ClassMapFusion::mergeData, this) );
 
-    FLAG_enable_scan_ = false;
-    FLAG_enable_depth_ = false;
-
     FLAG_received_map_ = false;
     
     RCLCPP_INFO(this->get_logger(), "ClassMapFusion init done.");
@@ -50,17 +47,36 @@ ClassMapFusion::~ClassMapFusion()
 */
 void ClassMapFusion::loadParameters()
 {
-    m_topic_name_map_subscribed_ = "/map";
-    m_topic_name_depth_subscribed_ = "/depth";
-    m_topic_name_scan_subscribed_ = "/scan";
+    typedef boost::property_tree::ptree ptree;
 
-    m_map_frame_ = "/map";
-    m_lidar_frame_ = "/laser";
-    m_depth_frame_ = "/depth_link";
+    std::string cfg_path = "/home/jf/Hybrid_Astar_with_Ackermann/hawa_cfg.json";
 
-    m_topic_name_map_published_ = "/map_fusion";
+    std::cout << "cfg path: >" << cfg_path << "< " << std::endl;
 
-    m_inflation_radius_ = 5;
+    ptree root;
+    boost::property_tree::read_json(cfg_path, root);
+
+    ptree topics = root.get_child("ros_topics");
+
+    m_topic_name_map_subscribed_ = topics.get<std::string>("map_from_slam");            //"/map";
+    m_topic_name_depth_subscribed_ = topics.get<std::string>("depth_topic");                 //"/depth";
+    m_topic_name_scan_subscribed_ = topics.get<std::string>("lidar_topic");   //"/scan";
+    m_topic_name_map_published_ = topics.get<std::string>("map_from_map_processor");   //"/map_fusion";
+
+    ptree frames = root.get_child("frames");
+
+    m_map_frame_ = frames.get<std::string>("map_frame"); 
+    m_lidar_frame_ = frames.get<std::string>("lidar_frame");      // "/laser";
+    m_depth_frame_ = frames.get<std::string>("depth_frame");      // "/depth";
+
+    ptree map_processor = root.get_child("map_processor");
+
+    m_inflation_radius_ = map_processor.get<int8_t>("inflation_size_INT");
+    m_inflation_min_intensity_ = map_processor.get<int8_t>("min_intensity_INT");
+    m_obstacle_thershold_ = map_processor.get<int8_t>("obstacle_threshold_INT");
+    m_lidar_range_max_ = map_processor.get<double>("lidar_range_max_FLOAT");
+    FLAG_enable_scan_ = map_processor.get<bool>("include_lidar_BOOL");
+    FLAG_enable_depth_ = map_processor.get<bool>("include_depth_BOOL");
 
 }
 
@@ -132,7 +148,7 @@ void ClassMapFusion::mergeData( )
             for(int y_ind = 0; y_ind<int(_new_map_to_pub.info.height); y_ind++)
             {
                 _index_1D = convertGrid2dTo1d(x_ind, y_ind);
-                if (m_map_msg_.data.at(_index_1D) > 70)
+                if (m_map_msg_.data.at(_index_1D) > m_obstacle_thershold_)
                 {
                     inflateOneCell(&_new_map_to_pub, m_inflation_ptr_, x_ind, y_ind);
                 }
@@ -270,7 +286,7 @@ void ClassMapFusion::putLidarIntoGrids(nav_msgs::msg::OccupancyGrid &r_grids, se
     {
         try
         {
-            if( range > 20.0) 
+            if( range > m_lidar_range_max_) 
             {
                 _angle += _angle_inc ;  
                 continue;
