@@ -130,31 +130,35 @@ void ClassMapFusion::mergeData( )
     if (FLAG_enable_scan_) m_scan_mutex_.lock();
     if (FLAG_enable_depth_) m_depth_mutex_.lock();
 
+    // ------------- prepare the container for the new map to publish -------------
     nav_msgs::msg::OccupancyGrid _new_map_to_pub;
     _new_map_to_pub.data = m_map_msg_.data;
     _new_map_to_pub.header = m_map_msg_.header;
     _new_map_to_pub.info = m_map_msg_.info;
 
+    // ------------- inflate the static section in the map -------------
+    
+    int _index_1D;
+    for(int x_ind = 0; x_ind<int(_new_map_to_pub.info.width); x_ind++)
+    {
+        for(int y_ind = 0; y_ind<int(_new_map_to_pub.info.height); y_ind++)
+        {
+            _index_1D = convertGrid2dTo1d(x_ind, y_ind);
+            if (m_map_msg_.data.at(_index_1D) > m_obstacle_thershold_)
+            {
+                inflateOneCell(&_new_map_to_pub, m_inflation_ptr_, x_ind, y_ind);
+            }
+        }
+    }
+
+    // ------------- add the sensor data into the map -------------
+    
     if (FLAG_enable_scan_)
     {
         putLidarIntoGrids(_new_map_to_pub, m_scan_msg_);
     }
-    else
-    {
-        // inflate the static section in the map
-        int _index_1D;
-        for(int x_ind = 0; x_ind<int(_new_map_to_pub.info.width); x_ind++)
-        {
-            for(int y_ind = 0; y_ind<int(_new_map_to_pub.info.height); y_ind++)
-            {
-                _index_1D = convertGrid2dTo1d(x_ind, y_ind);
-                if (m_map_msg_.data.at(_index_1D) > m_obstacle_thershold_)
-                {
-                    inflateOneCell(&_new_map_to_pub, m_inflation_ptr_, x_ind, y_ind);
-                }
-            }
-        }
-    }
+
+    // ------------- publish the new map and release the mutex -------------
 
     m_puber_map_->publish( _new_map_to_pub );
 
@@ -163,8 +167,6 @@ void ClassMapFusion::mergeData( )
     if (FLAG_enable_depth_) m_depth_mutex_.unlock();
 
     _timer.endTiming();
-
-    // ROS_DEBUG_STREAM_THROTTLE(30, "map fusion "<< int(_timer.getDuration()*1000.0) << " ms");
 }
 
 /**

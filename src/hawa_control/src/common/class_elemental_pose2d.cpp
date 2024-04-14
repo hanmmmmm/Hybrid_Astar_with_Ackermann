@@ -20,54 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#ifndef CLASS_PATH2D_H
-#define CLASS_PATH2D_H
-
-/**
- * @file class_path2d.h
- * @author Mingjie
- * @brief
- * @version 0.1
- * @date 2023-01-18
- *
- * @copyright Copyright (c) 2023
- *
- */
-
-/*
-TODO:
-add a function for converting ros_path_msg to custom path type
-
-*/
-
-#include <deque>
-#include <vector>
-
-#include "class_elemental_path2d_segment.h"
+#include "common/class_elemental_pose2d.h"
 
 namespace hawa
 {
 
-class ClassPath2D
+ClassPose2D::ClassPose2D(const double x_in, const double y_in, const double yaw_in) 
+: x(x_in), y(y_in), yaw(yaw_in)
 {
+}
 
-private:
-    std::vector<ClassPath2DSegment> path_;
+void ClassPose2D::set(const double x_in, const double y_in, const double yaw_in)
+{
+    x = x_in;
+    y = y_in;
+    yaw = yaw_in;
+}
 
-public:
-    ClassPath2D() {};
-    ~ClassPath2D() {};
-    
-    ClassPath2DSegment get_segment(int index);
-
-    ClassPath2DSegment at(int index, bool &valid);
-
-    void add_segment(ClassPath2DSegment seg);
-
-    size_t size();
-};
 
 } // namespace hawa
-
-#endif
