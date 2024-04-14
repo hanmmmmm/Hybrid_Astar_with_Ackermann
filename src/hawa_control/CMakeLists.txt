@@ -24,7 +24,14 @@ find_package(ackermann_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
-add_executable(node_purepursuit  src/node_purepursuit.cpp)
+add_executable(node_purepursuit  src/node_purepursuit.cpp
+                                  src/pure_pursuit/class_node_pure_pursuit.cpp
+                                  src/pure_pursuit/class_purepursuit.cpp
+                                  src/common/class_elemental_pose2d.cpp
+                                  src/common/class_multi_segment_manager.cpp
+                                  src/common/class_elemental_path2d.cpp
+                                  src/common/class_elemental_path2d_segment.cpp
+                                  src/common/tools_angles.cpp)
 
 ament_target_dependencies(
   node_purepursuit 
@@ -38,14 +45,23 @@ ament_target_dependencies(
   visualization_msgs
   )
 
-target_include_directories(node_purepursuit PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_control/include")
+target_include_directories(node_purepursuit PRIVATE "/home/jf/Hybrid_Astar_with_Ackermann/src/hawa_control/include/common")
 
 install(TARGETS
         node_purepursuit
         DESTINATION lib/${PROJECT_NAME})
 
 
-add_executable(node_lqr  src/node_lqr.cpp)
+add_executable(node_lqr  src/node_lqr.cpp
+                         src/lqr/class_node_lqr.cpp
+                         src/lqr/class_lqr_ref_point_selector.cpp
+                         src/lqr/class_lqr_controller.cpp
+                         src/common/class_elemental_pose2d.cpp
+                         src/common/class_multi_segment_manager.cpp
+                         src/common/class_elemental_path2d.cpp
+                         src/common/class_elemental_path2d_segment.cpp
+                         src/common/tools_angles.cpp)
+
 
 ament_target_dependencies(
   node_lqr 

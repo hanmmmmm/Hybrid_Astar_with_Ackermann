@@ -29,136 +29,32 @@
 #define TOOLS_ANGLES
 
 #include <array>
-// #include "tf/transform_listener.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "geometry_msgs/msg/quaternion.hpp"
 
-/**
- * @brief Make sure the angle value is between 0 and 2Pi.
- * @param angle the value to be processed.
- * @return Converted value.
-*/
-double mod2pi( double angle)
+namespace hawa
 {
-    while (angle > 2*M_PI){
-        angle -= 2*M_PI;
-    }
-    while (angle < 0){
-        angle += 2*M_PI;
-    }
-    return angle;
-}
 
-/**
- * @brief compute the yaw angle of the line formed by 2 points
- *         /p2
- *        /
- *       /
- *     p1-------> x_axis 
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @return The yaw value in unit of radian.
-*/
-inline double computeYawOf2Points(double x1, double y1, double x2, double y2)
+class Tools
 {
-    
-    double dx = x2 - x1;
-    double dy = y2 - y1;
-    double yaw = atan2(dy, dx);
-    return yaw;
-}
+private:
+    Tools();
 
-/**
- * @brief This function uses 3 points pa pb and pc.  The main vector is from pa to pb. 
- * This function is checking if the point pc is on the left side of the main vector. 
- *          pc (left)
- *   pa --------> pb
- *          pc (right)
- * @return True if the third point is on the left side. False if on the right side. 
-*/
-bool checkIfPointOnLeftOfLine(double ax, double ay, double bx, double by, double cx, double cy )
-{
-    return ((bx - ax)*(cy - ay) - (by - ay)*(cx - ax)) > 0;
-}
+public:
+    ~Tools() {}
 
-/**
- * @brief Find the yaw value in a pose that's being represented as a quaternion.
- * @param q_x the x value in the quaternion.
- * @param q_y the y value in the quaternion.
- * @param q_z the z value in the quaternion.
- * @param q_w the w value in the quaternion. 
- * @return the value of the yaw. 
-*/
-double quaternionToEularYaw(const double q_x, const double q_y, const double q_z, const double q_w)
-{
-    tf2::Quaternion q( q_x, q_y, q_z, q_w );
-    double yaw, pitch, roll;
-    tf2::Matrix3x3 mat(q);
-    mat.getEulerYPR(yaw, pitch, roll);
-    return yaw;
-}
+    static double mod2pi( double angle);
+    static double computeYawOf2Points(double x1, double y1, double x2, double y2);
+    static bool checkIfPointOnLeftOfLine(double ax, double ay, double bx, double by, double cx, double cy );
+    static double quaternionToEularYaw(const double q_x, const double q_y, const double q_z, const double q_w);
+    static double quaternionToEularYaw(const tf2::Quaternion q_in);
+    static double quaternionToEularYaw(const geometry_msgs::msg::Quaternion q_in);
+    static double calcAngleByThreePoints(std::array<double,3> p1, std::array<double,3> p2, std::array<double,3> p3);
+};
 
-/**
- * @brief Find the yaw value in a pose that's being represented as a ros tf quaternion.
- * @param q_in the quaternion.
- * @return the value of the yaw. 
-*/
-double quaternionToEularYaw(const tf2::Quaternion q_in)
-{
-    double yaw, pitch, roll;
-    tf2::Matrix3x3 mat(q_in);
-    mat.getEulerYPR(yaw, pitch, roll);
-    return yaw;
-}
+} // namespace hawa
 
-/**
- * @brief Find the yaw value in a pose that's being represented as a ros geometry_msgs quaternion.
- * @param q_in the quaternion.
- * @return the value of the yaw. 
-*/
-double quaternionToEularYaw(const geometry_msgs::msg::Quaternion q_in)
-{
-    tf2::Quaternion q( q_in.x, q_in.y, q_in.z, q_in.w );
-    double yaw, pitch, roll;
-    tf2::Matrix3x3 mat(q);
-    mat.getEulerYPR(yaw, pitch, roll);
-    return mod2pi(yaw);
-}
-
-/**
- * @brief This function finds the angle between 3 points. It's the angle covered by # sign in the graph below.
- *                      p3
- *                     /
- *                 ###/
- *               ##  /
- *    p1 -----------p2
- * 
- * @return the angle in radian. Range:[0, pi]
-*/
-double calcAngleByThreePoints(std::array<double,3> p1, std::array<double,3> p2, std::array<double,3> p3)
-{
-    double _p1x = p1[0] - p2[0];
-    double _p1y = p1[1] - p2[1];
-    double _p2x = p3[0] - p2[0];
-    double _p2y = p3[1] - p2[1];
-
-    // get the unit length versions of those 2 vectors
-
-    double _p1_length = std::sqrt(_p1x*_p1x + _p1y*_p1y);
-    double _p2_length = std::sqrt(_p2x*_p2x + _p2y*_p2y);
-
-    _p1x /= _p1_length;
-    _p1y /= _p1_length;
-    _p2x /= _p2_length;
-    _p2y /= _p2_length;
-
-    double _angle = std::acos(_p1x*_p2x + _p1y*_p2y);
-
-    return _angle;
-}
 
 
 

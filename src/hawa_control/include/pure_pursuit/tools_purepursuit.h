@@ -23,6 +23,11 @@
 #ifndef HAWA_TOOLS_PUREPURSUIT_H
 #define HAWA_TOOLS_PUREPURSUIT_H
 
+/*
+* @file tools_purepursuit.h
+* @author Mingjie
+* @brief This file contains some tools for the pure pursuit algorithm.
+*/
 
 #include <math.h>
 

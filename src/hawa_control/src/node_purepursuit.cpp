@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #include <iostream>
-// #include "ros/ros.h"
 
 #include "pure_pursuit/class_node_pure_pursuit.h"
 
@@ -30,29 +29,9 @@ int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
 
-    rclcpp::spin(std::make_shared<ClassNodePurePursuit>());
+    rclcpp::spin(std::make_shared<hawa::ClassNodePurePursuit>());
 
     rclcpp::shutdown();
 
     return 0;
-
-    // ros::init(argc, argv, "purepursuit_test_node");
-
-    // ros::NodeHandle n;
-
-    // ClassNodePurePursuit _cnppo( n );
-
-    // ros::AsyncSpinner s(2);
-    // s.start();
-
-    // ros::waitForShutdown();
-
-    // return 0;
 }
-
-
-
-
-
-
-
