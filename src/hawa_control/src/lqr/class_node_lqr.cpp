@@ -27,7 +27,9 @@
 namespace hawa
 {
 
-
+/**
+ * @brief Constructor of the class.
+*/
 ClassNodeLQR::ClassNodeLQR() : Node("node_LQR")
 {
     loadParameters();
@@ -78,7 +80,9 @@ ClassNodeLQR::ClassNodeLQR() : Node("node_LQR")
     return;
 }
 
-
+/**
+ * @breif Load parameters from the json file.
+*/
 void ClassNodeLQR::loadParameters()
 {
     typedef boost::property_tree::ptree ptree;
@@ -130,13 +134,18 @@ void ClassNodeLQR::loadParameters()
     m_map_received_ = false;
 }
 
-
+/**
+ * @brief Print out the info message.
+ * @param str the message to be printed.
+*/
 void ClassNodeLQR::rosInfo(const std::string& str)
 {
     RCLCPP_INFO(this->get_logger(), str.c_str());
 }
 
-
+/**
+ * @brief Print out the warning message.
+*/
 void ClassNodeLQR::rosWarn(const std::string& str, const int t)
 {
     RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), 
@@ -427,13 +436,15 @@ void ClassNodeLQR::stopMotors()
     _akm_cmd_msg.drive.steering_angle = 0;
     _akm_cmd_msg.header.stamp = this->get_clock()->now();
     m_puber__ackerman_msg_->publish(_akm_cmd_msg);
-    std::cout << "Motors stopped." << std::endl;
 }
 
-
+/**
+ * @brief Check if the robot is in the obstacle.
+ * @return true when in obstacle; false when not in obstacle.
+ * TODO: implement this function.
+*/
 bool ClassNodeLQR::checkRobotInObstacle()
 {
-
     return false;
 }
 
