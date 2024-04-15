@@ -10,7 +10,19 @@ My implementation of Hybrid A* has the incremental searching and Reeds-Shepp cur
 
 Every code in this project was developed by myself using standard C++ and ROS tools. 
 
-It was developed and tested in **ROS Humble** on Ubuntu 22, on both x86 and RaspberryPi 4. 
+### History
+
+This branch **hawa_ros2** is the continued work of branch **main**. 
+
+I moved from ros1 to ros2, and finished some items in the to-do list:
+- path validator for dynamic obstacles.
+- Linear quadratic regulator controller, that controls the speed and steering fo the robot.
+- re-organize the files in the project for better simplicity.
+- gether all tunable parameters into one Json file to make it easy to tune.
+
+### Environment
+
+It was developed and tested on **ROS Humble** on Ubuntu 22, on both x86 and RaspberryPi 4. 
 
 As shown in the last demo below, it was tested on a mini-ackermann robot platform, made of 
 - a RaspberryPi 4,
@@ -19,13 +31,6 @@ As shown in the last demo below, it was tested on a mini-ackermann robot platfor
 - 2 DC motor for rear wheels
 - a servo motor control the steering wheels 
 
-
-This branch **hawa_ros2** is the continued work in branch **main**. 
-
-I moved from ros1 to ros2, and finished some items in the to-do list:
-- path validator for dynamic obstacles.
-- Linear quadratic regulator controller, that controls the speed and steering fo the robot.
-- re-organize the project fr better simplicity. 
 
 ### compile:
     colcon build
@@ -71,7 +76,7 @@ Note the RVIZ window was very slow and laggy because the WiFi signal was terribl
 
 The RVIZ process was running on a laptop, while everything else is running on robot's Raspberrypi 4. 
 
-The processes on robot was running smoothly.
+The processes on robot was running smoothly. After the target pose is set (the big green arrow at the begining), the path is instantly found (the red curve), but it is not shown in the RVIZ until the last few seconds. 
 
 <a id="demogif5" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/hawa_ros2/demo_images/real_demo1.gif">
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/hawa_ros2/demo_images/real_demo1.gif" alt="gif 5" title="on robot" width="600"/>
