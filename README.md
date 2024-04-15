@@ -47,17 +47,23 @@ The green part is the current segment that the robot is following at the moment.
 
 The big red dot (in front of the robot) on the path is the target point selected by the pure-pursuit controller. 
 
+---- 
 
+**GIF: Case 1: Wavy path**
 <a id="demogif1" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/hawa_ros2/demo_images/p1.gif">
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p1.gif" alt="gif 1" title="case 1" width="600"/>
 </a>
 
+----
 
+**GIF: Case 2: narrow path**
 <a id="demogif2" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/hawa_ros2/demo_images/p2.gif">
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p2.gif" alt="gif 2" title="case 2" width="600"/>
 </a>
 
+----
 
+**GIF: Case 3: path around obstacle**
 <a id="demogif4" href="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/hawa_ros2/demo_images/p4.gif">
     <img src="https://github.com/hanmmmmm/Hybrid_Astar_with_Ackermann/blob/main/demo_images/p4.gif" alt="gif 3" title="case 3" width="600"/>
 </a>
